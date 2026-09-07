@@ -1,0 +1,22 @@
+{
+  "name": "stud",
+  "version": "1.0.0",
+  "description": "Local, agent-first 3D design workshop with material takeoffs and project budgets",
+  "scripts": {
+    "start": "python3 serve.py",
+    "build": "python3 build.py",
+    "test": "python3 -m unittest discover -s tests -v",
+    "stud": "node bin/stud.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "private": true,
+  "bin": {
+    "stud": "bin/stud.js"
+  }
+}

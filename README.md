@@ -1,0 +1,93 @@
+# stud
+
+A local, agent-first design workshop. Define named parts in Python, inspect them in 3D, check geometry, export material takeoffs, and keep comments and supplier quotes alongside each project.
+
+## Get started
+
+Requires Python 3.10+ and Node.js/npm. No third-party Python packages are needed.
+
+```sh
+npm ci
+npm run stud -- init ../my-workshop --name "My workshop"
+npm run stud -- serve ../my-workshop
+```
+
+Open http://127.0.0.1:8765. Stud opens the project directory you select; the app checkout contains no default design.
+
+## Create another project
+
+From this checkout:
+
+```sh
+npm run stud -- init ../my-workshop --name "My workshop"
+npm run stud -- serve ../my-workshop --port 8766
+npm run stud -- build ../my-workshop
+npm run stud -- validate ../my-workshop --json
+```
+
+Optionally run `npm link` in this checkout to install the `stud` command on your machine. Then use `stud init ./my-project`, `stud serve ./my-project`, `stud build ./my-project`, and `stud validate ./my-project`. Each command also works through `python3 /path/to/stud_cli.py`. Set `STUD_PYTHON` to choose the interpreter used by the npm launcher.
+
+`init` requires a new directory and creates a small starter model. Each project has its own `design.py`, `annotations/comments.json`, `annotations/prices.json`, and generated `output/model/` files. Serve multiple projects on different ports. Keep annotations when copying or backing up a project.
+
+## Modeling
+
+```python
+from stud import Project
+
+project = Project('My frame')
+project.stock('2x4', 'Untreated 2x4', '#ddbd8b',
+              section=(1.5, 3.5), lengths=(96, 120, 144))
+project.box('frame.stud.01', 'Frame', '2x4',
+            size=(1.5, 3.5, 80), origin=(0, 0, 0))
+project.dimension('Height', (-4, 0, 0), (-4, 0, 80))
+```
+
+Units are inches; X is width, Y depth, Z elevation. Use stable unique part IDs. Python designs can import helpers alongside `design.py`. The existing `from clubhouse import Project` API remains compatible.
+
+Coverage materials use each part's largest face area, including sloped faces
+and trapezoidal sides for profile boxes. Rotation and assembly names do not
+affect quantities. This is a single-face purchase allowance, not total surface
+area or a cutting layout. Set `category='Furniture'` (or another project-defined
+label) on `project.stock(...)` to group pricing rows; the default is `Other`.
+
+Use [reusable framed openings](docs/assemblies.md) to create kings, jacks, headers, sills and cripples together with their bearing and clearance checks. The builder supports resized, rotated and mirrored wall layouts and exposes named part roles.
+
+The viewer rebuilds after project Python files change (top-level files and `src/` helpers). Invalid builds keep the last good preview and exports. Refresh for viewer JavaScript/CSS changes; restart for server changes. Designs are executable Python: open only trusted local projects. The server binds to loopback.
+
+## Viewer and outputs
+
+Orbit, pan, zoom, use orthographic views, isolate assemblies, inspect parts, and add persistent comments. The costs table supports quotes, quantity overrides, and spreadsheet paste. JSON and CSV exports come from the same model revision.
+
+- `GET /api/model`: compiled model and revision.
+- `GET /api/parts.csv`, `/api/materials.csv`, `/api/costs.csv`: exports.
+- `GET/POST /api/comments`: project feedback.
+- `GET/POST /api/pricing`: saved quotes and project estimates.
+
+Validation checks declared geometry relationships, not structural suitability or code compliance. Stock packing is conservative; sheet quantities are area estimates, not cutting layouts. A new starter has no declared relationships and reports unverified coverage. `validate --strict` exits 2 for warnings or unverified work, 1 for failures, and 0 otherwise. Build refuses to replace model exports on validation failures.
+
+## Development
+
+```sh
+npm test
+node --check web/app.js
+npm run stud -- init /tmp/stud-example
+npm run stud -- build /tmp/stud-example
+```
+
+The original entry points (`serve.py`, `build.py`, `validate.py`) still work and accept `--project /path/to/project`. Project creation and selection are currently command-line operations; the browser is the modeling review workspace. This is a source-distributed local app, not yet a standalone desktop installer or hosted service.
+
+## App and project ownership
+
+This repository contains the Stud engine, viewer, CLI, documentation, and generic tests.
+Designs are separate folders containing `design.py`, helper modules, `annotations/`, and project documents. They can live anywhere and have their own Git repositories. App tests create temporary models and do not require local designs.
+
+`projects/` is an ignored convenience folder for local designs. No designs are
+included in this repository. Keep each project's source, annotations, and
+reports in its own repository or backup; generated `output/model/` files can
+be rebuilt.
+
+All commands default to the current working directory when no project is supplied. Run the CLI by its absolute path when working outside this checkout. The `clubhouse` Python module remains a compatibility import; the modeling engine lives in `stud/model.py`.
+
+## Validation and coverage
+
+New projects automatically check solid collisions and stock fit. Add measured contact, panel support, opening clearance and face alignment requirements; the viewer’s **Checks** section shows findings, highlights and coverage by assembly. See [the validation guide](docs/validation.md) for schemas, tolerances, exceptions and supported geometry.

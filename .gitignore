@@ -1,0 +1,14 @@
+node_modules/
+__pycache__/
+*.pyc
+tmp/
+
+# Local designs are independent of the Stud application.
+/projects/
+output/model/
+.DS_Store
+.venv/
+venv/
+.env
+.env.*
+!.env.example
