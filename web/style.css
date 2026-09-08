@@ -258,3 +258,7 @@ body > header, .page-tabs, .update-notice { flex: 0 0 auto; }
  .page-tabs { gap: 0; justify-content: space-between; padding: 0 12px; }
  .page-tabs a { font-size: 10px; padding: 12px 0 10px; }
 }
+/* Keep camera options and navigation guidance readable in narrower workspaces. */
+.viewbuttons{flex-wrap:wrap}
+.canvasfoot{gap:12px;flex-wrap:wrap}
+#navigationhint{max-width:100%;line-height:1.5}

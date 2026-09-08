@@ -145,3 +145,9 @@ Development setup, the modeling API, project layout, and test commands are in [C
 ## License
 
 The package metadata declares **ISC**. A standalone `LICENSE` file has not yet been added to this repository. Bundled desktop dependency notices are listed in [third-party notices](desktop/THIRD_PARTY_NOTICES.md).
+
+To explore a design freely, choose **View → Fly**, then click the scene.
+Use **W/A/S/D** to fly, **drag** to look around, **Q/E** to descend or ascend,
+and hold **Shift** to move faster. Flight can pass through surfaces to inspect
+interiors. **Esc** releases keyboard control; choose **3D** to return to orbit
+controls, or **Fit design** to return to an overview.
