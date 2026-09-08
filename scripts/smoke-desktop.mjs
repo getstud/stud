@@ -45,7 +45,9 @@ let server;
 let blocker;
 try {
   for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
-    'skills/stud-design/references/stud-integration.md', 'engine/README.md', 'engine/docs/validation.md']) {
+    'skills/stud-design/references/stud-integration.md', 'engine/README.md',
+    'engine/docs/workshop.md', 'engine/docs/assemblies.md', 'engine/docs/validation.md',
+    'engine/docs/environment.md', 'engine/examples/environment/assets/tree.js']) {
     assert.ok((await fs.readFile(path.join(resources, file), 'utf8')).length, `Missing bundled skill resource: ${file}`);
   }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
