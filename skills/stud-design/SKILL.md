@@ -53,6 +53,10 @@ Register real stock cross-sections and available lengths. Keep a notched or tape
 
 Generate openings once and share their volumes with framing, panels, trim, and hardware. Resolve host framing before adding an opening builder, and include subsequently created host finishes in its clearance scope. Exclude intentional occupants, such as a door leaf, from that scope; check their fit separately.
 
+## Add environment context
+
+For trees, terrain, or decorative objects outside the construction design, read the installed `engine/docs/environment.md` (or checkout `docs/environment.md`). Use `project.context_asset` with a project-local Three.js factory under `assets/`. Keep requested dimensions in its parameters and use inches with Z up. Environment assets are visual context; declare any necessary construction clearance separately. Verify the asset loads in the viewer's Environment section and inspect its placement with Fit scene.
+
 ## Validate relationships while building
 
 Enable the installed version's automatic solid-collision and stock-fit checks for new designs. When revising a legacy project, inspect its coverage before opting in; expose newly discovered gaps without discarding existing rules.

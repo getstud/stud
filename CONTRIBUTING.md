@@ -107,3 +107,5 @@ Design files execute Python, so only open trusted projects. The viewer server bi
 
 A starter project has automatic collision and stock-fit checks but no declared relationships, so its coverage is reported as unverified. See the [validation guide](docs/validation.md) for coverage, tolerances, and supported checks.
 
+
+See [Environment assets](docs/environment.md) for project-local procedural Three.js geometry, including a tree example.

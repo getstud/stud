@@ -30,6 +30,8 @@ def compile_project(project_dir=None):
                 file = getattr(sys.modules[name], '__file__', None)
                 if file and Path(file).resolve().is_relative_to(root):
                     sys.modules.pop(name, None)
+    from stud.environment import snapshot_environment
+    data['environment'] = snapshot_environment(root, data.get('environment', []))
     serialized=json.dumps(data,sort_keys=True,allow_nan=False)
     data['revision']=hashlib.sha256(serialized.encode()).hexdigest()[:12]
     return data

@@ -156,3 +156,5 @@ Saving a screenshot comment doesn't require the current design to build: its
 image and revision describe the view that was captured. Captures are limited
 to 2048 pixels on the longest side; the server accepts PNGs up to 5 MB and
 4096 pixels per side. No new WebMCP tools or automatic notifications are added.
+
+See [Environment assets](environment.md) for project-local procedural Three.js geometry, including a tree example.

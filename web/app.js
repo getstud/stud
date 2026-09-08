@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createEnvironment} from '/environment.js';
 import {OrbitControls} from '/vendor/OrbitControls.js';
 import {createShowTool, registerShowTool} from '/show.js';
 import {installAreaCapture, snapshotViewer} from '/area-capture.js';
@@ -16,7 +17,47 @@ const sun=new THREE.DirectionalLight('#fff4dc',3);sun.position.set(150,230,100);
 const group=new THREE.Group();scene.add(group);
 const grid=new THREE.GridHelper(320,20,'#c6cebf','#dce0d5');grid.position.set(72,-.5,48);scene.add(grid);
 let camera,controls,model,revision,meshes=[],labels=[],dimGroup=new THREE.Group(),selected=null,currentView='perspective';scene.add(dimGroup);
+let selectedEnvironment = null;
+const environment = createEnvironment({THREE, scene, onChange: renderEnvironment});
 const visibility=new Map();
+function renderEnvironment() {
+ if (!model) return;
+ $('environmentsection').hidden = environment.entries.size === 0;
+ $('fitscene').hidden = environment.entries.size === 0;
+ $('environmentlist').replaceChildren();
+ for (const [id, entry] of environment.entries) {
+  const row = document.createElement('div');
+  row.className = 'environmentitem';
+  const label = document.createElement('label'), checkbox = document.createElement('input');
+  checkbox.type = 'checkbox'; checkbox.checked = environment.isVisible(entry);
+  checkbox.disabled = !$('environmenttoggle').checked;
+  checkbox.onchange = () => environment.setVisible(id, checkbox.checked);
+  label.append(checkbox, document.createTextNode(entry.asset.name));
+  const inspect = document.createElement('button'); inspect.textContent = 'Inspect';
+  inspect.onclick = () => inspectEnvironment(id);
+  row.append(label, inspect);
+  if (entry.loading || entry.error) {
+   const status = document.createElement('small'); status.setAttribute('role', 'status');
+   status.textContent = entry.loading ? 'Loading…' : `${entry.object ? 'Keeping last good appearance. ' : ''}${entry.error}`;
+   row.append(status);
+  }
+  $('environmentlist').append(row);
+ }
+ if (selectedEnvironment) {
+  const entry = environment.entries.get(selectedEnvironment);
+  if (!entry || !environment.isVisible(entry)) select(null);
+  else inspectEnvironment(selectedEnvironment);
+ }
+}
+function inspectEnvironment(id) {
+ const entry = environment.entries.get(id); if (!entry) return;
+ select(null); selectedEnvironment = id;
+ $('inspectortitle').textContent = 'ENVIRONMENT INSPECTOR';
+ const asset = entry.asset;
+ $('inspector').innerHTML = `<h2>${escape(asset.name)}</h2><span class="badge">ENVIRONMENT</span><p>Visual context. Excluded from materials and construction checks.</p><dl><dt>Origin (in.)</dt><dd>${asset.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${asset.rotation.join(', ')}</dd></dl><pre>${escape(JSON.stringify(asset.parameters, null, 2))}</pre>`;
+}
+$('environmenttoggle').onchange = () => environment.setEnabled($('environmenttoggle').checked);
+$('fitscene').onclick = () => {clearShow();showFrame = bounds().union(environment.bounds());setView(currentView, showFrame);};
 const validationGroup=new THREE.Group();scene.add(validationGroup);
 let validationReport=null,validationSignature='',validationHighlights=new Set();
 function vec(v){return new THREE.Vector3(v[0],v[2],-v[1]);}
@@ -204,6 +245,7 @@ function install(data){
  $('materials').innerHTML=data.materials.map(r=>`<tr><td>${escape(r.name)}<small>${escape(r.basis)}</small></td><td>${r.parts}</td><td>${escape(r.purchase)}<small>${escape(r.status)}</small></td><td>${safeLink(r.url)?`<a target="_blank" rel="noopener" href="${safeLink(r.url)}">Supplier ↗</a>`:'Not selected'}</td></tr>`).join('');
  $('notelist').innerHTML=data.notes.map(n=>`<li>${escape(n)}</li>`).join('');
  if(data.validation_results)renderValidation({revision:data.revision,...data.validation_results});
+ void environment.update(data.environment);
  applyDisplay();renderList();if(oldSelected)select(meshes.find(m=>m.userData.id===oldSelected));if(!camera)setView();renderComments();$('loading').hidden=true;
  if(isLiveUpdate)buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
 }
@@ -219,6 +261,7 @@ function applyDisplay(){
  if(selected&&!selected.visible)select(null);renderList();
 }
 function select(mesh){
+ selectedEnvironment = null; $('inspectortitle').textContent = 'PART INSPECTOR';
  rememberDraft();
  if(selected)selected.material.emissive.set('#000000');selected=mesh||null;
  renderPartComments();
@@ -227,7 +270,7 @@ function select(mesh){
  $('inspector').innerHTML=`<div class="partid">${escape(p.id)}</div><span class="badge">${escape(p.status.toUpperCase())}</span><div class="size">${p.size.map(inches).join(' × ')}</div><p>${escape(s.name)}</p><dl><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd></dl>${p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
 }
 function renderList(){if(!model)return;const q=$('search').value.toLowerCase();const filtered=meshes.filter(m=>m.visible&&`${m.userData.id} ${m.userData.assembly} ${model.stocks[m.userData.stock].name}`.toLowerCase().includes(q));$('partlist').innerHTML=filtered.map(m=>`<button class="partitem ${m===selected?'selected':''}" data-id="${escape(m.userData.id)}">${escape(m.userData.id)}</button>`).join('')||'<p>No matching visible parts.</p>';$('partlist').querySelectorAll('button').forEach(b=>b.onclick=()=>select(meshes.find(m=>m.userData.id===b.dataset.id)));}
-let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);select(ray.intersectObjects(meshes.filter(m=>m.visible),false)[0]?.object);});
+let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const partHit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0], environmentHit=environment.pick(ray);if(environmentHit&&(!partHit||environmentHit.distance<partHit.distance))inspectEnvironment(environmentHit.entry.asset.id);else select(partHit?.object);});
 $('search').oninput=renderList;for(const id of ['dims','ghost','explode'])$(id).onchange=applyDisplay;
 $('reset').onclick=()=>{visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
 $('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
