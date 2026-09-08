@@ -3,6 +3,7 @@ Supports boxes, linear Y/Z profiles, stepped gable notches and world-Y/Z seats.
 Euler rotations match Three.js XYZ (Rz applied first to local coordinates).
 """
 import math
+from profile_geometry import triangulate_outline, validate_bands, validate_layers
 from itertools import combinations
 
 EPS = 1e-7
@@ -91,7 +92,36 @@ def solids(part):
     for values in (part['origin'],part.get('rotation',[0,0,0])):
         if len(values)!=3 or any(not isinstance(v,(int,float)) or not math.isfinite(v) for v in values):raise ValueError('Invalid coordinates or rotation')
     if len(size)!=3 or any(not math.isfinite(v) or v<=0 for v in size):raise ValueError('Invalid part size')
+    if part.get('outline') is not None:
+        if part.get('profile') or part.get('seats'): raise ValueError('Outline cannot be combined with legacy profiles or seats')
+        triangles=triangulate_outline(part['outline'])
+        if any(y < -EPS or y>d+EPS or z < -EPS or z>h+EPS for triangle in triangles for y,z in triangle):
+            raise ValueError('Outline exceeds its stock blank')
+        pieces=[]
+        for triangle in triangles:
+            left=[(0,y,z) for y,z in triangle];right=[(w,y,z) for y,z in triangle]
+            piece=clean([left,right]+[[left[i],left[(i+1)%3],right[(i+1)%3],right[i]] for i in range(3)])
+            pieces.append(piece)
+        center=add(part['origin'],mul(size,.5));half=mul(size,.5)
+        return [[[add(center,rotate(sub(v,half),part.get('rotation',[0,0,0]))) for v in f] for f in piece] for piece in pieces]
     profile=part.get('profile');notch=profile.get('notch') if profile else None
+    if profile and 'layers' in profile:
+        if set(profile)!={'layers'} or part.get('seats'):raise ValueError('Layered profiles cannot combine with other cuts')
+        layers=validate_layers(size,profile['layers']);pieces=[]
+        for layer in layers:
+            for outline in layer['outlines']:
+                for triangle in triangulate_outline(outline):
+                    left=[(layer['x'][0],y,z) for y,z in triangle]
+                    right=[(layer['x'][1],y,z) for y,z in triangle]
+                    pieces.append(clean([left,right]+[[left[i],left[(i+1)%3],right[(i+1)%3],right[i]] for i in range(3)]))
+        center=add(part['origin'],mul(size,.5));half=mul(size,.5)
+        return [[[add(center,rotate(sub(v,half),part.get('rotation',[0,0,0]))) for v in f] for f in piece] for piece in pieces]
+    if profile and 'bands' in profile:
+        if notch or part.get('seats'): raise ValueError('Banded profiles cannot combine with legacy notches/seats')
+        bands=validate_bands(size,profile['bands'])
+        pieces=[prism(*band['x'],d,band['bottom'],band['top']) for band in bands]
+        center=add(part['origin'],mul(size,.5));half=mul(size,.5)
+        return [[[add(center,rotate(sub(v,half),part.get('rotation',[0,0,0]))) for v in f] for f in piece] for piece in pieces]
     bottom,top=(profile['bottom'],profile['top']) if profile else ([0,0],[h,h])
     if len(bottom)!=2 or len(top)!=2 or any(not math.isfinite(v) for v in [*bottom,*top]):raise ValueError('Invalid profile')
     if any(t<b for b,t in zip(bottom,top)):raise ValueError('Inverted profile')

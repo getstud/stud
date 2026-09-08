@@ -35,6 +35,8 @@ npm link
 
 Check that the command is available with `stud --version`. If you prefer to skip `npm link`, run commands from the checkout as `npm run stud -- <command>`.
 
+A [worked gable-shed example](examples/framed-shed/README.md) shows how the Python builders coordinate framing, roof edges, siding and trim. Adapt its architectural choices to the project; its checks and API patterns are reusable. Desktop packages include it under `engine/examples/framed-shed/`.
+
 ## Make something
 
 Open Codex and describe your project:

@@ -1,5 +1,7 @@
 # Reusable framed openings
 
+For full floor, wall, roof and product-unit builders, see [Construction assemblies](construction.md).
+
 `stud.framed_opening` creates a rectangular two-ply header opening and declares
 its geometric requirements from the same dimensions. Door and window openings
 use the same builder. Inputs and stock sections are actual inches.

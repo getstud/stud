@@ -115,6 +115,9 @@ def validate(model):
             emit('FAIL', rule, missing, 'Required model part is missing.')
             return None
         ps = [parts[i] for i in ids]
+        if any(p.get('outline') or p.get('profile',{}).get('bands') or p.get('profile',{}).get('layers') for p in ps):
+            emit('UNVERIFIED', rule, ids, 'Outline geometry requires a transformed-solid check.')
+            return None
         if any(any(abs(r)>EPS for r in p.get('rotation',[0,0,0])[1:]) or ('profile' in p and abs(angle(p))>EPS) for p in ps):
             emit('UNVERIFIED', rule, ids, 'Rotated geometry requires a transformed-solid check.')
             return None

@@ -158,3 +158,7 @@ to 2048 pixels on the longest side; the server accepts PNGs up to 5 MB and
 4096 pixels per side. No new WebMCP tools or automatic notifications are added.
 
 See [Environment assets](environment.md) for project-local procedural Three.js geometry, including a tree example.
+
+## Construction builders
+
+See [Construction assemblies](construction.md) for floors, backed and lapped walls, enclosure junctions, cut-rafter gable roofs and operating door/window units. Build bottom-up and review declared requirements before covering framing.

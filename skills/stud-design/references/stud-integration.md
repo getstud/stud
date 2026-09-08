@@ -6,6 +6,8 @@ Use this reference when creating a design project, operating the build/viewer lo
 
 Verify `stud --version` and `stud --help`. Use `stud projects --json` to find remembered projects when the target folder is unknown. Keep design projects outside the app installation. If the command is unavailable, enable it through Stud’s desktop setup before continuing.
 
+Reusable builders are documented in the installed `engine/docs/assemblies.md` and `engine/docs/construction.md`. API sources and documentation are in the app’s `Contents/Resources/engine/` on macOS or the installation directory on Windows. A Stud source checkout is not required.
+
 Commands below use placeholders for verified absolute project paths:
 
 ```sh

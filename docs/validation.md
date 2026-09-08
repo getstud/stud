@@ -50,7 +50,7 @@ Add these dictionaries to `rules`:
 
 All new rules accept `id` for a stable rule identifier and a positive `tolerance`, default 0.001 inch. Collision findings report a separating translation along a solid axis; this is a geometric penetration measure, not a recommended move. Notched solids are decomposed, so reported penetration applies to the overlapping convex pieces.
 
-`face_alignment` compares world-axis extrema. It establishes alignment, not contact, parallelism, fastening or support. Use `minimum_contact` alongside it where contact is required.
+`face_alignment` compares world-axis extrema using `axis`, or actual solid-vertex projections along a nonzero world-space `direction` vector. Supply exactly one of those selectors; `direction` supports flush-end checks in rotated assemblies. It establishes alignment, not contact, parallelism, fastening or support. Use `minimum_contact` alongside it where contact is required.
 
 `panel_support` works with rectangular panels in any orientation, using their local minimum-thickness face as the underside. The two other local axes become edge axes 0 and 1. Optional `edge_widths`, such as `{'0:0': 1.5}`, override individual bands. Support coverage is a geometric union, so duplicate support faces cannot inflate coverage. Profiled/notched panels return `UNVERIFIED` rather than assuming a rectangle. Tongue-and-groove support and panel grain direction are not inferred.
 
@@ -111,3 +111,37 @@ The validator resolves scopes against the final model. A requirement references
 an explicitly named `rule_id`; missing checks report `UNVERIFIED` and duplicate
 explicit rule IDs fail configuration. Reports expose these results in
 `coverage.requirements`, separately from counts of parts involved in checks.
+
+## Construction requirements
+
+The builders in [Construction assemblies](construction.md) generate these rules with stable IDs and matching named requirements:
+
+| Kind | Measured relationship / required fields beyond `parts` |
+|---|---|
+| `minimum_section` | Rectangular member section in declared local `thickness_axis` / `depth_axis`; `minimum_thickness`, `minimum_depth`; optional world `depth_direction` checks orientation. |
+| `assembly_presence` | Every declared member remains present. |
+| `minimum_total_contact` | Union of opposing faces between the first member and all supports; `normal`, `minimum_area`. |
+| `blocking_spacing` | Ordered aligned restraint `rows`, including both ends; `direction`, `maximum_spacing`. |
+| `plate_splice_offset` | Two continuous plate `layers`; `direction`, `minimum_offset`. |
+| `panel_joint` | Rectangular panels share a coplanar edge; `thickness_axis`, nonempty product/detail `basis`. |
+| `surface_gap` | Directional separation of two solids; `direction`, specified `gap`. |
+| `profile_section` | Remaining normal member section over local Y `interval`; `maximum_notch`, `minimum_remaining`, `basis`. Sawn rafters also declare `plumb_top_start` to distinguish the plumb-end wedge from seat notching and verify the upper cut boundary. |
+| `within_envelope` | All selected solid vertices fit a rotated box `envelope`. |
+| `host_depth` | Product geometry spans host depth measured from `origin` along `direction`; `depth`. |
+| `motion_clearance` | `moving_parts` are transformed against other selected parts using `motion={kind:'rotate_z', pivot:[x,y,z], angle:degrees}` or `{kind:'translate', offset:[x,y,z]}`. |
+
+`panel_support` additionally accepts `support_face='min'|'max'` and an `edges` subset such as `['0:0','1:0','1:1']`. Omitting an edge is appropriate only when a separately declared detail owns it, such as a verified T&G joint.
+
+`Project.polygon_prism` supports simple, straight-edged local Y/Z outlines extruded along X. Outlines contain 3–128 vertices, fit their declared stock blank and cannot combine with legacy profiles/seats. Self-intersections and holes are unsupported. The renderer and measured solid checks use triangulated geometry; stock and parts exports retain the original blank as one physical member. Legacy rules that cannot interpret these outlines return unverified.
+
+Depth-notched single members use `profile.bands`: contiguous local-X intervals with linear local-Y top/bottom heights. Renderer and solid validation use the same retained geometry; collision tests exclude the cutaway regions. Disconnected sections, crossed adjacent edges and invalid heights are rejected. Material takeoffs retain one original stock blank per member. Coverage-stock face area uses the blank bounding face for banded members, so that quantity is conservative rather than a net cut-face measurement.
+
+### Declared sheet thickness
+
+Sheet stock may declare a positive `sheet_thickness` in addition to its two planar `sheet` dimensions. `stock_fit` then requires one blank dimension to match that thickness within its tolerance and the remaining dimensions to fit the sheet. Takeoff uses the declared thickness axis, including narrow strips whose width is less than their thickness, and the default 0.001-inch matching tolerance. Separate thicknesses/products need separate stock IDs for independent quantities and pricing. This checks blanks only; it does not verify sheet nesting or strength direction.
+
+### Scribed profiles and outline-panel support
+
+`profile.layers` partitions local X into contiguous sections containing simple Y/Z polygons. The geometry validator checks valid outlines, stock bounds, no overlap within each layer, and a connected retained solid. Stock checks and takeoff use the original single blank. Rendering omits shared internal layer caps and polygon edges. Legacy box-only checks keep these profiles unverified.
+
+`panel_support` also accepts a constant-thickness `outline` panel with `thickness_axis=0`. It checks a bearing strip along every actual perimeter edge, clipping each strip to the panel footprint and measuring the union of coplanar support faces. It detects missing backing at concave corner cutouts. Rectangular `edges`/`edge_widths` selectors do not apply to this polygon mode. Variable-thickness/stepped profiles remain unsupported by the panel-edge rule.

@@ -38,8 +38,8 @@ def compile_project(project_dir=None):
 
 def parts_csv(data):
     stream=io.StringIO(); w=csv.writer(stream)
-    w.writerow(['part_id','assembly','material','x_in','y_in','z_in','status','note','blank_size_in','profile_heights_in','wall_seats_in'])
-    for p in data['parts']: w.writerow([p['id'],p['assembly'],data['stocks'][p['stock']]['name'],*p['size'],p['status'],p['note'],json.dumps(p.get('blank_size')),json.dumps(p.get('profile')),json.dumps(p.get('seats'))])
+    w.writerow(['part_id','assembly','material','x_in','y_in','z_in','status','note','blank_size_in','profile_heights_in','wall_seats_in','outline_yz_in','profile_bands_in'])
+    for p in data['parts']: w.writerow([p['id'],p['assembly'],data['stocks'][p['stock']]['name'],*p['size'],p['status'],p['note'],json.dumps(p.get('blank_size')),json.dumps(p.get('profile')),json.dumps(p.get('seats')),json.dumps(p.get('outline')),json.dumps(p.get('profile',{}).get('bands'))])
     return stream.getvalue()
 
 def build(project_dir=None):

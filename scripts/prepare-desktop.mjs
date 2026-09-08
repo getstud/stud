@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { copyDesignResources } from './design-resources.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -33,16 +34,12 @@ await fs.rm(resources, { recursive: true, force: true });
 await fs.mkdir(resources, { recursive: true });
 await fs.cp(path.join(extracted, 'python'), path.join(resources, 'runtime'), { recursive: true, verbatimSymlinks: true });
 await fs.copyFile(path.join(root, 'desktop/THIRD_PARTY_NOTICES.md'), path.join(resources, 'THIRD_PARTY_NOTICES.md'));
-await fs.cp(path.join(root, 'skills/stud-design'), path.join(resources, 'skills/stud-design'), { recursive: true });
+await copyDesignResources(root, resources);
 const engine = path.join(resources, 'engine');
 await fs.mkdir(engine, { recursive: true });
 await fs.copyFile(path.join(root, 'README.md'), path.join(engine, 'README.md'));
-await fs.mkdir(path.join(engine, 'docs'), { recursive: true });
-for (const guide of ['workshop.md', 'assemblies.md', 'validation.md', 'environment.md']) {
-  await fs.copyFile(path.join(root, 'docs', guide), path.join(engine, 'docs', guide));
-}
-await fs.cp(path.join(root, 'examples/environment'), path.join(engine, 'examples/environment'), {recursive: true});
-const files = ['build.py', 'comments.py', 'pricing.py', 'serve.py', 'solid_geometry.py',
+
+const files = ['build.py', 'comments.py', 'pricing.py', 'serve.py', 'solid_geometry.py', 'profile_geometry.py',
   'stud_cli.py', 'updates.py', 'validate.py', 'validation_rules.py'];
 for (const file of files) await fs.copyFile(path.join(root, file), path.join(engine, file));
 for (const dir of ['stud', 'clubhouse', 'web']) {

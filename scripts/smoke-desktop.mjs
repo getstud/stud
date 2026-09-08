@@ -16,7 +16,7 @@ const env = { ...process.env, HOME: temporary, APPDATA: temporary,
   PATH: process.platform === 'win32' ? `${process.env.SystemRoot}\\System32` : '/usr/bin:/bin',
   PYTHONHOME: '/invalid-python', PYTHONPATH: '/invalid-python' };
 function command(...args) {
-  const result = spawnSync(cli, args, { cwd: temporary, env, encoding: 'utf8', timeout: 20000 });
+  const result = spawnSync(cli, args, { cwd: temporary, env, encoding: 'utf8', timeout: 120000, maxBuffer: 16 * 1024 * 1024 });
   assert.equal(result.status, 0, result.error?.message || result.stdout + result.stderr);
   return result.stdout;
 }
@@ -47,7 +47,8 @@ try {
   for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
     'skills/stud-design/references/stud-integration.md', 'engine/README.md',
     'engine/docs/workshop.md', 'engine/docs/assemblies.md', 'engine/docs/validation.md',
-    'engine/docs/environment.md', 'engine/examples/environment/assets/tree.js']) {
+    'engine/docs/environment.md', 'engine/examples/environment/assets/tree.js', 'engine/examples/framed-shed/design.py',
+    'engine/examples/framed-shed/README.md']) {
     assert.ok((await fs.readFile(path.join(resources, file), 'utf8')).length, `Missing bundled skill resource: ${file}`);
   }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
@@ -60,6 +61,11 @@ try {
   assert.equal(report.counts.FAIL ?? 0, 0);
   const exports = JSON.parse(await fs.readFile(path.join(project, 'output/model/model.json')));
   assert.equal(exports.name, 'External project');
+  const example = path.join(temporary, 'Adaptable shed example');
+  await fs.cp(path.join(resources, 'engine/examples/framed-shed'), example, { recursive: true });
+  command('build', example);
+  const exampleReport = JSON.parse(command('validate', example, '--json'));
+  assert.equal(exampleReport.counts.FAIL ?? 0, 0);
   server = spawn(cli, ['serve', project, '--port', '0'], { cwd: temporary, env, stdio: ['ignore', 'pipe', 'pipe'] });
   const line = await firstLine(server);
   const url = line.match(/http:\/\/127\.0\.0\.1:\d+/)?.[0];
