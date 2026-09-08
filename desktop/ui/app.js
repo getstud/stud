@@ -8,7 +8,7 @@ let projectRefresh = 0;
 
 async function refresh() {
   info = await invoke('status');
-  $('version').textContent = `v${info.version}`;
+  $('version').textContent = `v${info.version}${info.updatesConfigured ? (info.version.includes('-preview.') ? ' · Preview' : ' · Stable') : ' · Local'}`;
   $('runtime').textContent = info.python;
   $('runtime-dot').classList.toggle('ready', info.python.startsWith('Python '));
   $('cli-state').textContent = info.cliInstalled ? 'Connected' : 'One-time setup';

@@ -8,10 +8,41 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.release.outputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: release
+        run: node scripts/release-channel.mjs
+      - name: Check updater credentials
+        env:
+          STUD_UPDATER_PUBLIC_KEY: ${{ vars.STUD_UPDATER_PUBLIC_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: node scripts/release-config.mjs
+
+      - name: Prepare draft and clear previous readiness
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/release-feed.mjs invalidate "$RELEASE_TAG"
+
   build:
+    needs: release
+    if: ${{ !cancelled() && (needs.release.result == 'success' || (github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
     strategy:
       fail-fast: false
+      max-parallel: 1  # tauri-action merges latest.json by read/replace; serialize writers.
       matrix:
         include:
           - runner: macos-14
@@ -28,15 +59,16 @@ jobs:
             bundles: nsis
     runs-on: ${{ matrix.runner }}
     env:
+      STUD_RELEASE_CHANNEL: ${{ needs.release.outputs.channel }}
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       STUD_UPDATER_PUBLIC_KEY: ${{ vars.STUD_UPDATER_PUBLIC_KEY }}
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APPLE_CERTIFICATE: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_CERTIFICATE || '' }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+      APPLE_SIGNING_IDENTITY: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_SIGNING_IDENTITY || '' }}
+      APPLE_ID: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_ID || '' }}
+      APPLE_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_PASSWORD || '' }}
+      APPLE_TEAM_ID: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_TEAM_ID || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,12 +92,15 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
-          node -e 'const p=require("./package.json"); if(process.env.GITHUB_REF_NAME !== `v${p.version}`) throw Error("Tag must match package.json version")'
+          node scripts/release-channel.mjs
           node scripts/release-config.mjs
       - name: Stage runtime and CLI
         env:
           STUD_RELEASE_REPOSITORY: ${{ startsWith(github.ref, 'refs/tags/') && github.repository || '' }}
         run: node scripts/build-desktop.mjs --stage-only --target ${{ matrix.platform }}
+      - name: Sign bundled Python runtime
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        run: node scripts/sign-macos-runtime.mjs
       - name: Verify updater signatures and transport policy
         run: cargo test --release --manifest-path src-tauri/Cargo.toml --target ${{ matrix.triple }} --bin stud-desktop
       - name: Build local-test installers
@@ -81,8 +116,14 @@ jobs:
           releaseName: stud ${{ github.ref_name }}
           releaseBody: 'stud desktop, bundled CLI and Python runtime. See the changelog for this version.'
           releaseDraft: true
-          prerelease: false
+          prerelease: ${{ needs.release.outputs.channel == 'preview' }}
+          includeUpdaterJson: true
           args: --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }} --config src-tauri/release.conf.json
+      - name: Verify macOS signature and notarization
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          codesign --verify --deep --strict 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
+          xcrun stapler validate 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
       - name: Smoke test installed macOS app
         if: runner.os == 'macOS'
         run: node scripts/smoke-desktop.mjs 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app/Contents/MacOS/stud'
@@ -99,9 +140,25 @@ jobs:
           $process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstaller failed' }
       - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
           name: stud-${{ matrix.platform }}
           path: |
             src-tauri/target/${{ matrix.triple }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.triple }}/release/bundle/macos/*.tar.gz*
             src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe*
+
+  ready:
+    needs: [release, build]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Mark tested draft ready for publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/release-feed.mjs ready "$RELEASE_TAG"

@@ -83,7 +83,7 @@ class StudTests(unittest.TestCase):
             project = init_project(Path(directory)/'startup')
             (project/'design.py').write_text('this is an unfinished design')
             server = MagicMock(server_port=8765)
-            with patch.object(serve, 'ThreadingHTTPServer', return_value=server), \
+            with patch.object(serve, 'ViewerServer', return_value=server), \
                  patch.object(serve, 'model') as build, \
                  patch.object(serve.webbrowser, 'open') as open_browser:
                 serve.serve(project)
@@ -99,6 +99,8 @@ class StudTests(unittest.TestCase):
             with (project/'design.py').open('a') as stream:
                 stream.write('\nimport helper\nproject.name = helper.NAME\n')
             (project/'helper.py').write_text("NAME = 'Before'\n")
+            second = (project/'helper.py').stat().st_mtime_ns // 1_000_000_000 * 1_000_000_000
+            os.utime(project/'helper.py', ns=(second, second + 100_000_000))
             py_compile.compile(str(project/'helper.py'))
             helper_stat = (project/'helper.py').stat()
             process = subprocess.Popen([sys.executable, str(ROOT/'stud_cli.py'), 'serve',
@@ -113,7 +115,10 @@ class StudTests(unittest.TestCase):
                 try:
                     line = ready.get(timeout=15)
                 except queue.Empty:
-                    self.fail('Server did not start')
+                    process.terminate()
+                    reader.join(timeout=5)
+                    _, error = process.communicate(timeout=10)
+                    self.fail(f'Server did not start (exit {process.returncode}): {error}')
                 self.assertIn('http://', line)
                 url = 'http://' + line.split('http://', 1)[1].strip()
 
@@ -137,7 +142,11 @@ class StudTests(unittest.TestCase):
                 self.assertTrue((project/'annotations/comments.json').is_file())
                 self.assertFalse((other/'annotations').exists())
                 (project/'helper.py').write_text("NAME = 'After!'\n")
-                os.utime(project/'helper.py', ns=(helper_stat.st_atime_ns, helper_stat.st_mtime_ns+1))
+                os.utime(project/'helper.py', ns=(helper_stat.st_atime_ns, second + 200_000_000))
+                edited = (project/'helper.py').stat()
+                self.assertNotEqual(helper_stat.st_mtime_ns, edited.st_mtime_ns)
+                self.assertEqual(int(helper_stat.st_mtime), int(edited.st_mtime))
+                self.assertEqual(helper_stat.st_size, edited.st_size)
                 self.assertEqual(json.loads(get('/api/model'))['name'], 'After!')
                 self.assertIn(b'<b>stud</b>', get('/'))
                 self.assertIn(b'frame.stud.01', get('/api/parts.csv'))
@@ -191,3 +200,13 @@ class StudTests(unittest.TestCase):
             finally:
                 process.terminate()
                 process.communicate(timeout=10)
+
+    def test_loopback_server_startup_does_not_use_dns(self):
+        from serve import ViewerServer, Handler
+        with patch('socket.getfqdn', side_effect=AssertionError('Loopback startup must not query DNS')):
+            server = ViewerServer(('127.0.0.1', 0), Handler)
+            try:
+                self.assertEqual(server.server_name, '127.0.0.1')
+                self.assertGreater(server.server_port, 0)
+            finally:
+                server.server_close()
