@@ -105,7 +105,7 @@ export function installAreaCapture({viewport, capture, save}) {
     try {
       await save({...draft,text});
       saving = false;cancelDraft();
-      $('review').scrollIntoView({behavior:'smooth',block:'start'});
+      location.hash = 'review';
     } catch (error) {
       $('areastatus').textContent = `Not confirmed saved: ${error.message} Your screenshot and draft are kept; retry to confirm.`;
     } finally {
