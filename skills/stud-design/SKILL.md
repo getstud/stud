@@ -23,6 +23,8 @@ For a new design, initialize its project, start `stud serve`, and confirm the vi
 
 Build the design in coherent assembly stages, saving a valid model and checking that the viewer receives each revision before adding the next stage. The viewer animates new parts in model order after each successful rebuild. Add supports and framing before panels and finishes so the user can watch the design develop. Preserve stable part IDs across revisions; failed builds retain the last good preview. Keep validation requirements accurate at every stage and label incomplete relationships as provisional.
 
+Let the live viewer present each build stage: the camera gently recenters and fits the growing model automatically. Do not call WebMCP `show` while building; it explicitly reframes the view and interrupts automatic camera tracking. Verify revisions through the visible revision indicator or read-only model API instead. User camera interaction disables automatic tracking until reload; respect that choice and leave the camera alone. Reduced-motion preferences suppress automatic movement.
+
 ## Turn intent into parameters and interfaces
 
 Keep architectural choices in the project specification and builder arguments. Examples demonstrate coordinated details; use the user’s preferences and your judgment to adapt their form, proportions, finishes and assembly grouping. Reuse the geometric requirements that make the chosen detail work.
@@ -88,7 +90,7 @@ Edit the project’s owning parameter or assembly helper → build → read find
 
 Batch related part changes into one coherent edit. Use numerical validation for dimensions, clearances, and support; use the browser for form, orientation, accessibility of parts, and visual interpretation of connections. Reuse one running viewer. Inspect isolated critical joints before reviewing the complete exterior. Match the displayed revision to the successful build: a failed edit can leave the last good preview visible.
 
-Use the viewer’s WebMCP `show` site tool when available to present the design and focus review on changed parts or critical joints. Open the project’s viewer in the connected browser, discover its site tools, and follow [WebMCP viewer review](references/stud-integration.md#webmcp-viewer-review) for targeting and revision checks. If the browser does not expose WebMCP, use the viewer controls.
+After the build sequence is complete, use the viewer’s WebMCP `show` site tool when a deliberate review view is needed for changed parts or critical joints. Open the project’s viewer in the connected browser, discover its site tools, and follow [WebMCP viewer review](references/stud-integration.md#webmcp-viewer-review) for targeting and revision checks. If the browser does not expose WebMCP, use the viewer controls.
 
 Make corrections in the project’s owning parameters and assembly helpers so a clean build directly produces the intended model. If an app or viewer limitation blocks review, describe the limitation and the affected design evidence.
 
