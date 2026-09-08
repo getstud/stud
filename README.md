@@ -1,149 +1,139 @@
 # stud
 
-A local, agent-first design workshop. Define named parts in Python, inspect them in 3D, check geometry, export material takeoffs, and keep comments and supplier quotes alongside each project.
+**Use ChatGPT to design your next construction project. See it in 3D. Get a real materials estimate.**
 
-## Get started
+Describe what you want to build: a garage workbench, storage shelves, or a framed wall with an opening. stud gives your AI a workshop for turning that conversation into a design you can inspect, revise, and price. You bring the idea and the measurements; the AI creates the model, and you decide what needs to change.
 
-Requires Python 3.10+ and Node.js/npm. No third-party Python packages are needed.
+The current workflow runs through **[ChatGPT for desktop](https://chatgpt.com/download/)**, with stud's live viewer open alongside the conversation. You don't need to write code to design a project.
+
+## What you get
+
+**A 3D view as the design changes.** Explore the model, switch between front, side, top, and perspective views, and isolate assemblies to see how the pieces fit together. The viewer updates as the agent edits the project.
+
+**Revisions through conversation.** Ask for a taller bench, a wider opening, or another shelf. Inspect individual parts and dimensions before deciding on the next change.
+
+**Feedback attached to the design.** Comment on a part or capture an area of the viewer and describe what needs attention. Ask the agent to read your comments and revise the project. Saved screenshots keep the view you were discussing, even after the design changes.
+
+**A material list and a working budget.** Review stock quantities, add supplier quotes, adjust quantities, and paste pricing from a spreadsheet. Export parts, materials, and costs as CSVs.
+
+**Geometry checks while you iterate.** Find overlapping parts and pieces that don't fit the selected stock. Add requirements for contact, support, openings, and alignment; inspect the findings and coverage in the viewer.
+
+**Project files you own.** Designs, comments, screenshots, and prices live in a local folder. Keep each project in its own repository or backup and return to it later. The modeling engine, checks, viewer, and exports run locally; your AI assistant has its own connection requirements.
+
+## Install
+
+The desktop app packages stud and its runtime for **macOS and Windows**. Follow the [desktop guide](docs/desktop.md) for installation and builds, then enable the `stud` command. The desktop window handles setup and updates; you review designs in the browser.
+
+To run from source, install Python 3.10+ and Node.js/npm:
 
 ```sh
+git clone https://github.com/getstud/stud.git
+cd stud
 npm ci
-npm run stud -- init ../my-workshop --name "My workshop"
-npm run stud -- serve ../my-workshop
+npm link
 ```
 
-Open http://127.0.0.1:8765. stud opens the project directory you select; the app checkout contains no default design.
+Check that the command is available with `stud --version`. If you prefer to skip `npm link`, run commands from the checkout as `npm run stud -- <command>`.
 
-## Create another project
+## Make something
 
-From this checkout:
+Open Codex and describe your project:
+
+> Use stud to design a workbench for my garage. It should be 6 feet wide and 24 inches deep, with a plywood top and a shelf underneath. Use standard lumber. Create a new project folder, open the viewer, and show me the dimensions and material list.
+
+Have the agent create the project and start its viewer. The equivalent commands are:
 
 ```sh
-npm run stud -- init ../my-workshop --name "My workshop"
-npm run stud -- serve ../my-workshop --port 8766
-npm run stud -- build ../my-workshop
-npm run stud -- validate ../my-workshop --json
+stud init my-workbench --name "Garage workbench"
+stud serve my-workbench
 ```
 
-Optionally run `npm link` in this checkout to install the `stud` command on your machine. Then use `stud init ./my-project`, `stud serve ./my-project`, `stud build ./my-project`, and `stud validate ./my-project`. Each command also works through `python3 /path/to/stud_cli.py`. Set `STUD_PYTHON` to choose the interpreter used by the npm launcher.
+Open [localhost:8765](http://127.0.0.1:8765) in Codex's in-app browser or another browser. Then keep the conversation going:
 
-`init` requires a new directory and creates a small starter model. Each project has its own `design.py`, `annotations/comments.json`, `annotations/prices.json`, and generated `output/model/` files. Serve multiple projects on different ports. Keep annotations when copying or backing up a project.
+> Make it 36 inches tall and leave room below the shelf for my toolbox.
 
-## Modeling
+> Show me the frame without the top so I can see the connections.
 
-```python
-from stud import Project
+> Read my comments and update the design.
 
-project = Project('My frame')
-project.stock('2x4', 'Untreated 2x4', '#ddbd8b',
-              section=(1.5, 3.5), lengths=(96, 120, 144))
-project.box('frame.stud.01', 'Frame', '2x4',
-            size=(1.5, 3.5, 80), origin=(0, 0, 0))
-project.dimension('Height', (-4, 0, 0), (-4, 0, 80))
+> Update the material list and estimate the cost using the supplier prices I entered.
+
+Give the agent the measurements and constraints that matter to your space. Review the resulting dimensions and checks as you refine the project.
+
+## The checks
+
+stud checks the geometry in the model and the requirements declared for the design:
+
+| Check | What it looks for |
+| --- | --- |
+| Solid collision | Parts occupying the same space |
+| Stock fit | Parts that don't fit the specified stock |
+| Measured contact | Required contact between parts |
+| Panel support | Declared support requirements for panels |
+| Opening clearance | Space that must remain clear |
+| Face alignment | Faces that should line up |
+
+New projects enable collision and stock-fit checks. Other relationships must be declared; the viewer's **Checks** section shows findings and coverage by assembly. A starter with no declared relationships reports unverified coverage.
+
+These are geometry checks, not structural engineering or building-code approval. Material takeoffs are planning estimates: stock packing is conservative, and sheet quantities are not cutting layouts. See the [validation guide](docs/validation.md) for supported geometry, tolerances, and exceptions.
+
+## Your materials, your prices
+
+The design defines the stock sizes and materials it uses. stud calculates quantities from the model, while the costs table lets you save supplier quotes and quantity overrides for your project. Coverage materials use a single-face purchase allowance rather than total surface area.
+
+Parts, materials, and cost exports come from the same model revision. If a rebuild fails, stud retains the last good preview and exports so you can correct the design and try again.
+
+## Pick up where you left off
+
+Each project has its own design and `annotations/` folder containing comments, prices, and saved screenshots. Keep that entire folder with the project so an agent can read your feedback when you return.
+
+Generated files live in `output/model/` and can be rebuilt. Your projects live separately from the app, so you can update stud without moving your designs into its installation folder.
+
+## The commands
+
+The agent and the desktop installation use the same CLI:
+
+```text
+stud init <directory>              create a project with a starter model
+stud serve [directory]             start the live viewer
+stud serve [directory] --port 8766  use a different port
+stud build [directory]             validate and export JSON and CSV files
+stud validate [directory]          check the design
+stud validate [directory] --json   return machine-readable findings
+stud validate [directory] --strict fail on warnings or unverified coverage
+stud --version                     print the installed version
 ```
 
-Units are inches; X is width, Y depth, Z elevation. Use stable unique part IDs. Python designs can import helpers alongside `design.py`. The existing `from clubhouse import Project` API remains compatible.
+`init` requires a new directory. The other project commands default to the current directory. Strict validation exits `1` for failures, `2` for warnings or unverified work, and `0` otherwise. A build with validation failures does not replace the model exports.
 
-Coverage materials use each part's largest face area, including sloped faces
-and trapezoidal sides for profile boxes. Rotation and assembly names do not
-affect quantities. This is a single-face purchase allowance, not total surface
-area or a cutting layout. Set `category='Furniture'` (or another project-defined
-label) on `project.stock(...)` to group pricing rows; the default is `Other`.
+## Under the hood
 
-Use [reusable framed openings](docs/assemblies.md) to create kings, jacks, headers, sills and cripples together with their bearing and clearance checks. The builder supports resized, rotated and mirrored wall layouts and exposes named part roles.
+The AI writes a Python design using stud's parts, stock, dimensions, and assembly builders. You can inspect or edit it yourself, but the normal workflow is to ask for changes in conversation. Models use inches, with Z pointing up.
 
-The viewer rebuilds after project Python files change (top-level files and `src/` helpers). Invalid builds keep the last good preview and exports. Refresh for viewer JavaScript/CSS changes; restart for server changes. Designs are executable Python: open only trusted local projects. The server binds to loopback.
+The browser viewer uses Three.js. In a compatible browser, the optional WebMCP `show` tool lets an agent focus the viewer on particular parts or a region. Browsers without WebMCP still support the normal viewer interface.
 
-## Viewer and outputs
+See the [workshop guide](docs/workshop.md) for modeling, comments, pricing, exports, and viewer integration, or [framed assemblies](docs/assemblies.md) for reusable wall and opening builders.
 
-Orbit, pan, zoom, use orthographic views, isolate assemblies, inspect parts, and add persistent comments. The costs table supports quotes, quantity overrides, and spreadsheet paste. JSON and CSV exports come from the same model revision.
+## Troubleshooting
 
-- `GET /api/model`: compiled model and revision.
-- `GET /api/parts.csv`, `/api/materials.csv`, `/api/costs.csv`: exports.
-- `GET/POST /api/comments`: project feedback.
-- `GET/POST /api/pricing`: saved quotes and project estimates.
+**The terminal can't find `stud`.** Enable the command through the desktop setup, then restart your terminal or Codex. For a source checkout, run `npm link` or use `npm run stud --` from the repository.
 
-Validation checks declared geometry relationships, not structural suitability or code compliance. Stock packing is conservative; sheet quantities are area estimates, not cutting layouts. A new starter has no declared relationships and reports unverified coverage. `validate --strict` exits 2 for warnings or unverified work, 1 for failures, and 0 otherwise. Build refuses to replace model exports on validation failures.
+**The source launcher can't find Python.** Install Python 3.10+ or set `STUD_PYTHON` to the interpreter you want the npm launcher to use. The desktop app includes its own runtime.
 
-## Development
+**The viewer still shows an older design.** A failed rebuild keeps the last good model. Check the reported build error and have the agent correct it. Viewer JavaScript or CSS changes require a browser refresh; server changes require a restart.
 
-```sh
-npm test
-node --check web/app.js
-npm run stud -- init /tmp/stud-example
-npm run stud -- build /tmp/stud-example
-```
+**The viewer port is already in use.** Stop the other server or run `stud serve <directory> --port 8766`, then open that port in your browser.
 
-The original entry points (`serve.py`, `build.py`, `validate.py`) still work and accept `--project /path/to/project`. Project creation and selection are currently command-line operations; the browser is the modeling review workspace. The Tauri desktop app bundles Python and the CLI for macOS and Windows; see [desktop installation and releases](docs/desktop.md).
+**Checks say the design is unverified.** Automatic checks don't cover every intended relationship. Ask the agent to declare the relevant requirements and review coverage in the Checks section.
 
-## App and project ownership
+Only open trusted projects: their design files execute Python. The viewer server binds to loopback for local use.
 
-This repository contains the stud engine, viewer, CLI, documentation, and generic tests.
-Designs are separate folders containing `design.py`, helper modules, `annotations/`, and project documents. They can live anywhere and have their own Git repositories. App tests create temporary models and do not require local designs.
+## Contributing
 
-`projects/` is an ignored convenience folder for local designs. No designs are
-included in this repository. Keep each project's source, annotations, and
-reports in its own repository or backup; generated `output/model/` files can
-be rebuilt.
+Bug reports, improvements, and pull requests are welcome. Use [GitHub issues](https://github.com/getstud/stud/issues) to report a reproducible problem or discuss a substantial change.
 
-All commands default to the current working directory when no project is supplied. Run the CLI by its absolute path when working outside this checkout. The `clubhouse` Python module remains a compatibility import; the modeling engine lives in `stud/model.py`.
+Development setup, the modeling API, project layout, and test commands are in [CONTRIBUTING.md](CONTRIBUTING.md). Desktop packaging and release instructions are in the [desktop guide](docs/desktop.md).
 
-## Validation and coverage
+## License
 
-New projects automatically check solid collisions and stock fit. Add measured contact, panel support, opening clearance and face alignment requirements; the viewer’s **Checks** section shows findings, highlights and coverage by assembly. See [the validation guide](docs/validation.md) for schemas, tolerances, exceptions and supported geometry.
-
-## Show a design with WebMCP
-
-In a compatible browser, stud registers one site tool: `show`. It presents the
-current project's latest valid model in the shared viewer. No separate MCP
-server is needed. Browsers without WebMCP retain the normal interface.
-
-- `{}` frames the whole design in perspective.
-- `{"part_ids":["frame.stud.01"],"view":"front"}` frames and outlines specific parts.
-- `{"region":{"min":[0,0,0],"max":[24,24,96]},"view":"perspective"}` frames and outlines a region.
-
-Use either `part_ids` (1–100 unique IDs) or `region`, or omit both. Region
-coordinates are inches, X width, Y depth, Z up; every maximum must exceed its
-minimum. Views are `perspective`, `front`, `side`, and `top`. Optional
-`expected_revision` rejects a different revision.
-
-Showing reveals all assemblies, turns off exploded/transparent display, clears
-previous highlights, and brings the viewer into view. A single targeted part is
-also selected in the inspector. Surrounding geometry remains visible. Use
-**Fit model** to clear the focus and return to the full design.
-
-Success returns `ok`, `model_revision`, `project_name`, `view`, targeted
-`part_ids`, the framed `region`, `units`, and `visible_part_count`. This confirms
-what was rendered, not that the user saw or approved it. Invalid arguments,
-missing parts, revision conflicts, and failed builds return `ok: false` with a
-structured `error`. Failed rebuilds retain the last good model and do not report
-a successful show. The tool does not modify designs, comments, or prices;
-refreshing can rebuild the project's generated exports.
-
-Registration follows the [Codex Site tools documentation](https://learn.chatgpt.com/docs/webmcp)
-and uses `document.modelContext.registerTool` when available.
-
-## Comment on an area screenshot
-
-Click **Comment on an area** above the viewer, then drag a rectangle over the
-frozen view. Add a comment to the cropped preview and save. Escape or Cancel
-exits capture. This captures pixels (including visible dimension labels); it
-never selects parts or tries to identify objects inside the rectangle.
-
-Area screenshots appear with part comments in **Comments**. Click a thumbnail
-to view the original capture, and resolve or reopen it like any other comment.
-The saved image stays unchanged when geometry, visibility, or the camera changes.
-
-Comments live in `annotations/comments.json`. An area comment has `kind: "area"`,
-its captured `revision`, and `image` metadata with a relative `path`, pixel
-`width` and `height`, and `mime_type`. Its PNG lives at
-`annotations/screenshots/<comment-id>.png`. Keep the entire `annotations/`
-folder with the project. Existing part comments remain compatible.
-
-Tell the agent **“Read my comments”** when ready. It can read the comment JSON
-and inspect each referenced PNG. Through the local server, comments are at
-`GET /api/comments` and images at `GET /api/comment-images/<comment-id>`.
-Saving a screenshot comment doesn't require the current design to build: its
-image and revision describe the view that was captured. Captures are limited
-to 2048 pixels on the longest side; the server accepts PNGs up to 5 MB and
-4096 pixels per side. No new WebMCP tools or automatic notifications are added.
+The package metadata declares **ISC**. A standalone `LICENSE` file has not yet been added to this repository. Bundled desktop dependency notices are listed in [third-party notices](desktop/THIRD_PARTY_NOTICES.md).
