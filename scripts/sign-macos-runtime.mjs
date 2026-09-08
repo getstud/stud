@@ -35,7 +35,9 @@ export async function signRuntime(directory = 'src-tauri/resources/runtime') {
       // Never include command arguments: keychain commands contain credentials.
       throw new Error(`${command} failed: ${result.stderr || result.error?.message || result.status}`);
     }
+    return result.stdout;
   };
+  let searchList;
   let temporary;
   let keychain;
   try {
@@ -50,6 +52,16 @@ export async function signRuntime(directory = 'src-tauri/resources/runtime') {
       run('security', ['unlock-keychain', '-p', password, keychain]);
       run('security', ['import', certificate, '-k', keychain, '-P', process.env.APPLE_CERTIFICATE_PASSWORD || '', '-T', '/usr/bin/codesign', '-T', '/usr/bin/security']);
       run('security', ['set-key-partition-list', '-S', 'apple-tool:,apple:,codesign:', '-s', '-k', password, keychain]);
+      // Codesign also resolves the private key and issuer through the search list.
+      searchList = [...run('security', ['list-keychains', '-d', 'user']).matchAll(/"([^"]+)"/g)].map(match => match[1]);
+      run('security', ['list-keychains', '-d', 'user', '-s', keychain, ...searchList]);
+      const response = await fetch('https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer');
+      if (!response.ok) throw new Error(`Apple intermediate certificate download failed: ${response.status}`);
+      const intermediate = path.join(temporary, 'DeveloperIDG2CA.cer');
+      await fs.writeFile(intermediate, Buffer.from(await response.arrayBuffer()));
+      run('security', ['import', intermediate, '-k', keychain]);
+      const identities = run('security', ['find-identity', '-v', '-p', 'codesigning', keychain]);
+      if (!identities.includes(identity)) throw new Error(`Expected Developer ID identity was not imported. Available identities:\n${identities}`);
     }
     for (const file of files) {
       run('codesign', ['--force', '--options', 'runtime', '--timestamp', '--sign', identity, ...(keychain ? ['--keychain', keychain] : []), file]);
@@ -57,6 +69,7 @@ export async function signRuntime(directory = 'src-tauri/resources/runtime') {
     }
     console.log(`Signed and verified ${files.length} bundled Python executables and native libraries.`);
   } finally {
+    if (searchList) spawnSync('security', ['list-keychains', '-d', 'user', '-s', ...searchList], { stdio: 'ignore' });
     if (keychain) spawnSync('security', ['delete-keychain', keychain], { stdio: 'ignore' });
     if (temporary) await fs.rm(temporary, { recursive: true, force: true });
   }

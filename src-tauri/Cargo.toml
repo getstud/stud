@@ -1,6 +1,6 @@
 [package]
 name = "stud-desktop"
-version = "1.0.0-preview.2"
+version = "1.0.0-preview.3"
 description = "stud desktop companion and command-line engine"
 edition = "2021"
 rust-version = "1.77.2"

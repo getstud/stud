@@ -1,6 +1,6 @@
 [package]
 name = "stud-launcher"
-version = "1.0.0-preview.2"
+version = "1.0.0-preview.3"
 edition = "2021"
 
 [[bin]]
