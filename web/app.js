@@ -67,6 +67,7 @@ function renderEnvironment() {
 function inspectEnvironment(id) {
  const entry = environment.entries.get(id); if (!entry) return;
  select(null); selectedEnvironment = id;
+ $('inspectorpanel').hidden = false;
  $('inspectortitle').textContent = 'ENVIRONMENT INSPECTOR';
  const asset = entry.asset;
  $('inspector').innerHTML = `<h2>${escape(asset.name)}</h2><span class="badge">ENVIRONMENT</span><p>Visual context. Excluded from materials and construction checks.</p><dl><dt>Origin (in.)</dt><dd>${asset.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${asset.rotation.join(', ')}</dd></dl><pre>${escape(JSON.stringify(asset.parameters, null, 2))}</pre>`;
@@ -83,7 +84,8 @@ function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?esc
 function bounds(){return buildAnimation.atRest(()=>{const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;});}
 function setView(name=currentView, frame=bounds()){
  currentView=name;const b=frame,center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
- const aspect=viewport.clientWidth/viewport.clientHeight;controls?.dispose();
+ // Report pages hide the canvas; keep the camera valid until it is visible again.
+ const aspect=viewport.clientWidth && viewport.clientHeight ? viewport.clientWidth/viewport.clientHeight : 1;controls?.dispose();
  const extent=Math.max(size.x,size.y,size.z,20),radius=size.length()/2;
  if(name==='perspective'){
   camera=new THREE.PerspectiveCamera(38,aspect,.1,10000);
@@ -109,6 +111,7 @@ function modelRegion(box){
 }
 function displayShow(input){
  if(!$('areaoverlay').hidden || $('areacomment').open || $('areaimageview').open)throw new Error('Finish or close the area screenshot before showing another view.');
+ showWorkspace();
  const targets=(input.part_ids||[]).map(id=>meshes.find(m=>m.userData.id===id));
  clearShow();clearValidationHighlights();
  visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);
@@ -279,6 +282,12 @@ function select(mesh){
  selectedEnvironment = null; $('inspectortitle').textContent = 'PART INSPECTOR';
  rememberDraft();
  if(selected)selected.material.emissive.set('#000000');selected=mesh||null;
+ $('inspectorpanel').hidden = !selected;
+ if(selected) {
+  const fromBrowser = $('modelpanel').contains(document.activeElement);
+  setModelPanel(false);
+  if(fromBrowser) $('closeinspector').focus();
+ }
  renderPartComments();
  if(!selected){$('inspector').innerHTML='<h2>Every piece,<br>accounted for.</h2><p>Select a part to inspect its dimensions.</p>';renderList();return;}
  selected.material.emissive.set('#68400f');const p=selected.userData,s=model.stocks[p.stock];
@@ -289,8 +298,62 @@ let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e
 $('search').oninput=renderList;for(const id of ['dims','ghost','explode'])$(id).onchange=applyDisplay;
 $('reset').onclick=()=>{visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
 $('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
-$('notesbutton').onclick=()=>$('notes').showModal();$('closenotes').onclick=()=>$('notes').close();
-new ResizeObserver(()=>{renderer.setSize(viewport.clientWidth,viewport.clientHeight);if(camera)setView(currentView,showFrame||bounds());}).observe(viewport);
+$('notesbutton').onclick=()=>{ $('projectmenu').open=false; $('notes').showModal(); };$('closenotes').onclick=()=>$('notes').close();
+// Keep occasional tools off the canvas until requested.
+function setModelPanel(open) {
+ $('modelpanel').hidden = !open;
+ $('modeltoggle').setAttribute('aria-expanded', String(open));
+}
+$('modeltoggle').onclick=()=>{setModelPanel($('modelpanel').hidden); $('viewmenu').open=false;};
+$('closemodel').onclick=()=>{setModelPanel(false); $('modeltoggle').focus();};
+$('closeinspector').onclick=()=>{select(null); $('modeltoggle').focus();};
+function showPage(id) {
+ const page = ['materials-section','validation','review','costs'].includes(id) ? id : 'workspace';
+ $('workspace').hidden = page !== 'workspace';
+ $('reports').hidden = page === 'workspace';
+ document.querySelectorAll('#reports > .materials').forEach(section=>section.hidden=section.id!==page);
+ document.querySelectorAll('[data-page]').forEach(link=>{
+  if(link.dataset.page===page) link.setAttribute('aria-current','page');
+  else link.removeAttribute('aria-current');
+ });
+ $('projectmenu').open=false;
+ $('viewmenu').open=false;
+ $('reports').scrollTop=0;
+}
+function showWorkspace() {
+ if($('workspace').hidden) {
+  history.pushState(null, '', '#workspace');
+  showPage('workspace');
+ }
+}
+for(const id of ['viewmenu','projectmenu']) {
+ $(id).addEventListener('toggle',()=>{
+  if($(id).open) $(id==='viewmenu'?'projectmenu':'viewmenu').open=false;
+ });
+}
+document.addEventListener('pointerdown',event=>{
+ for(const id of ['viewmenu','projectmenu']) if(!$(id).contains(event.target)) $(id).open=false;
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape' || document.querySelector('dialog[open]')) return;
+ for(const id of ['viewmenu','projectmenu']) if($(id).open) {$(id).open=false; $(id).querySelector('summary').focus(); return;}
+ if(!$('inspectorpanel').hidden) {select(null); $('modeltoggle').focus();}
+ else if(!$('modelpanel').hidden) {setModelPanel(false); $('modeltoggle').focus();}
+});
+function pageFromHash() { showPage(location.hash.slice(1)); }
+window.addEventListener('hashchange',pageFromHash);
+window.addEventListener('popstate',pageFromHash);
+pageFromHash();
+let viewportSize = null;
+new ResizeObserver(()=>{
+ const width=viewport.clientWidth, height=viewport.clientHeight;
+ if(!width || !height) return;
+ // Revealing the same canvas should preserve the user’s orbit, pan, and zoom.
+ if(viewportSize?.width===width && viewportSize?.height===height) return;
+ viewportSize={width,height};
+ renderer.setSize(width,height);
+ if(camera)setView(currentView,showFrame||bounds());
+}).observe(viewport);
 let modelRequest = null;
 function loadModel() {
  if (modelRequest) return modelRequest;
@@ -338,7 +401,7 @@ function renderComments(){
   $('savedareaimage').src=`/api/comment-images/${encodeURIComponent(comment.id)}`;
   $('savedareatext').textContent=comment.text;$('areaimageview').showModal();
  });
- $('allcomments').querySelectorAll('[data-comment-part]').forEach(b=>b.onclick=()=>{const m=meshes.find(m=>m.userData.id===b.dataset.commentPart);if(!m)return;visibility.set(m.userData.assembly,true);const check=[...$('assemblies').querySelectorAll('input')].find(i=>i.dataset.assembly===m.userData.assembly);if(check)check.checked=true;applyDisplay();select(m);$('partcomments').scrollIntoView({behavior:'smooth',block:'center'});});
+ $('allcomments').querySelectorAll('[data-comment-part]').forEach(b=>b.onclick=()=>{const m=meshes.find(m=>m.userData.id===b.dataset.commentPart);if(!m)return;visibility.set(m.userData.assembly,true);const check=[...$('assemblies').querySelectorAll('input')].find(i=>i.dataset.assembly===m.userData.assembly);if(check)check.checked=true;applyDisplay();showWorkspace();select(m);$('partcomments').scrollIntoView({behavior:'smooth',block:'center'});});
  $('allcomments').querySelectorAll('[data-comment-id]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const c=comments.find(c=>c.id===b.dataset.commentId);await commentRequest({action:'resolve',id:c.id,resolved:!c.resolved});}catch(e){$('commentstatus').textContent=e.message;b.disabled=false;}});
  rememberDraft();renderPartComments();
 }
@@ -455,6 +518,7 @@ function clearValidationHighlights(){
 function showValidationFinding(f){
  clearValidationHighlights();
  if(validationReport?.revision!==revision)return;
+ showWorkspace();
  const targets=meshes.filter(m=>f.parts.includes(m.userData.id));
  for(const m of targets){visibility.set(m.userData.assembly,true);validationHighlights.add(m.userData.id);}
  $('assemblies').querySelectorAll('input').forEach(i=>i.checked=visibility.get(i.dataset.assembly)!==false);
@@ -469,7 +533,6 @@ function showValidationFinding(f){
   const marker=new THREE.Mesh(new THREE.SphereGeometry(1.25,12,8),new THREE.MeshBasicMaterial({color:'#ed7c29',depthTest:false}));
   marker.position.copy(vec(f.location));marker.renderOrder=10;validationGroup.add(marker);
  }
- $('viewport').scrollIntoView({block:'center',behavior:'smooth'});
 }
 function renderValidation(report){
  validationReport=report;
