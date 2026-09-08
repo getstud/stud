@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import {OrbitControls} from '/vendor/OrbitControls.js';
 import {createShowTool, registerShowTool} from '/show.js';
 import {installAreaCapture, snapshotViewer} from '/area-capture.js';
+import {BuildAnimation} from '/build-animation.js';
+const buildAnimation=new BuildAnimation();
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const $=id=>document.getElementById(id);
 const viewport=$('viewport'), labelRoot=$('labels');
 // Thin roof layers need depth precision even when the exploded view is zoomed out.
@@ -149,6 +152,8 @@ function partGeometry(p){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
 }
 function install(data){
+ const previousIds=new Set(meshes.map(m=>m.userData.id));
+ buildAnimation.finish();
  clearShow();
  clearValidationHighlights();
  const oldSelected=selected?.userData.id;model=data;revision=data.revision;disposeTree(group);disposeTree(dimGroup);labelRoot.replaceChildren();labels=[];meshes=[];selected=null;
@@ -183,7 +188,7 @@ function install(data){
   return Math.abs(topDifference)>1e-6?topDifference:right.sum/right.count-left.sum/left.count;
  });
  const modelCenter=modelBounds.getCenter(new THREE.Vector3());
- grid.position.set(modelCenter.x,modelBounds.min.y-.5,modelCenter.z);
+ if(!modelBounds.isEmpty())grid.position.set(modelCenter.x,modelBounds.min.y-.5,modelCenter.z);
  for(const d of data.dimensions){
   const a=vec(d.start),b=vec(d.end),line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:'#577367'}));dimGroup.add(line);
   for(const pt of [a,b]){const tick=new THREE.Line(new THREE.BufferGeometry().setFromPoints([pt.clone().add(new THREE.Vector3(-1,1,0)),pt.clone().add(new THREE.Vector3(1,-1,0))]),new THREE.LineBasicMaterial({color:'#577367'}));dimGroup.add(tick);}
@@ -199,8 +204,11 @@ function install(data){
  $('notelist').innerHTML=data.notes.map(n=>`<li>${escape(n)}</li>`).join('');
  if(data.validation_results)renderValidation({revision:data.revision,...data.validation_results});
  applyDisplay();renderList();if(oldSelected)select(meshes.find(m=>m.userData.id===oldSelected));if(!camera)setView();renderComments();$('loading').hidden=true;
+ buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
 }
+reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)buildAnimation.finish();});
 function applyDisplay(){
+ buildAnimation.finish();
  const explode=$('explode').checked,ghost=$('ghost').checked;
  const names=[...new Set(meshes.map(m=>m.userData.assembly))];
  for(const m of meshes){m.visible=visibility.get(m.userData.assembly)!==false;m.position.copy(m.userData.basePosition);if(explode)m.position.y+=names.indexOf(m.userData.assembly)*17;
@@ -232,7 +240,7 @@ function loadModel() {
    const response = await fetch('/api/model', {cache:'no-store', signal:AbortSignal.timeout(25000)});
    const data = await response.json();
    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
-   if (data.schema_version !== 1 || data.units !== 'in' || !data.parts?.length) throw new Error('Unsupported or empty model');
+   if (data.schema_version !== 1 || data.units !== 'in' || !Array.isArray(data.parts)) throw new Error('Unsupported model');
    if (data.revision !== revision) install(data);
    $('error').hidden=true;$('connection').textContent=`Live model · ${data.revision.slice(0,6)}`;
    return data;
@@ -246,7 +254,7 @@ function loadModel() {
 }
 async function refresh(){try{await loadModel();}catch{}finally{setTimeout(refresh,2000);}}
 
-function animate(){requestAnimationFrame(animate);if(!camera)return;controls.update();for(const l of labels){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;l.el.style.left=`${Math.max(65,Math.min(viewport.clientWidth-65,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}renderer.render(scene,camera);}animate();refresh();
+function animate(){requestAnimationFrame(animate);if(!camera)return;controls.update();buildAnimation.update(performance.now());for(const l of labels){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;l.el.style.left=`${Math.max(65,Math.min(viewport.clientWidth-65,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}renderer.render(scene,camera);}animate();refresh();
 // Small read-only diagnostics surface for automated verification.
 window.stud=window.clubhouse={get model(){return model},get selected(){return selected?.userData.id},get visibleCount(){return meshes.filter(m=>m.visible).length},get view(){return currentView}};
 
@@ -442,6 +450,7 @@ registerShowTool(document.modelContext,showTool).catch(error=>console.warn('stud
 $('closeareaimage').onclick=()=>$('areaimageview').close();
 installAreaCapture({viewport,capture:()=>{
  if(!model||!camera)throw new Error('Load a design before capturing an area.');
+ buildAnimation.finish();
  renderer.render(scene,camera);
  return {canvas:snapshotViewer(renderer.domElement,labelRoot),revision};
 },save:commentRequest});

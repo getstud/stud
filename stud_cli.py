@@ -59,6 +59,7 @@ def main(argv=None):
         command.add_argument('directory', nargs='?', type=Path, default=Path.cwd())
         if name == 'serve':
             command.add_argument('--port', type=int, default=8765)
+            command.add_argument('--no-open', action='store_true', help='Print the viewer URL without opening a browser')
         if name == 'validate':
             command.add_argument('--json', action='store_true')
             command.add_argument('--strict', action='store_true')
@@ -78,7 +79,7 @@ def main(argv=None):
             build(args.directory)
         elif args.command == 'serve':
             from serve import serve
-            serve(args.directory, args.port)
+            serve(args.directory, args.port, open_browser=not args.no_open)
         else:
             flags = [flag for flag in ('--json', '--strict') if getattr(args, flag[2:])]
             return subprocess.call([sys.executable, '-B', '-E', '-s', str(ROOT/'validate.py'),

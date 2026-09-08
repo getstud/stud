@@ -67,6 +67,22 @@ class StudTests(unittest.TestCase):
                 init_project(project)
             self.assertEqual((project/'design.py').read_bytes(), original)
 
+    def test_viewer_opens_before_any_build(self):
+        from unittest.mock import patch, MagicMock
+        import serve
+        with tempfile.TemporaryDirectory() as directory:
+            project = init_project(Path(directory)/'startup')
+            (project/'design.py').write_text('this is an unfinished design')
+            server = MagicMock(server_port=8765)
+            with patch.object(serve, 'ThreadingHTTPServer', return_value=server), \
+                 patch.object(serve, 'model') as build, \
+                 patch.object(serve.webbrowser, 'open') as open_browser:
+                serve.serve(project)
+                open_browser.assert_called_once_with('http://127.0.0.1:8765')
+                build.assert_not_called()
+                server.serve_forever.assert_called_once()
+                server.server_close.assert_called_once()
+
     def test_server_project_storage_and_helper_reload(self):
         with tempfile.TemporaryDirectory() as directory:
             project = init_project(Path(directory)/'served')
@@ -77,7 +93,7 @@ class StudTests(unittest.TestCase):
             py_compile.compile(str(project/'helper.py'))
             helper_stat = (project/'helper.py').stat()
             process = subprocess.Popen([sys.executable, str(ROOT/'stud_cli.py'), 'serve',
-                                        str(project), '--port', '0'],
+                                        str(project), '--port', '0', '--no-open'],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             try:
                 import queue
@@ -96,6 +112,8 @@ class StudTests(unittest.TestCase):
                     with urllib.request.urlopen(url+path, timeout=10) as response:
                         return response.read()
 
+                self.assertIn(b'<b>stud</b>', get('/'))
+                self.assertFalse((project/'output/model/model.json').exists())
                 model = json.loads(get('/api/model'))
                 self.assertEqual(model['name'], 'Before')
                 report=json.loads(get('/api/validation'))
