@@ -38,7 +38,9 @@ const engine = path.join(resources, 'engine');
 await fs.mkdir(engine, { recursive: true });
 await fs.copyFile(path.join(root, 'README.md'), path.join(engine, 'README.md'));
 await fs.mkdir(path.join(engine, 'docs'), { recursive: true });
-await fs.copyFile(path.join(root, 'docs/validation.md'), path.join(engine, 'docs/validation.md'));
+for (const guide of ['workshop.md', 'assemblies.md', 'validation.md']) {
+  await fs.copyFile(path.join(root, 'docs', guide), path.join(engine, 'docs', guide));
+}
 const files = ['build.py', 'comments.py', 'pricing.py', 'serve.py', 'solid_geometry.py',
   'stud_cli.py', 'updates.py', 'validate.py', 'validation_rules.py'];
 for (const file of files) await fs.copyFile(path.join(root, file), path.join(engine, file));
