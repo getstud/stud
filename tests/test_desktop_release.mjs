@@ -99,3 +99,20 @@ test('failed rebuild cannot promote the readiness marker from a previous success
   await assert.rejects(publishFeed('preview', tag, options), /Missing asset: release-ready/);
   await assert.rejects(publishFeed('invalidate', tag, options), /cannot be rebuilt/);
 });
+
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import { machOFiles } from '../scripts/sign-macos-runtime.mjs';
+
+test('runtime signing finds native libraries by content without following symlinks', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'stud-macho-'));
+  try {
+    await fs.mkdir(path.join(root, 'lib'));
+    await fs.writeFile(path.join(root, 'python3'), Buffer.from('cffaedfe00000000', 'hex'));
+    await fs.writeFile(path.join(root, 'lib', 'module.so'), Buffer.from('cafebabe00000000', 'hex'));
+    await fs.writeFile(path.join(root, 'script.py'), 'print("hello")');
+    await fs.writeFile(path.join(root, 'short'), 'x');
+    if (process.platform !== 'win32') await fs.symlink(root, path.join(root, 'cycle'));
+    assert.deepEqual((await machOFiles(root)).sort(), [path.join(root, 'lib', 'module.so'), path.join(root, 'python3')].sort());
+  } finally { await fs.rm(root, { recursive: true, force: true }); }
+});

@@ -11,7 +11,7 @@ class UpdateTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        (self.root / 'version.json').write_text(json.dumps({'version': '1.2.0', 'repository': 'owner/stud'}))
+        (self.root / 'version.json').write_text(json.dumps({'version': '1.2.0', 'repository': 'owner/stud', 'channel': 'stable'}))
         self.notice = UpdateNotice(self.root)
 
     def response(self, version):

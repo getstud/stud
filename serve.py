@@ -1,6 +1,7 @@
 """Local read-only viewer with automatic rebuilds. python3 serve.py --port 8765"""
 import argparse, csv, io, json, mimetypes, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from socketserver import TCPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 from comments import CommentStore
@@ -105,6 +106,13 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers();self.wfile.write(body)
     def log_message(self,*args):pass
 
+class ViewerServer(ThreadingHTTPServer):
+    def server_bind(self):
+        # A loopback-only viewer has no need for HTTPServer's reverse DNS lookup.
+        TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address[:2]
+
+
 def serve(project_dir=None, port=8765, open_browser=True):
     global PROJECT, comments, prices, stamp, data
     PROJECT=Path(project_dir or Path.cwd()).resolve()
@@ -113,7 +121,7 @@ def serve(project_dir=None, port=8765, open_browser=True):
     comments=CommentStore(PROJECT/'annotations/comments.json')
     prices=PriceStore(PROJECT/'annotations/prices.json')
     stamp=data=None
-    server=ThreadingHTTPServer(('127.0.0.1',port),Handler)
+    server=ViewerServer(('127.0.0.1',port),Handler)
     print(f'stud · {PROJECT.name}: http://127.0.0.1:{server.server_port}',flush=True)
     try:
         if open_browser:

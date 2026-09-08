@@ -127,8 +127,9 @@ Stop the viewer and retry the update if stud reports that it is in use.
    `APPLE_ID`, `APPLE_PASSWORD`, and `APPLE_TEAM_ID` to the workflow. For Windows,
    configure an Authenticode certificate/signing provider through Tauri's
    Windows signing configuration. Updater signatures do not replace platform
-   code signing. Verify nested Python libraries are included in signing before
-   a public release.
+   code signing. Tagged macOS builds explicitly sign the bundled Python
+   executables and native libraries before app signing and notarization; CI then
+   verifies the app signature and stapled notarization ticket.
 5. Keep `package.json`, `src-tauri/Cargo.toml`, and
    `desktop/launcher/Cargo.toml` versions in sync, then push `v<version>`. Use `X.Y.Z` for stable or `X.Y.Z-preview.N` for preview.
    Other prerelease formats are rejected before building.

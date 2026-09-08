@@ -42,6 +42,7 @@ jobs:
     if: ${{ !cancelled() && (needs.release.result == 'success' || (github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
     strategy:
       fail-fast: false
+      max-parallel: 1  # tauri-action merges latest.json by read/replace; serialize writers.
       matrix:
         include:
           - runner: macos-14
@@ -97,6 +98,9 @@ jobs:
         env:
           STUD_RELEASE_REPOSITORY: ${{ startsWith(github.ref, 'refs/tags/') && github.repository || '' }}
         run: node scripts/build-desktop.mjs --stage-only --target ${{ matrix.platform }}
+      - name: Sign bundled Python runtime
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        run: node scripts/sign-macos-runtime.mjs
       - name: Verify updater signatures and transport policy
         run: cargo test --release --manifest-path src-tauri/Cargo.toml --target ${{ matrix.triple }} --bin stud-desktop
       - name: Build local-test installers
@@ -115,6 +119,11 @@ jobs:
           prerelease: ${{ needs.release.outputs.channel == 'preview' }}
           includeUpdaterJson: true
           args: --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }} --config src-tauri/release.conf.json
+      - name: Verify macOS signature and notarization
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          codesign --verify --deep --strict 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
+          xcrun stapler validate 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
       - name: Smoke test installed macOS app
         if: runner.os == 'macOS'
         run: node scripts/smoke-desktop.mjs 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app/Contents/MacOS/stud'

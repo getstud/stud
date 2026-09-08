@@ -37,6 +37,7 @@ await fs.mkdir('src-tauri/binaries', { recursive: true });
 const ext = target.startsWith('win32') ? '.exe' : '';
 await fs.copyFile(`desktop/launcher/target/${triple}/release/stud${ext}`, `src-tauri/binaries/stud-${triple}${ext}`);
 if (process.argv.includes('--stage-only')) process.exit(0);
+if (release && target.startsWith('darwin')) run(process.execPath, ['scripts/sign-macos-runtime.mjs']);
 const args = [dev ? 'dev' : 'build', '--target', triple];
 if (!dev) args.push('--bundles', target.startsWith('darwin') ? 'app,dmg' : 'nsis');
 if (release) args.push('--config', JSON.stringify(overrides));
