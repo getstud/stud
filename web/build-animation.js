@@ -31,6 +31,25 @@ export class BuildAnimation {
     });
   }
 
+  // Refresh display settings without losing the reveal's timing or order.
+  rebase(changeDisplay, now) {
+    const entries = this.entries;
+    this.finish();
+    try {
+      return changeDisplay();
+    } finally {
+      for (const entry of entries) {
+        entry.targetY = entry.mesh.position.y;
+        for (const saved of entry.materials) {
+          const {opacity, transparent, depthWrite} = saved.material;
+          Object.assign(saved, {opacity, transparent, depthWrite});
+        }
+      }
+      this.entries = entries;
+      this.update(now);
+    }
+  }
+
   // Camera fitting measures final positions without consuming animation time.
   atRest(measure) {
     const positions = this.entries.map(({mesh, targetY}) => {

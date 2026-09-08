@@ -7,12 +7,15 @@ import {installAreaCapture, snapshotViewer} from '/area-capture.js';
 import {preserveCamera} from '/camera-transition.js';
 import {FlyControls} from '/fly-controls.js';
 import {BuildAnimation} from '/build-animation.js';
+import {BuildCamera, stopOnCameraInput} from '/build-camera.js';
+const buildCamera=new BuildCamera();
 const buildAnimation=new BuildAnimation();
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const $=id=>document.getElementById(id);
 const viewport=$('viewport'), labelRoot=$('labels');
 // Thin roof layers need depth precision even when the exploded view is zoomed out.
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,logarithmicDepthBuffer:true});
+stopOnCameraInput(renderer.domElement,buildCamera);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.outputColorSpace=THREE.SRGBColorSpace;viewport.prepend(renderer.domElement);
 const scene=new THREE.Scene();scene.add(new THREE.HemisphereLight('#fffff0','#768371',2.6));
@@ -76,7 +79,7 @@ function inspectEnvironment(id) {
  $('inspector').innerHTML = `<h2>${escape(asset.name)}</h2><span class="badge">ENVIRONMENT</span><p>Visual context. Excluded from materials and construction checks.</p><dl><dt>Origin (in.)</dt><dd>${asset.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${asset.rotation.join(', ')}</dd></dl><pre>${escape(JSON.stringify(asset.parameters, null, 2))}</pre>`;
 }
 $('environmenttoggle').onchange = () => environment.setEnabled($('environmenttoggle').checked);
-$('fitscene').onclick = () => {clearShow();showFrame = bounds().union(environment.bounds());setView(currentView, showFrame);};
+$('fitscene').onclick = () => {buildCamera.stop();clearShow();showFrame = bounds().union(environment.bounds());setView(currentView, showFrame);};
 const validationGroup=new THREE.Group();scene.add(validationGroup);
 let validationReport=null,validationSignature='',validationHighlights=new Set();
 function vec(v){return new THREE.Vector3(v[0],v[2],-v[1]);}
@@ -87,6 +90,8 @@ function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?esc
 function bounds(){return buildAnimation.atRest(()=>{const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;});}
 let focusDistance = 100;
 function setView(name=currentView, frame=bounds(), preserve=false){
+ buildCamera.cancel();
+ if(name!=='perspective')buildCamera.stop();
  const previous=camera,previousTarget=controls?.target?.clone();
  currentView=name;const b=frame,center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
  // Report pages hide the canvas; keep the camera valid until it is visible again.
@@ -126,13 +131,13 @@ function displayShow(input){
  const targets=(input.part_ids||[]).map(id=>meshes.find(m=>m.userData.id===id));
  clearShow();clearValidationHighlights();
  visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);
- $('explode').checked=false;$('ghost').checked=false;$('search').value='';applyDisplay();
+ $('explode').checked=false;$('ghost').checked=false;$('search').value='';buildAnimation.rebase(()=>applyDisplay(),performance.now());
  select(targets.length===1?targets[0]:null);
  const frame=new THREE.Box3();
  if(input.region){
   frame.setFromPoints([vec(input.region.min),vec(input.region.max)]);
  }else if(targets.length){
-  for(const mesh of targets)frame.expandByObject(mesh);
+  buildAnimation.atRest(()=>{for(const mesh of targets)frame.expandByObject(mesh);});
  }else frame.copy(bounds());
  if(targets.length||input.region){
   const outline=new THREE.Box3Helper(frame.clone(),0xb05e22);
@@ -280,8 +285,9 @@ function install(data){
  void environment.update(data.environment);
  applyDisplay();renderList();if(oldSelected)select(meshes.find(m=>m.userData.id===oldSelected));if(!camera)setView();renderComments();$('loading').hidden=true;
  if(isLiveUpdate)buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
+ if(isLiveUpdate)buildCamera.follow(bounds(),camera,controls,performance.now(),reducedMotion.matches);
 }
-reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)buildAnimation.finish();});
+reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches){buildAnimation.finish();buildCamera.cancel();}});
 function applyDisplay(){
  buildAnimation.finish();
  const explode=$('explode').checked,ghost=$('ghost').checked;
@@ -311,7 +317,7 @@ function renderList(){if(!model)return;const q=$('search').value.toLowerCase();c
 let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const partHit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0], environmentHit=environment.pick(ray);if(environmentHit&&(!partHit||environmentHit.distance<partHit.distance))inspectEnvironment(environmentHit.entry.asset.id);else select(partHit?.object);});
 $('search').oninput=renderList;for(const id of ['dims','ghost','explode'])$(id).onchange=applyDisplay;
 $('reset').onclick=()=>{visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
-$('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view,bounds(),true));
+$('fit').onclick=()=>{buildCamera.stop();clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{buildCamera.stop();setView(b.dataset.view,bounds(),true);});
 $('notesbutton').onclick=()=>{ $('projectmenu').open=false; $('notes').showModal(); };$('closenotes').onclick=()=>$('notes').close();
 // Keep occasional tools off the canvas until requested.
 function setModelPanel(open) {
@@ -394,7 +400,7 @@ function loadModel() {
 }
 async function refresh(){try{await loadModel();}catch{}finally{setTimeout(refresh,2000);}}
 
-function animate(){requestAnimationFrame(animate);if(!camera)return;controls.update();buildAnimation.update(performance.now());for(const l of labels){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;l.el.style.left=`${Math.max(65,Math.min(viewport.clientWidth-65,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}renderer.render(scene,camera);}animate();refresh();
+function animate(){requestAnimationFrame(animate);if(!camera)return;buildCamera.update(camera,controls,performance.now());controls.update();buildAnimation.update(performance.now());for(const l of labels){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;l.el.style.left=`${Math.max(65,Math.min(viewport.clientWidth-65,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}renderer.render(scene,camera);}animate();refresh();
 // Small read-only diagnostics surface for automated verification.
 window.stud=window.clubhouse={get model(){return model},get selected(){return selected?.userData.id},get visibleCount(){return meshes.filter(m=>m.visible).length},get view(){return currentView}};
 

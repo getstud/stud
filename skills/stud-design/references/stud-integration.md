@@ -38,7 +38,9 @@ Project Python changes normally rebuild automatically while `stud serve` is runn
 
 ## WebMCP viewer review
 
-Open the URL from `stud serve` in the connected browser and discover the tools exposed by that viewer tab. Stud exposes one WebMCP site tool, `show`; it needs no separate MCP server. Use the browser’s site-tool interface to invoke it.
+Reserve `show` for deliberate review after the build sequence is complete. During staged building, let automatic camera tracking present each revision and verify it through the visible revision indicator or `/api/model`; do not call `show`. Respect user camera takeover, which disables tracking until reload.
+
+For review, use the existing viewer tab and discover its exposed tools. Stud exposes one WebMCP site tool, `show`; it needs no separate MCP server. Use the browser’s site-tool interface to invoke it.
 
 - `{}` frames the complete design in perspective.
 - `{"part_ids":["frame.stud.01"],"view":"front"}` frames and outlines specific parts. Use IDs from the current model, replacing this example ID.
