@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { releaseVersion } from './release-channel.mjs';
 import { releaseConfig } from './release-config.mjs';
 
 const dev = process.argv.includes('--dev');
@@ -23,7 +24,11 @@ if (release) {
   const configPath = configIndex >= 0 ? process.argv[configIndex + 1] : 'desktop/release.local.json';
   const settings = JSON.parse(await fs.readFile(configPath));
   if (!process.env.TAURI_SIGNING_PRIVATE_KEY) throw new Error('TAURI_SIGNING_PRIVATE_KEY is required for a release');
-  Object.assign(overrides, releaseConfig(settings.repository, settings.publicKey));
+  const pkg = JSON.parse(await fs.readFile('package.json'));
+  const channel = releaseVersion(pkg.version).channel;
+  if (settings.channel && settings.channel !== channel) throw new Error('Release channel must match package.json version');
+  Object.assign(overrides, releaseConfig(settings.repository, settings.publicKey, channel));
+  process.env.STUD_RELEASE_CHANNEL = channel;
   process.env.STUD_RELEASE_REPOSITORY = settings.repository;
 }
 run(process.execPath, ['scripts/prepare-desktop.mjs', target]);

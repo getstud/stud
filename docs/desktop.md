@@ -97,14 +97,15 @@ it stays open. Available updates install with **Update and restart**. Downloads
 must pass Tauri's signature verification; endpoints use HTTPS. The app, CLI,
 viewer, and Python are replaced together. Projects are not modified.
 
-The browser viewer also displays a dismissible notice for newer stable releases,
+The browser viewer also displays a dismissible notice for newer releases on the installed channel,
 with a release link and instructions to update through the desktop app. It checks
 on load, when the tab becomes visible, and every 15 minutes; the local server
 caches successful release checks for six hours and retries failures after 15
 minutes. Offline checks do not interrupt the viewer. Dismissal lasts for that
 version in the current tab session. Signed release builds embed the repository;
 source checkouts can set `STUD_RELEASE_REPOSITORY=owner/repository`. Local builds
-without a repository do not check for updates.
+without a repository do not check for updates. Source checkouts default to stable;
+set `STUD_RELEASE_CHANNEL=preview` to check preview releases.
 
 A running CLI/viewer holds a shared runtime lock. The app cannot update while
 that lock is held. On Windows, NSIS takes the same exclusive lock before
@@ -129,13 +130,56 @@ Stop the viewer and retry the update if stud reports that it is in use.
    code signing. Verify nested Python libraries are included in signing before
    a public release.
 5. Keep `package.json`, `src-tauri/Cargo.toml`, and
-   `desktop/launcher/Cargo.toml` versions in sync, then push `v<version>`.
+   `desktop/launcher/Cargo.toml` versions in sync, then push `v<version>`. Use `X.Y.Z` for stable or `X.Y.Z-preview.N` for preview.
+   Other prerelease formats are rejected before building.
 
 `.github/workflows/desktop.yml` builds the three targets and creates a **draft**
 GitHub Release with installers, signed update artifacts, and `latest.json`.
 Check every build and smoke test before publishing the draft. The updater reads
 `https://github.com/<owner>/<repository>/releases/latest/download/latest.json`.
-A manual workflow run produces unsigned test installers as Actions artifacts.
+A manual workflow run on a branch produces test installers as Actions artifacts.
+A manual run on a release tag follows the signed release path.
+
+### Stable and preview channels
+
+Stable is for everyday use. Preview is for testing selected upcoming changes
+without building from source. Preview releases are published when there is
+something ready to test, rather than on a nightly schedule.
+
+| Channel | Version / tag example | Updater feed |
+| --- | --- | --- |
+| Stable | `1.0.0` / `v1.0.0` | `releases/latest/download/latest.json` |
+| Preview | `1.1.0-preview.1` / `v1.1.0-preview.1` | `releases/download/channel-preview/latest.json` |
+
+The version selects the channel at build time, including local signed builds.
+Both channels use the same updater signing key and app identity. Install the
+installer for the desired channel to switch; they replace the same app and CLI,
+not two side-by-side installations. Preview installations follow preview releases;
+install a stable release explicitly to leave the preview channel.
+
+1. Update all three version manifests (and their lockfiles), commit, and push the
+   matching version tag. Never reuse a published version tag.
+2. Wait for **Desktop installers** to finish successfully for all three targets.
+   The final job validates the combined updater manifest and attaches
+   `release-ready.json` to the draft only after all smoke tests pass. The marker
+   binds to the manifest SHA-256 and is cleared before a draft rebuild. Published
+   versions cannot be rebuilt.
+3. Inspect the installers and perform the signed old-to-new update test before
+   publishing. Stable releases must not be marked prerelease; preview releases must.
+4. Publishing a preview triggers **Publish preview update feed**, which validates the
+   readiness marker and all three signed artifact entries, then copies only the
+   manifest to the reserved `channel-preview` prerelease. Artifact URLs continue to
+   point to the immutable versioned release. Older preview publications cannot move
+   the feed backward. Do not delete or manually repurpose `channel-preview`.
+5. The feed workflow must exist on the default branch before publication. If a
+   publication used `GITHUB_TOKEN` (which does not trigger another workflow), or a
+   feed update failed, manually run **Publish preview update feed** with the published
+   preview tag. Rerunning is safe.
+
+Stable updates become available when GitHub marks the published stable release
+as Latest. The preview feed prerelease is never marked Latest. Draft releases are
+not available to installed apps. Do not publish a draft without its readiness
+marker; stable publication is a manual release gate.
 
 For a local signed updater build, copy `desktop/release.example.json` to
 `desktop/release.local.json`, fill in the repository and public key, set

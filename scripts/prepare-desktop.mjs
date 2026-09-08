@@ -55,6 +55,6 @@ for (const file of ['build/three.module.js', 'build/three.core.js', 'examples/js
   await fs.copyFile(path.join(root, 'node_modules/three', file), destination);
 }
 const pkg = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
-await fs.writeFile(path.join(engine, 'version.json'), JSON.stringify({ version: pkg.version, repository: process.env.STUD_RELEASE_REPOSITORY || null }) + '\n');
+await fs.writeFile(path.join(engine, 'version.json'), JSON.stringify({ version: pkg.version, repository: process.env.STUD_RELEASE_REPOSITORY || null, channel: process.env.STUD_RELEASE_CHANNEL || 'stable' }) + '\n');
 await fs.writeFile(path.join(resources, 'runtime-info.json'), JSON.stringify({ target, ...runtime }, null, 2) + '\n');
 console.log(`Prepared stud ${pkg.version} for ${target} in ${resources}`);
