@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from '/vendor/OrbitControls.js';
+import {createShowTool, registerShowTool} from '/show.js';
+import {installAreaCapture, snapshotViewer} from '/area-capture.js';
 const $=id=>document.getElementById(id);
 const viewport=$('viewport'), labelRoot=$('labels');
 // Thin roof layers need depth precision even when the exploded view is zoomed out.
@@ -20,8 +22,8 @@ function inches(v){return `${Number(v.toFixed(3))}″`;}
 function feet(v){let f=Math.floor(v/12),i=Number((v-f*12).toFixed(3));return f?`${f}′ ${i}″`:`${i}″`;}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?escape(u.href):'';}catch{return '';}}
 function bounds(){const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;}
-function setView(name=currentView){
- currentView=name;const b=bounds(),center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
+function setView(name=currentView, frame=bounds()){
+ currentView=name;const b=frame,center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
  const aspect=viewport.clientWidth/viewport.clientHeight;controls?.dispose();
  const extent=Math.max(size.x,size.y,size.z,20),radius=size.length()/2;
  if(name==='perspective'){
@@ -39,6 +41,37 @@ function setView(name=currentView){
  camera.lookAt(center);controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(center);controls.enableDamping=true;controls.enableRotate=name==='perspective';controls.minDistance=8;controls.maxDistance=5000;controls.update();
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
  $('viewlabel').textContent=`${name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · INCHES`;
+}
+const showGroup = new THREE.Group();scene.add(showGroup);
+let showFrame = null;
+function clearShow(){disposeTree(showGroup);showFrame=null;}
+function modelRegion(box){
+ return {min:[box.min.x,-box.max.z,box.min.y],max:[box.max.x,-box.min.z,box.max.y]};
+}
+function displayShow(input){
+ if(!$('areaoverlay').hidden || $('areacomment').open || $('areaimageview').open)throw new Error('Finish or close the area screenshot before showing another view.');
+ const targets=(input.part_ids||[]).map(id=>meshes.find(m=>m.userData.id===id));
+ clearShow();clearValidationHighlights();
+ visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);
+ $('explode').checked=false;$('ghost').checked=false;$('search').value='';applyDisplay();
+ select(targets.length===1?targets[0]:null);
+ const frame=new THREE.Box3();
+ if(input.region){
+  frame.setFromPoints([vec(input.region.min),vec(input.region.max)]);
+ }else if(targets.length){
+  for(const mesh of targets)frame.expandByObject(mesh);
+ }else frame.copy(bounds());
+ if(targets.length||input.region){
+  const outline=new THREE.Box3Helper(frame.clone(),0xb05e22);
+  outline.material.depthTest=false;outline.material.transparent=true;outline.material.opacity=.85;
+  outline.renderOrder=10;showGroup.add(outline);
+ }
+ showFrame=frame.clone();setView(input.view||'perspective',showFrame);
+ $('notes').close();viewport.scrollIntoView({block:'center',behavior:'instant'});
+ renderer.render(scene,camera);
+ return {model_revision:revision,project_name:model.name,view:currentView,
+  part_ids:targets.map(m=>m.userData.id),region:modelRegion(frame),units:'in',
+  visible_part_count:meshes.filter(m=>m.visible).length};
 }
 function disposeTree(root){root.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});root.clear();}
 // Build a notched extrusion by subtracting each horizontal wall seat from
@@ -116,6 +149,7 @@ function partGeometry(p){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
 }
 function install(data){
+ clearShow();
  clearValidationHighlights();
  const oldSelected=selected?.userData.id;model=data;revision=data.revision;disposeTree(group);disposeTree(dimGroup);labelRoot.replaceChildren();labels=[];meshes=[];selected=null;
  const names=[...new Set(data.parts.map(p=>p.assembly))];
@@ -187,10 +221,31 @@ function renderList(){if(!model)return;const q=$('search').value.toLowerCase();c
 let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);select(ray.intersectObjects(meshes.filter(m=>m.visible),false)[0]?.object);});
 $('search').oninput=renderList;for(const id of ['dims','ghost','explode'])$(id).onchange=applyDisplay;
 $('reset').onclick=()=>{visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
-$('fit').onclick=()=>setView();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
 $('notesbutton').onclick=()=>$('notes').showModal();$('closenotes').onclick=()=>$('notes').close();
-new ResizeObserver(()=>{renderer.setSize(viewport.clientWidth,viewport.clientHeight);if(camera)setView();}).observe(viewport);
-async function refresh(){try{const response=await fetch('/api/model',{cache:'no-store',signal:AbortSignal.timeout(25000)});const data=await response.json();if(!response.ok)throw new Error(data.error||`HTTP ${response.status}`);if(data.schema_version!==1||data.units!=='in'||!data.parts?.length)throw new Error('Unsupported or empty model');if(data.revision!==revision)install(data);$('error').hidden=true;$('connection').textContent=`Live model · ${data.revision.slice(0,6)}`;}catch(e){$('error').hidden=false;$('error').textContent=`${model?'Keeping last good model.':'Unable to load model.'} ${e.message}`;$('connection').textContent='Model needs attention';}finally{setTimeout(refresh,2000);}}
+new ResizeObserver(()=>{renderer.setSize(viewport.clientWidth,viewport.clientHeight);if(camera)setView(currentView,showFrame||bounds());}).observe(viewport);
+let modelRequest = null;
+function loadModel() {
+ if (modelRequest) return modelRequest;
+ modelRequest = (async () => {
+  try {
+   const response = await fetch('/api/model', {cache:'no-store', signal:AbortSignal.timeout(25000)});
+   const data = await response.json();
+   if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+   if (data.schema_version !== 1 || data.units !== 'in' || !data.parts?.length) throw new Error('Unsupported or empty model');
+   if (data.revision !== revision) install(data);
+   $('error').hidden=true;$('connection').textContent=`Live model · ${data.revision.slice(0,6)}`;
+   return data;
+  } catch (error) {
+   $('error').hidden=false;$('error').textContent=`${model?'Keeping last good model.':'Unable to load model.'} ${error.message}`;
+   $('connection').textContent='Model needs attention';
+   throw error;
+  } finally { modelRequest = null; }
+ })();
+ return modelRequest;
+}
+async function refresh(){try{await loadModel();}catch{}finally{setTimeout(refresh,2000);}}
+
 function animate(){requestAnimationFrame(animate);if(!camera)return;controls.update();for(const l of labels){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;l.el.style.left=`${Math.max(65,Math.min(viewport.clientWidth-65,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}renderer.render(scene,camera);}animate();refresh();
 // Small read-only diagnostics surface for automated verification.
 window.stud=window.clubhouse={get model(){return model},get selected(){return selected?.userData.id},get visibleCount(){return meshes.filter(m=>m.visible).length},get view(){return currentView}};
@@ -205,7 +260,17 @@ function renderPartComments(){
 }
 function renderComments(){
  $('commentcount').textContent=comments.filter(c=>!c.resolved).length+' open';
- $('allcomments').innerHTML=comments.map(c=>`<article class="comment"><button data-comment-part="${escape(c.part_id)}" class="commentpart">${escape(c.part_id)} ↗</button><p>${escape(c.text)}</p><small>${escape(new Date(c.created_at).toLocaleString())} · ${c.resolved?'Resolved':'Open'}${model&&!model.parts.some(p=>p.id===c.part_id)?' · Part removed from current model':''}</small><button class="resolve" data-comment-id="${escape(c.id)}">${c.resolved?'Reopen':'Resolve'}</button></article>`).join('')||'<p class="sub">No comments yet. Select any part to get started.</p>';
+ $('allcomments').innerHTML=comments.map(c=>{
+  const area=c.kind==='area';
+  const subject=area?`<button class="areathumbnail" data-area-id="${escape(c.id)}"><img loading="lazy" src="/api/comment-images/${encodeURIComponent(c.id)}" alt="Area screenshot"><span>View screenshot ↗</span></button>`:`<button data-comment-part="${escape(c.part_id)}" class="commentpart">${escape(c.part_id)} ↗</button>`;
+  const removed=!area&&model&&!model.parts.some(p=>p.id===c.part_id);
+  return `<article class="comment">${subject}<p>${escape(c.text)}</p><small>${escape(new Date(c.created_at).toLocaleString())} · ${c.resolved?'Resolved':'Open'}${area?` · Screenshot of model ${escape(c.revision)}`:''}${removed?' · Part removed from current model':''}</small><button class="resolve" data-comment-id="${escape(c.id)}">${c.resolved?'Reopen':'Resolve'}</button></article>`;
+ }).join('')||'<p class="sub">No comments yet. Select a part or capture an area to get started.</p>';
+ $('allcomments').querySelectorAll('[data-area-id]').forEach(button=>button.onclick=()=>{
+  const comment=comments.find(c=>c.id===button.dataset.areaId);
+  $('savedareaimage').src=`/api/comment-images/${encodeURIComponent(comment.id)}`;
+  $('savedareatext').textContent=comment.text;$('areaimageview').showModal();
+ });
  $('allcomments').querySelectorAll('[data-comment-part]').forEach(b=>b.onclick=()=>{const m=meshes.find(m=>m.userData.id===b.dataset.commentPart);if(!m)return;visibility.set(m.userData.assembly,true);const check=[...$('assemblies').querySelectorAll('input')].find(i=>i.dataset.assembly===m.userData.assembly);if(check)check.checked=true;applyDisplay();select(m);$('partcomments').scrollIntoView({behavior:'smooth',block:'center'});});
  $('allcomments').querySelectorAll('[data-comment-id]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const c=comments.find(c=>c.id===b.dataset.commentId);await commentRequest({action:'resolve',id:c.id,resolved:!c.resolved});}catch(e){$('commentstatus').textContent=e.message;b.disabled=false;}});
  rememberDraft();renderPartComments();
@@ -370,3 +435,13 @@ async function refreshValidation(){
  finally{setTimeout(refreshValidation,5000);}
 }
 refreshValidation();
+
+const showTool=createShowTool({loadModel,display:displayShow});
+registerShowTool(document.modelContext,showTool).catch(error=>console.warn('Stud show tool could not register:',error));
+
+$('closeareaimage').onclick=()=>$('areaimageview').close();
+installAreaCapture({viewport,capture:()=>{
+ if(!model||!camera)throw new Error('Load a design before capturing an area.');
+ renderer.render(scene,camera);
+ return {canvas:snapshotViewer(renderer.domElement,labelRoot),revision};
+},save:commentRequest});

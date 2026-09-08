@@ -111,6 +111,16 @@ class StudTests(unittest.TestCase):
                 self.assertIn(b'<b>stud</b>', get('/'))
                 self.assertIn(b'frame.stud.01', get('/api/parts.csv'))
                 self.assertTrue(get('/vendor/three.js'))
+                self.assertIn(b'createShowTool', get('/show.js'))
+                self.assertIn(b'installAreaCapture', get('/area-capture.js'))
+                # Area captures retain the viewed revision, even if the next build fails.
+                from test_area_comments import area_payload, png
+                screenshot = area_payload(png(100, 100))
+                request = urllib.request.Request(url+'/api/comments', json.dumps(screenshot).encode(),
+                                                 {'Content-Type': 'application/json'})
+                with urllib.request.urlopen(request, timeout=10) as response:
+                    self.assertEqual(response.status, 200)
+                self.assertEqual(get('/api/comment-images/'+screenshot['id']), png(100, 100))
                 last_good=(project/'output/model/model.json').read_bytes()
                 with (project/'design.py').open('a') as stream:
                     stream.write("\nproject.box('collision', 'Frame', '2x4', (1.5, 3.5, 80), (0, 0, 0))\n")
@@ -118,6 +128,13 @@ class StudTests(unittest.TestCase):
                 self.assertIn('build_error',report)
                 self.assertTrue(any(f['status']=='FAIL' and f['rule']=='solid_collision' for f in report['findings']))
                 self.assertEqual((project/'output/model/model.json').read_bytes(),last_good)
+                screenshot['id'] = str(uuid.uuid4())
+                request = urllib.request.Request(url+'/api/comments', json.dumps(screenshot).encode(),
+                                                 {'Content-Type': 'application/json'})
+                with urllib.request.urlopen(request, timeout=10) as response:
+                    self.assertEqual(response.status, 200)
+                self.assertEqual(get('/api/comment-images/'+screenshot['id']), png(100, 100))
+
             finally:
                 process.terminate()
                 process.communicate(timeout=10)

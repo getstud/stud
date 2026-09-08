@@ -42,6 +42,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(stream.getvalue().encode(),'text/csv','stud-costs.csv')
             if path=='/api/comments':
                 return self.send(json.dumps({'comments':comments.read()}).encode(),'application/json')
+            if path.startswith('/api/comment-images/'):
+                try:
+                    image = comments.image(path.removeprefix('/api/comment-images/'))
+                except (FileNotFoundError, ValueError):
+                    return self.send(b'Not found', 'text/plain', status=404)
+                return self.send(image, 'image/png')
             if path=='/api/validation':
                 error=None
                 try: model()
@@ -58,7 +64,7 @@ class Handler(BaseHTTPRequestHandler):
                 d=model();s=io.StringIO();w=csv.writer(s);w.writerow(['material','modeled_parts','stock_allowance','basis','status','product_url'])
                 for r in d['materials']: w.writerow([r['name'],r['parts'],r['purchase'],r['basis'],r['status'],r['url']])
                 return self.send(s.getvalue().encode(),'text/csv','stud-materials.csv')
-            routes={'/':'web/index.html','/app.js':'web/app.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
+            routes={'/':'web/index.html','/app.js':'web/app.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
             file=ROOT/routes[path]
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')
@@ -75,12 +81,14 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(b'Expected JSON','text/plain',status=415)
         try:
             length=int(self.headers.get('Content-Length','0'))
-            if not 0 < length <= 32768: raise ValueError('Invalid request size')
+            limit = 8 * 1024 * 1024 if urlsplit(self.path).path == '/api/comments' else 32768
+            if not 0 < length <= limit: raise ValueError('Invalid request size')
             payload=json.loads(self.rfile.read(length))
             if not isinstance(payload,dict): raise ValueError('Expected an object')
             if urlsplit(self.path).path=='/api/pricing':
                 return self.send(json.dumps(prices.update(payload,model())).encode(),'application/json')
-            rows=comments.update(payload,model() if payload.get('action','add')=='add' else None)
+            needs_model = payload.get('action','add') == 'add' and payload.get('kind','part') == 'part'
+            rows=comments.update(payload,model() if needs_model else None)
             return self.send(json.dumps({'comments':rows}).encode(),'application/json')
         except (ValueError,TypeError) as e:
             return self.send(json.dumps({'error':str(e)}).encode(),'application/json',status=400)

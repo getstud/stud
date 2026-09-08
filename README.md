@@ -91,3 +91,59 @@ All commands default to the current working directory when no project is supplie
 ## Validation and coverage
 
 New projects automatically check solid collisions and stock fit. Add measured contact, panel support, opening clearance and face alignment requirements; the viewer’s **Checks** section shows findings, highlights and coverage by assembly. See [the validation guide](docs/validation.md) for schemas, tolerances, exceptions and supported geometry.
+
+## Show a design with WebMCP
+
+In a compatible browser, Stud registers one site tool: `show`. It presents the
+current project's latest valid model in the shared viewer. No separate MCP
+server is needed. Browsers without WebMCP retain the normal interface.
+
+- `{}` frames the whole design in perspective.
+- `{"part_ids":["frame.stud.01"],"view":"front"}` frames and outlines specific parts.
+- `{"region":{"min":[0,0,0],"max":[24,24,96]},"view":"perspective"}` frames and outlines a region.
+
+Use either `part_ids` (1–100 unique IDs) or `region`, or omit both. Region
+coordinates are inches, X width, Y depth, Z up; every maximum must exceed its
+minimum. Views are `perspective`, `front`, `side`, and `top`. Optional
+`expected_revision` rejects a different revision.
+
+Showing reveals all assemblies, turns off exploded/transparent display, clears
+previous highlights, and brings the viewer into view. A single targeted part is
+also selected in the inspector. Surrounding geometry remains visible. Use
+**Fit model** to clear the focus and return to the full design.
+
+Success returns `ok`, `model_revision`, `project_name`, `view`, targeted
+`part_ids`, the framed `region`, `units`, and `visible_part_count`. This confirms
+what was rendered, not that the user saw or approved it. Invalid arguments,
+missing parts, revision conflicts, and failed builds return `ok: false` with a
+structured `error`. Failed rebuilds retain the last good model and do not report
+a successful show. The tool does not modify designs, comments, or prices;
+refreshing can rebuild the project's generated exports.
+
+Registration follows the [Codex Site tools documentation](https://learn.chatgpt.com/docs/webmcp)
+and uses `document.modelContext.registerTool` when available.
+
+## Comment on an area screenshot
+
+Click **Comment on an area** above the viewer, then drag a rectangle over the
+frozen view. Add a comment to the cropped preview and save. Escape or Cancel
+exits capture. This captures pixels (including visible dimension labels); it
+never selects parts or tries to identify objects inside the rectangle.
+
+Area screenshots appear with part comments in **Comments**. Click a thumbnail
+to view the original capture, and resolve or reopen it like any other comment.
+The saved image stays unchanged when geometry, visibility, or the camera changes.
+
+Comments live in `annotations/comments.json`. An area comment has `kind: "area"`,
+its captured `revision`, and `image` metadata with a relative `path`, pixel
+`width` and `height`, and `mime_type`. Its PNG lives at
+`annotations/screenshots/<comment-id>.png`. Keep the entire `annotations/`
+folder with the project. Existing part comments remain compatible.
+
+Tell the agent **“Read my comments”** when ready. It can read the comment JSON
+and inspect each referenced PNG. Through the local server, comments are at
+`GET /api/comments` and images at `GET /api/comment-images/<comment-id>`.
+Saving a screenshot comment doesn't require the current design to build: its
+image and revision describe the view that was captured. Captures are limited
+to 2048 pixels on the longest side; the server accepts PNGs up to 5 MB and
+4096 pixels per side. No new WebMCP tools or automatic notifications are added.

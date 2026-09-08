@@ -5,7 +5,7 @@
   "scripts": {
     "start": "python3 serve.py",
     "build": "python3 build.py",
-    "test": "python3 -m unittest discover -s tests -v",
+    "test": "python3 -m unittest discover -s tests -v && node --test tests/*.mjs",
     "stud": "node bin/stud.js"
   },
   "keywords": [],
