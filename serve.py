@@ -1,5 +1,5 @@
 """Local read-only viewer with automatic rebuilds. python3 serve.py --port 8765"""
-import argparse, csv, io, json, mimetypes, subprocess, sys, threading, webbrowser
+import argparse, csv, io, json, mimetypes, os, re, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
@@ -13,6 +13,23 @@ update_notice=UpdateNotice(ROOT)
 comments=CommentStore(PROJECT / "annotations/comments.json")
 prices=PriceStore(PROJECT / "annotations/prices.json")
 lock=threading.Lock(); stamp=None; data=None
+
+def viewer_appearance():
+    """Expose only validated appearance settings, never the rest of Codex config."""
+    try:
+        import tomllib
+        config = Path(os.environ.get('CODEX_HOME', Path.home() / '.codex')) / 'config.toml'
+        desktop = tomllib.loads(config.read_text()).get('desktop', {})
+        mode = desktop.get('appearanceTheme', 'system')
+        result = {'mode': mode if mode in ('light', 'dark', 'system') else 'system', 'colors': {}}
+        for theme in ('light', 'dark'):
+            source = desktop.get(f'appearance{theme.title()}ChromeTheme', {})
+            result['colors'][theme] = {key: value for key, value in source.items()
+                if key in ('surface', 'ink', 'accent') and isinstance(value, str)
+                and re.fullmatch(r'#[0-9a-fA-F]{6}', value)}
+        return result
+    except (ImportError, OSError, ValueError, TypeError, AttributeError):
+        return {'mode': 'system', 'colors': {}}
 
 def model():
     global stamp,data
@@ -31,6 +48,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path=urlsplit(self.path).path
         try:
+            if path=='/appearance.js':
+                return self.send(('window.studAppearance=' + json.dumps(viewer_appearance()) + ';').encode(), 'text/javascript')
             if path=='/api/update':
                 return self.send(json.dumps(update_notice.check()).encode(),'application/json')
             if path=='/api/pricing':
@@ -77,7 +96,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send(b'Not found', 'text/plain', status=404)
                 kind = 'text/javascript' if file.suffix in ('.js', '.mjs') else mimetypes.guess_type(str(file))[0] or 'application/octet-stream'
                 return self.send(file.read_bytes(), kind)
-            routes={'/build-animation.js':'web/build-animation.js','/environment.js':'web/environment.js','/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
+            routes={'/theme.js':'web/theme.js','/build-animation.js':'web/build-animation.js','/environment.js':'web/environment.js','/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
             file=ROOT/routes[path]
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')

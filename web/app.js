@@ -10,12 +10,27 @@ const $=id=>document.getElementById(id);
 const viewport=$('viewport'), labelRoot=$('labels');
 // Thin roof layers need depth precision even when the exploded view is zoomed out.
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,logarithmicDepthBuffer:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor('#eeefe9');
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.outputColorSpace=THREE.SRGBColorSpace;viewport.prepend(renderer.domElement);
 const scene=new THREE.Scene();scene.add(new THREE.HemisphereLight('#fffff0','#768371',2.6));
 const sun=new THREE.DirectionalLight('#fff4dc',3);sun.position.set(150,230,100);scene.add(sun);
 const group=new THREE.Group();scene.add(group);
 const grid=new THREE.GridHelper(320,20,'#c6cebf','#dce0d5');grid.position.set(72,-.5,48);scene.add(grid);
+function applyViewerTheme() {
+ const colors=getComputedStyle(document.documentElement);
+ renderer.setClearColor(colors.getPropertyValue('--stage').trim());
+ // GridHelper stores its two colors per vertex, so update the existing buffer.
+ const positions=grid.geometry.attributes.position, colorsAttribute=grid.geometry.attributes.color;
+ const major=new THREE.Color(colors.getPropertyValue('--grid-major').trim());
+ const minor=new THREE.Color(colors.getPropertyValue('--grid-minor').trim());
+ for(let i=0;i<positions.count;i++) {
+  const color=(positions.getX(i)===0 || positions.getZ(i)===0)?major:minor;
+  colorsAttribute.setXYZ(i,color.r,color.g,color.b);
+ }
+ colorsAttribute.needsUpdate=true;
+}
+applyViewerTheme();
+window.addEventListener('themechange',applyViewerTheme);
 let camera,controls,model,revision,meshes=[],labels=[],dimGroup=new THREE.Group(),selected=null,currentView='perspective';scene.add(dimGroup);
 let selectedEnvironment = null;
 const environment = createEnvironment({THREE, scene, onChange: renderEnvironment});
