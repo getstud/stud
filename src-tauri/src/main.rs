@@ -9,6 +9,7 @@ use std::{
     time::Duration,
 };
 use tauri::{Manager, State};
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_updater::UpdaterExt;
 #[path = "../../desktop/integration.rs"]
 mod integration;
@@ -67,6 +68,62 @@ async fn status(app: tauri::AppHandle) -> Result<Status, String> {
         cli_installed: integration::cli_installed(),
         updates_configured: updates_configured(&app),
     })
+}
+
+#[tauri::command]
+async fn list_projects(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    project_catalog(app, None).await
+}
+
+#[tauri::command]
+async fn add_project(app: tauri::AppHandle, window: tauri::WebviewWindow) -> Result<bool, String> {
+    let dialog = app
+        .dialog()
+        .file()
+        .set_title("Add a Stud project")
+        .set_parent(&window);
+    let selected = tauri::async_runtime::spawn_blocking(move || dialog.blocking_pick_folder())
+        .await
+        .map_err(|e| e.to_string())?;
+    let Some(selected) = selected else {
+        return Ok(false);
+    };
+    let path = selected.into_path().map_err(|e| e.to_string())?;
+    project_catalog(app, Some(path)).await?;
+    Ok(true)
+}
+
+async fn project_catalog(
+    app: tauri::AppHandle,
+    add: Option<std::path::PathBuf>,
+) -> Result<serde_json::Value, String> {
+    let resources = app.path().resource_dir().map_err(|e| e.to_string())?;
+    tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(windows)]
+        let python = resources.join("runtime/python.exe");
+        #[cfg(not(windows))]
+        let python = resources.join("runtime/bin/python3");
+        let mut command = Command::new(python);
+        command
+            .args(["-B", "-E", "-s"])
+            .arg(resources.join("engine/stud_cli.py"))
+            .args(["projects", "--json"]);
+        if let Some(path) = add {
+            command.arg("--add").arg(path);
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            command.creation_flags(0x08000000);
+        }
+        let output = command.output().map_err(|e| e.to_string())?;
+        if !output.status.success() {
+            return Err(String::from_utf8_lossy(&output.stderr).trim().to_owned());
+        }
+        serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -146,6 +203,7 @@ fn main() {
         _ => {}
     }
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(Updates::default())
         .setup(|app| {
             if updates_configured(app.handle()) {
@@ -156,6 +214,8 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             status,
+            list_projects,
+            add_project,
             install_cli,
             check_update,
             install_update

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+import os
 import unittest
 from stud import Project, Stock, pack_lengths
 from build import compile_project, parts_csv
@@ -10,6 +12,9 @@ class ModelTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
+        env = patch.dict(os.environ, STUD_DATA_DIR=str(Path(temporary.name) / 'catalog'))
+        env.start()
+        self.addCleanup(env.stop)
         self.project = init_project(Path(temporary.name)/'test')
 
     def test_short_piece_uses_correct_length_axis(self):

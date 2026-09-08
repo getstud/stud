@@ -8,6 +8,12 @@
   <main>
     <header><div class="wordmark"><img src="logo.svg" alt="" aria-hidden="true">stud<span class="edition">WORKSHOP TOOLS</span></div><span id="version" class="version">Desktop</span></header>
     <section class="intro"><p class="eyebrow">YOUR WORKSHOP, CONNECTED.</p><h1>Ready for your<br>next build.</h1><p class="lead">stud brings the engine. Codex brings the conversation.<br>Keep your designs wherever you work.</p></section>
+    <section class="projects" aria-labelledby="projects-title">
+      <div class="section-heading"><h2 id="projects-title">Your projects</h2><div class="action-row"><button id="add-project" class="primary">Add project</button><button id="refresh-projects" class="secondary">Refresh</button></div></div>
+      <p id="projects-message" class="message" role="status" aria-live="polite">Loading projects…</p>
+      <ul id="project-list"></ul>
+      <p class="fine">Choose an existing Stud project folder to add it to your workshop. Projects also appear when you use them with stud.</p>
+    </section>
     <section class="setup" aria-labelledby="cli-title"><div class="section-heading"><span class="step">01</span><h2 id="cli-title">Connect to Codex</h2><span id="cli-state" class="badge">Checking…</span></div><p>Install the <code>stud</code> command once. Then ask Codex to open your project and show its viewer in the in-app browser.</p><div class="action-row"><button id="install-cli" class="primary" disabled>Install command-line tool <span aria-hidden="true">↗</span></button><button id="copy-path" class="text-button" disabled>Copy CLI path</button></div><p id="cli-message" class="message" role="status" aria-live="polite"></p><details><summary>Working from a terminal?</summary><pre>stud init my-project
 stud serve my-project
 stud validate my-project</pre><p id="cli-path" class="path"></p></details></section>

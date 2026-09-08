@@ -3,6 +3,8 @@ const invoke = window.__TAURI__?.core.invoke;
 let checking = false;
 let installing = false;
 let info;
+let addingProject = false;
+let projectRefresh = 0;
 
 async function refresh() {
   info = await invoke('status');
@@ -65,3 +67,54 @@ if (invoke) {
   $('cli-message').textContent = 'Open this setup window through the stud desktop app.';
   $('update-message').textContent = 'Desktop app required';
 }
+
+async function refreshProjects() {
+  if (!invoke) { $('projects-message').textContent = 'Open the desktop app to see your projects.'; return; }
+  const revision = ++projectRefresh;
+  $('refresh-projects').disabled = true;
+  try {
+    const projects = await invoke('list_projects');
+    if (revision !== projectRefresh) return;
+    $('project-list').replaceChildren();
+    for (const project of projects) {
+      const row = document.createElement('li');
+      const name = document.createElement('strong');
+      name.textContent = project.name;
+      const path = document.createElement('p');
+      path.className = 'path';
+      path.textContent = project.path;
+      row.append(name, path);
+      if (!project.available) {
+        const missing = document.createElement('span');
+        missing.className = 'badge';
+        missing.textContent = 'Folder or design.py missing';
+        row.append(missing);
+      }
+      $('project-list').append(row);
+    }
+    $('projects-message').textContent = projects.length ? '' : 'Your next build starts here. Create or register a project to see it in this list.';
+  } catch (error) { if (revision === projectRefresh) $('projects-message').textContent = `Couldn’t load projects. ${error}`; }
+  finally { if (revision === projectRefresh) $('refresh-projects').disabled = addingProject; }
+}
+$('refresh-projects').addEventListener('click', refreshProjects);
+window.addEventListener('focus', () => { if (!addingProject) refreshProjects(); });
+refreshProjects();
+
+$('add-project').disabled = !invoke;
+$('add-project').addEventListener('click', async () => {
+  if (!invoke || addingProject) return;
+  addingProject = true;
+  ++projectRefresh;
+  $('add-project').disabled = true;
+  $('refresh-projects').disabled = true;
+  try {
+    await invoke('add_project');
+    await refreshProjects();
+  } catch (error) {
+    $('projects-message').textContent = `Couldn’t add project. ${error}`;
+  } finally {
+    addingProject = false;
+    $('add-project').disabled = false;
+    $('refresh-projects').disabled = false;
+  }
+});

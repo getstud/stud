@@ -1,3 +1,5 @@
+from unittest.mock import patch
+import os
 import json
 from pathlib import Path
 import subprocess
@@ -15,6 +17,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class StudTests(unittest.TestCase):
+    def setUp(self):
+        catalog = tempfile.TemporaryDirectory()
+        self.addCleanup(catalog.cleanup)
+        env = patch.dict(os.environ, STUD_DATA_DIR=catalog.name)
+        env.start()
+        self.addCleanup(env.stop)
+
     def command(self, *args):
         return subprocess.run([sys.executable, str(ROOT/'stud_cli.py'), *map(str, args)],
                               cwd=tempfile.gettempdir(), capture_output=True, text=True)

@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import sqlite3
+from stud.projects import register, list_projects
 
 ROOT = Path(__file__).resolve().parent
 
@@ -38,6 +40,7 @@ Saved comments and prices live in `annotations/`; keep them with this project.
 Generated files live in `output/model/`. Units are inches, with Z up.
 Only open trusted designs: design.py and its helpers are executable Python.
 ''')
+    register(destination, title)
     return destination
 
 
@@ -49,6 +52,9 @@ def main(argv=None):
     version = json.loads(version_file.read_text())['version']
     parser.add_argument('--version', action='version', version=f'stud {version}')
     commands = parser.add_subparsers(dest='command', required=True)
+    catalog = commands.add_parser('projects', help='List remembered projects or register an existing folder')
+    catalog.add_argument('--add', type=Path)
+    catalog.add_argument('--json', action='store_true')
     init = commands.add_parser('init', help='Create a new project with a starter model')
     init.add_argument('directory', type=Path)
     init.add_argument('--name')
@@ -64,6 +70,19 @@ def main(argv=None):
             command.add_argument('--strict', action='store_true')
     args = parser.parse_args(argv)
     try:
+        if args.command == 'projects':
+            if args.add:
+                register(args.add)
+            projects = list_projects()
+            if args.json:
+                print(json.dumps(projects))
+            else:
+                for project in projects:
+                    suffix = '' if project['available'] else ' (missing)'
+                    print(f"{project['name']}: {project['path']}{suffix}")
+            return 0
+        if args.command != 'init':
+            register(args.directory)
         if args.command == 'init':
             destination = init_project(args.directory, args.name)
             print(f'Created stud project: {destination}')
@@ -83,7 +102,7 @@ def main(argv=None):
             flags = [flag for flag in ('--json', '--strict') if getattr(args, flag[2:])]
             return subprocess.call([sys.executable, '-B', '-E', '-s', str(ROOT/'validate.py'),
                                     '--project', str(args.directory.resolve()), *flags])
-    except (ValueError, OSError, KeyError, SyntaxError) as error:
+    except (ValueError, OSError, KeyError, SyntaxError, sqlite3.Error) as error:
         print(f'stud: {error}', file=sys.stderr)
         return 1
     return 0

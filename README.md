@@ -85,6 +85,12 @@ Parts, materials, and cost exports come from the same model revision. If a rebui
 
 ## Pick up where you left off
 
+The desktop app lists remembered projects, with their folder locations and missing-folder status. Projects are registered by `stud init`, `serve`, `build`, and `validate`; the list refreshes when the app regains focus or you select Refresh.
+
+Use **Add project** in the desktop app to choose an existing project with the native folder picker. The folder must contain `design.py`; adding it does not execute the design. You can also register an existing project with `stud projects --add /path/to/project`. Use `stud projects` to list projects in a terminal, or `stud projects --json` for tools. Stud tracks the folders you use; it does not scan your computer. If you move a project, register its new location.
+
+The catalog is stored separately from designs in `~/Library/Application Support/stud/projects.sqlite3` on macOS, `%LOCALAPPDATA%/stud/projects.sqlite3` on Windows, and `$XDG_DATA_HOME/stud/projects.sqlite3` (default `~/.local/share`) on Linux. `STUD_DATA_DIR` overrides the catalog directory.
+
 Each project has its own design and `annotations/` folder containing comments, prices, and saved screenshots. Keep that entire folder with the project so an agent can read your feedback when you return.
 
 Generated files live in `output/model/` and can be rebuilt. Your projects live separately from the app, so you can update stud without moving your designs into its installation folder.
