@@ -4,6 +4,8 @@ import {createEnvironment} from '/environment.js';
 import {OrbitControls} from '/vendor/OrbitControls.js';
 import {createShowTool, registerShowTool} from '/show.js';
 import {installAreaCapture, snapshotViewer} from '/area-capture.js';
+import {preserveCamera} from '/camera-transition.js';
+import {FlyControls} from '/fly-controls.js';
 import {BuildAnimation} from '/build-animation.js';
 const buildAnimation=new BuildAnimation();
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -83,12 +85,14 @@ function inches(v){return `${Number(v.toFixed(3))}″`;}
 function feet(v){let f=Math.floor(v/12),i=Number((v-f*12).toFixed(3));return f?`${f}′ ${i}″`:`${i}″`;}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?escape(u.href):'';}catch{return '';}}
 function bounds(){return buildAnimation.atRest(()=>{const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;});}
-function setView(name=currentView, frame=bounds()){
+let focusDistance = 100;
+function setView(name=currentView, frame=bounds(), preserve=false){
+ const previous=camera,previousTarget=controls?.target?.clone();
  currentView=name;const b=frame,center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
  // Report pages hide the canvas; keep the camera valid until it is visible again.
  const aspect=viewport.clientWidth && viewport.clientHeight ? viewport.clientWidth/viewport.clientHeight : 1;controls?.dispose();
  const extent=Math.max(size.x,size.y,size.z,20),radius=size.length()/2;
- if(name==='perspective'){
+ if(name==='perspective'||name==='firstperson'){
   camera=new THREE.PerspectiveCamera(38,aspect,.1,10000);
   const limiting=Math.min(camera.fov*Math.PI/360,Math.atan(Math.tan(camera.fov*Math.PI/360)*aspect));
   camera.position.copy(center).add(new THREE.Vector3(1,.75,1.3).normalize().multiplyScalar(radius/Math.sin(limiting)*1.15));
@@ -100,9 +104,15 @@ function setView(name=currentView, frame=bounds()){
   if(name==='front')camera.position.copy(center).add(new THREE.Vector3(0,0,extent*4));
   if(name==='side')camera.position.copy(center).add(new THREE.Vector3(extent*4,0,0));
  }
- camera.lookAt(center);controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(center);controls.enableDamping=true;controls.enableRotate=name==='perspective';controls.minDistance=8;controls.maxDistance=5000;controls.update();
+ camera.lookAt(center);
+ let target=center;
+ if(preserve && previous){const state=preserveCamera(previous,camera,name,previousTarget,focusDistance);target=state.focus;focusDistance=state.distance;}
+ else focusDistance=camera.position.distanceTo(center);
+ if(name==='firstperson')controls=new FlyControls(camera,renderer.domElement);
+ else {controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=name==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();}
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
- $('viewlabel').textContent=`${name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · INCHES`;
+ $('navigationhint').textContent=name==='firstperson'?'Click scene · WASD fly · Drag to look · Q/E down/up · Shift faster · Esc release':'Drag to orbit · Click a part to inspect';
+ $('viewlabel').textContent=`${name==='firstperson'?'FLY':name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · INCHES`;
 }
 const showGroup = new THREE.Group();scene.add(showGroup);
 let showFrame = null;
@@ -301,7 +311,7 @@ function renderList(){if(!model)return;const q=$('search').value.toLowerCase();c
 let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const partHit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0], environmentHit=environment.pick(ray);if(environmentHit&&(!partHit||environmentHit.distance<partHit.distance))inspectEnvironment(environmentHit.entry.asset.id);else select(partHit?.object);});
 $('search').oninput=renderList;for(const id of ['dims','ghost','explode'])$(id).onchange=applyDisplay;
 $('reset').onclick=()=>{visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
-$('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$('fit').onclick=()=>{clearShow();setView();};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view,bounds(),true));
 $('notesbutton').onclick=()=>{ $('projectmenu').open=false; $('notes').showModal(); };$('closenotes').onclick=()=>$('notes').close();
 // Keep occasional tools off the canvas until requested.
 function setModelPanel(open) {
@@ -356,7 +366,11 @@ new ResizeObserver(()=>{
  if(viewportSize?.width===width && viewportSize?.height===height) return;
  viewportSize={width,height};
  renderer.setSize(width,height);
- if(camera)setView(currentView,showFrame||bounds());
+ if(camera){
+  if(camera.isPerspectiveCamera)camera.aspect=width/height;
+  else {const half=(camera.top-camera.bottom)/2;camera.left=-half*width/height;camera.right=half*width/height;}
+  camera.updateProjectionMatrix();
+ }
 }).observe(viewport);
 let modelRequest = null;
 function loadModel() {
