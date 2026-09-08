@@ -80,11 +80,15 @@ class StudTests(unittest.TestCase):
                                         str(project), '--port', '0'],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             try:
-                import selectors
-                with selectors.DefaultSelector() as selector:
-                    selector.register(process.stdout, selectors.EVENT_READ)
-                    self.assertTrue(selector.select(15), 'Server did not start')
-                line = process.stdout.readline()
+                import queue
+                import threading
+                ready = queue.Queue()
+                reader = threading.Thread(target=lambda: ready.put(process.stdout.readline()), daemon=True)
+                reader.start()
+                try:
+                    line = ready.get(timeout=15)
+                except queue.Empty:
+                    self.fail('Server did not start')
                 self.assertIn('http://', line)
                 url = 'http://' + line.split('http://', 1)[1].strip()
 

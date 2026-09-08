@@ -6,7 +6,12 @@
     "start": "python3 serve.py",
     "build": "python3 build.py",
     "test": "python3 -m unittest discover -s tests -v && node --test tests/*.mjs",
-    "stud": "node bin/stud.js"
+    "stud": "node bin/stud.js",
+    "tauri": "tauri",
+    "desktop:prepare": "node scripts/prepare-desktop.mjs",
+    "desktop:build": "node scripts/build-desktop.mjs",
+    "desktop:dev": "node scripts/build-desktop.mjs --dev",
+    "desktop:smoke": "node scripts/smoke-desktop.mjs"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +23,8 @@
   "private": true,
   "bin": {
     "stud": "bin/stud.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4"
   }
 }

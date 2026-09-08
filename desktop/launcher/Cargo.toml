@@ -1,0 +1,14 @@
+[package]
+name = "stud-launcher"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "stud"
+path = "src/main.rs"
+
+[dependencies]
+fs2 = "0.4"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

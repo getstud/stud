@@ -1,6 +1,6 @@
-# Geometry validation in Stud
+# Geometry validation in stud
 
-Stud checks declared geometric requirements, not structural capacity. Thresholds are project requirements in inches or square inches, not inferred code limits.
+stud checks declared geometric requirements, not structural capacity. Thresholds are project requirements in inches or square inches, not inferred code limits.
 
 New starter projects enable collision and stock checks automatically. Existing projects opt in without changing their legacy rules:
 

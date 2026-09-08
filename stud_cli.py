@@ -43,6 +43,11 @@ Only open trusted designs: design.py and its helpers are executable Python.
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='stud — a local design workshop')
+    version_file = ROOT / 'version.json'
+    if not version_file.exists():
+        version_file = ROOT / 'package.json'
+    version = json.loads(version_file.read_text())['version']
+    parser.add_argument('--version', action='version', version=f'stud {version}')
     commands = parser.add_subparsers(dest='command', required=True)
     init = commands.add_parser('init', help='Create a new project with a starter model')
     init.add_argument('directory', type=Path)
@@ -71,7 +76,7 @@ def main(argv=None):
             serve(args.directory, args.port)
         else:
             flags = [flag for flag in ('--json', '--strict') if getattr(args, flag[2:])]
-            return subprocess.call([sys.executable, str(ROOT/'validate.py'),
+            return subprocess.call([sys.executable, '-B', '-E', '-s', str(ROOT/'validate.py'),
                                     '--project', str(args.directory.resolve()), *flags])
     except (ValueError, OSError, KeyError, SyntaxError) as error:
         print(f'stud: {error}', file=sys.stderr)

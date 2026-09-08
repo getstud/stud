@@ -5,8 +5,10 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from comments import CommentStore
 from pricing import PriceStore
+from updates import UpdateNotice
 ROOT=Path(__file__).resolve().parent
 PROJECT=Path.cwd()
+update_notice=UpdateNotice(ROOT)
 comments=CommentStore(PROJECT / "annotations/comments.json")
 prices=PriceStore(PROJECT / "annotations/prices.json")
 lock=threading.Lock(); stamp=None; data=None
@@ -28,6 +30,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path=urlsplit(self.path).path
         try:
+            if path=='/api/update':
+                return self.send(json.dumps(update_notice.check()).encode(),'application/json')
             if path=='/api/pricing':
                 return self.send(json.dumps(prices.estimate(model())).encode(),'application/json')
             if path=='/api/costs.csv':
@@ -64,7 +68,7 @@ class Handler(BaseHTTPRequestHandler):
                 d=model();s=io.StringIO();w=csv.writer(s);w.writerow(['material','modeled_parts','stock_allowance','basis','status','product_url'])
                 for r in d['materials']: w.writerow([r['name'],r['parts'],r['purchase'],r['basis'],r['status'],r['url']])
                 return self.send(s.getvalue().encode(),'text/csv','stud-materials.csv')
-            routes={'/':'web/index.html','/app.js':'web/app.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
+            routes={'/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
             file=ROOT/routes[path]
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')

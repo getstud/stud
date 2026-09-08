@@ -437,7 +437,7 @@ async function refreshValidation(){
 refreshValidation();
 
 const showTool=createShowTool({loadModel,display:displayShow});
-registerShowTool(document.modelContext,showTool).catch(error=>console.warn('Stud show tool could not register:',error));
+registerShowTool(document.modelContext,showTool).catch(error=>console.warn('stud show tool could not register:',error));
 
 $('closeareaimage').onclick=()=>$('areaimageview').close();
 installAreaCapture({viewport,capture:()=>{

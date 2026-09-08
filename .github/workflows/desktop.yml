@@ -1,0 +1,107 @@
+name: Desktop installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            platform: darwin-arm64
+            triple: aarch64-apple-darwin
+            bundles: app,dmg
+          - runner: macos-15-intel
+            platform: darwin-x64
+            triple: x86_64-apple-darwin
+            bundles: app,dmg
+          - runner: windows-latest
+            platform: win32-x64
+            triple: x86_64-pc-windows-msvc
+            bundles: nsis
+    runs-on: ${{ matrix.runner }}
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      STUD_UPDATER_PUBLIC_KEY: ${{ vars.STUD_UPDATER_PUBLIC_KEY }}
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.triple }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> target
+            desktop/launcher -> target
+      - run: npm ci
+      - run: npm test
+      - name: Verify tag and configure signed updates
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          node -e 'const p=require("./package.json"); if(process.env.GITHUB_REF_NAME !== `v${p.version}`) throw Error("Tag must match package.json version")'
+          node scripts/release-config.mjs
+      - name: Stage runtime and CLI
+        env:
+          STUD_RELEASE_REPOSITORY: ${{ startsWith(github.ref, 'refs/tags/') && github.repository || '' }}
+        run: node scripts/build-desktop.mjs --stage-only --target ${{ matrix.platform }}
+      - name: Verify updater signatures and transport policy
+        run: cargo test --release --manifest-path src-tauri/Cargo.toml --target ${{ matrix.triple }} --bin stud-desktop
+      - name: Build local-test installers
+        if: '!startsWith(github.ref, ''refs/tags/'')'
+        run: node node_modules/@tauri-apps/cli/tauri.js build --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }}
+      - name: Build signed release draft
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: stud ${{ github.ref_name }}
+          releaseBody: 'stud desktop, bundled CLI and Python runtime. See the changelog for this version.'
+          releaseDraft: true
+          prerelease: false
+          args: --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }} --config src-tauri/release.conf.json
+      - name: Smoke test installed macOS app
+        if: runner.os == 'macOS'
+        run: node scripts/smoke-desktop.mjs 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app/Contents/MacOS/stud'
+      - name: Install and smoke test Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem 'src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe' | Select-Object -First 1
+          $installDir = Join-Path $env:LOCALAPPDATA 'stud-smoke'
+          $process = Start-Process -FilePath $installer.FullName -ArgumentList '/S', "/D=$installDir" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Installer failed' }
+          node scripts/smoke-desktop.mjs (Join-Path $installDir 'stud.exe')
+          if ($LASTEXITCODE -ne 0) { throw 'Installed CLI smoke test failed' }
+          $process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Uninstaller failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stud-${{ matrix.platform }}
+          path: |
+            src-tauri/target/${{ matrix.triple }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.triple }}/release/bundle/macos/*.tar.gz*
+            src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe*

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Local setup window only. The model viewer has no desktop permissions.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

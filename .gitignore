@@ -12,3 +12,14 @@ venv/
 .env
 .env.*
 !.env.example
+
+# Desktop build output and local release configuration
+.desktop-cache/
+src-tauri/target/
+src-tauri/resources/
+src-tauri/binaries/
+src-tauri/gen/
+desktop/release.local.json
+*.key
+desktop/launcher/target/
+src-tauri/release.conf.json

@@ -12,7 +12,7 @@ npm run stud -- init ../my-workshop --name "My workshop"
 npm run stud -- serve ../my-workshop
 ```
 
-Open http://127.0.0.1:8765. Stud opens the project directory you select; the app checkout contains no default design.
+Open http://127.0.0.1:8765. stud opens the project directory you select; the app checkout contains no default design.
 
 ## Create another project
 
@@ -74,11 +74,11 @@ npm run stud -- init /tmp/stud-example
 npm run stud -- build /tmp/stud-example
 ```
 
-The original entry points (`serve.py`, `build.py`, `validate.py`) still work and accept `--project /path/to/project`. Project creation and selection are currently command-line operations; the browser is the modeling review workspace. This is a source-distributed local app, not yet a standalone desktop installer or hosted service.
+The original entry points (`serve.py`, `build.py`, `validate.py`) still work and accept `--project /path/to/project`. Project creation and selection are currently command-line operations; the browser is the modeling review workspace. The Tauri desktop app bundles Python and the CLI for macOS and Windows; see [desktop installation and releases](docs/desktop.md).
 
 ## App and project ownership
 
-This repository contains the Stud engine, viewer, CLI, documentation, and generic tests.
+This repository contains the stud engine, viewer, CLI, documentation, and generic tests.
 Designs are separate folders containing `design.py`, helper modules, `annotations/`, and project documents. They can live anywhere and have their own Git repositories. App tests create temporary models and do not require local designs.
 
 `projects/` is an ignored convenience folder for local designs. No designs are
@@ -94,7 +94,7 @@ New projects automatically check solid collisions and stock fit. Add measured co
 
 ## Show a design with WebMCP
 
-In a compatible browser, Stud registers one site tool: `show`. It presents the
+In a compatible browser, stud registers one site tool: `show`. It presents the
 current project's latest valid model in the shared viewer. No separate MCP
 server is needed. Browsers without WebMCP retain the normal interface.
 
