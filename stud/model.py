@@ -2,6 +2,8 @@
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 import math
+import json
+from .environment import asset_path
 
 @dataclass(frozen=True)
 class Stock:
@@ -20,6 +22,7 @@ class Stock:
 class Project:
     def __init__(self, name):
         self.name, self.stocks, self.parts, self.dimensions = name, {}, [], []
+        self.environment = []
         self.notes = []
         self.validation = {}
         self.allowances = []
@@ -62,6 +65,26 @@ class Project:
         part['profile']={'bottom':list(bottom),'top':list(top)}
         if blank_height is not None: part['blank_size']=[width,depth,blank_height]
 
+    def context_asset(self, id, *, source, origin=(0, 0, 0), rotation=(0, 0, 0), parameters=None, name=None, visible=True):
+        """Register visual environment geometry, excluded from parts and takeoffs.
+
+        Modules export create({THREE, parameters, assetUrl}) and return Object3D.
+        Local coordinates are inches, Z up; rotation is XYZ Euler degrees.
+        """
+        if not isinstance(id, str) or not id.strip() or any(a['id'] == id for a in self.environment):
+            raise ValueError('Environment asset IDs must be nonempty and unique')
+        for values in (origin, rotation):
+            if len(values) != 3 or not all(math.isfinite(v) for v in values):
+                raise ValueError('Expected three finite coordinates')
+        if not isinstance(visible, bool) or (name is not None and not isinstance(name, str)):
+            raise ValueError('Invalid environment name or visibility')
+        parameters = {} if parameters is None else parameters
+        if not isinstance(parameters, dict):
+            raise ValueError('Environment parameters must be a JSON object')
+        parameters = json.loads(json.dumps(parameters, allow_nan=False))
+        self.environment.append(dict(id=id, name=name or id, source=asset_path(source),
+            origin=list(origin), rotation=list(rotation), parameters=parameters, visible=visible))
+
     def dimension(self, label, start, end):
         if len(start) != 3 or len(end) != 3: raise ValueError('Dimensions need 3D coordinates')
         length=math.dist(start,end)
@@ -69,7 +92,7 @@ class Project:
         self.dimensions.append(dict(label=label,start=start,end=end,inches=length))
     def export(self):
         if not self.parts: raise ValueError('Empty project')
-        return dict(schema_version=1,name=self.name,units='in',axes='X width, Y depth, Z up',parts=self.parts,stocks={k:asdict(v) for k,v in self.stocks.items()},dimensions=self.dimensions,notes=self.notes,validation=self.validation,materials=takeoff(self.parts,self.stocks)+self.allowances,budget=self.budget)
+        return dict(schema_version=1,name=self.name,units='in',axes='X width, Y depth, Z up',parts=self.parts,environment=self.environment,stocks={k:asdict(v) for k,v in self.stocks.items()},dimensions=self.dimensions,notes=self.notes,validation=self.validation,materials=takeoff(self.parts,self.stocks)+self.allowances,budget=self.budget)
 
 def pack_lengths(cuts, lengths, kerf=.125):
     """First-fit decreasing. One kerf per cut, including final cut: conservative, not optimal."""

@@ -144,6 +144,28 @@ class StudTests(unittest.TestCase):
                 self.assertTrue(get('/vendor/three.js'))
                 self.assertIn(b'createShowTool', get('/show.js'))
                 self.assertIn(b'installAreaCapture', get('/area-capture.js'))
+                self.assertIn(b'createEnvironment', get('/environment.js'))
+                (project/'assets').mkdir()
+                (project/'assets/tree.js').write_text("import './helper.mjs'; export function create() {}")
+                (project/'assets/helper.mjs').write_text('export const radius = 12;')
+                with (project/'design.py').open('a') as stream:
+                    stream.write("\nproject.context_asset('tree', source='assets/tree.js')\n")
+                environment_model = json.loads(get('/api/model'))
+                asset = environment_model['environment'][0]
+                asset_url = '/environment/' + asset['revision'] + '/assets/'
+                self.assertIn(b'create()', get(asset_url + 'tree.js'))
+                with urllib.request.urlopen(url+asset_url+'helper.mjs') as response:
+                    self.assertEqual(response.headers['Content-Type'], 'text/javascript')
+                (project/'assets/helper.mjs').write_text('export const radius = 24;')
+                updated = json.loads(get('/api/model'))
+                self.assertNotEqual(updated['revision'], environment_model['revision'])
+                self.assertEqual(get(asset_url+'helper.mjs'), b'export const radius = 12;')
+                for forbidden in ('/environment/%2e%2e/%2e%2e/design.py', '/environment/%2fetc/passwd'):
+                    with self.assertRaises(urllib.error.HTTPError) as denied:
+                        get(forbidden)
+                    self.assertEqual(denied.exception.code, 404)
+                (project/'assets/tree.js').unlink()
+                self.assertIn('error', json.loads(get('/api/model'))['environment'][0])
                 # Area captures retain the viewed revision, even if the next build fails.
                 from test_area_comments import area_payload, png
                 screenshot = area_payload(png(100, 100))

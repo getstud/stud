@@ -2,10 +2,11 @@
 import argparse, csv, io, json, mimetypes, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, unquote
 from comments import CommentStore
 from pricing import PriceStore
 from updates import UpdateNotice
+from stud.environment import environment_stamp
 ROOT=Path(__file__).resolve().parent
 PROJECT=Path.cwd()
 update_notice=UpdateNotice(ROOT)
@@ -19,7 +20,7 @@ def model():
         sources = set(PROJECT.glob('*.py')) | set((PROJECT/'src').rglob('*.py'))
         sources.update(ROOT/f for f in ('clubhouse/__init__.py','stud/__init__.py','build.py','validate.py','solid_geometry.py','validation_rules.py'))
         sources.update((ROOT/'stud').rglob('*.py'))
-        current=tuple((str(p),p.stat().st_mtime_ns,p.stat().st_size) for p in sorted(sources))
+        current=tuple((str(p),p.stat().st_mtime_ns,p.stat().st_size) for p in sorted(sources)) + environment_stamp(PROJECT)
         if current!=stamp:
             result=subprocess.run([sys.executable,'-B',str(ROOT/'build.py'),'--project',str(PROJECT)],cwd=PROJECT,capture_output=True,text=True,timeout=20)
             if result.returncode: raise ValueError((result.stdout + result.stderr)[-3000:])
@@ -68,7 +69,15 @@ class Handler(BaseHTTPRequestHandler):
                 d=model();s=io.StringIO();w=csv.writer(s);w.writerow(['material','modeled_parts','stock_allowance','basis','status','product_url'])
                 for r in d['materials']: w.writerow([r['name'],r['parts'],r['purchase'],r['basis'],r['status'],r['url']])
                 return self.send(s.getvalue().encode(),'text/csv','stud-materials.csv')
-            routes={'/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/build-animation.js':'web/build-animation.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
+            if path.startswith('/environment/'):
+                relative = Path(unquote(path.removeprefix('/environment/')))
+                base = (PROJECT / 'output/environment').resolve()
+                file = (base / relative).resolve()
+                if relative.is_absolute() or '..' in relative.parts or not file.is_relative_to(base) or not file.is_file():
+                    return self.send(b'Not found', 'text/plain', status=404)
+                kind = 'text/javascript' if file.suffix in ('.js', '.mjs') else mimetypes.guess_type(str(file))[0] or 'application/octet-stream'
+                return self.send(file.read_bytes(), kind)
+            routes={'/build-animation.js':'web/build-animation.js','/environment.js':'web/environment.js','/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
             file=ROOT/routes[path]
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')
