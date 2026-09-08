@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {outlineGeometry,bandedGeometry,layeredGeometry} from '/profile-geometry.js';
 import {createEnvironment} from '/environment.js';
 import {OrbitControls} from '/vendor/OrbitControls.js';
 import {createShowTool, registerShowTool} from '/show.js';
@@ -201,6 +202,9 @@ function notchedProfileGeometry(p){
  geometry.computeVertexNormals();return geometry;
 }
 function partGeometry(p){
+ if(p.profile?.layers)return layeredGeometry(THREE,p);
+ if(p.profile?.bands)return bandedGeometry(THREE,p);
+ if(p.outline)return outlineGeometry(THREE,p);
  if(p.profile?.notch)return notchedProfileGeometry(p);
  if(p.seats?.length)return seatedGeometry(p);
  if(!p.profile)return new THREE.BoxGeometry(...p.size);
@@ -219,13 +223,13 @@ function install(data){
  const oldSelected=selected?.userData.id;model=data;revision=data.revision;disposeTree(group);disposeTree(dimGroup);labelRoot.replaceChildren();labels=[];meshes=[];selected=null;
  const names=[...new Set(data.parts.map(p=>p.assembly))];
  for(const p of data.parts){
-  const stock=data.stocks[p.stock];const mat=new THREE.MeshStandardMaterial({color:stock.color,roughness:.82,metalness:0});
+  const stock=data.stocks[p.stock];const mat=new THREE.MeshStandardMaterial({color:p.color||stock.color,roughness:.82,metalness:0});
   // Project coordinates are X,Y,Z-up; convert via parent rotation so rotations remain correct.
   const m=new THREE.Mesh(partGeometry(p),mat);
   const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(...p.rotation.map(v=>v*Math.PI/180),'XYZ'));
   const basis=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2);
   m.quaternion.copy(basis).multiply(q);m.position.copy(vec(p.origin.map((v,i)=>v+p.size[i]/2)));
-  m.userData=p;m.userData.basePosition=m.position.clone();m.userData.color=stock.color;
+  m.userData=p;m.userData.basePosition=m.position.clone();m.userData.color=p.color||stock.color;
   const edge=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:'#554b3f',transparent:true,opacity:.24}));m.add(edge);group.add(m);meshes.push(m);
  }
  const modelBounds=new THREE.Box3().setFromObject(group);
@@ -273,7 +277,7 @@ function applyDisplay(){
  const explode=$('explode').checked,ghost=$('ghost').checked;
  const names=[...new Set(meshes.map(m=>m.userData.assembly))];
  for(const m of meshes){m.visible=visibility.get(m.userData.assembly)!==false;m.position.copy(m.userData.basePosition);if(explode)m.position.y+=names.indexOf(m.userData.assembly)*17;
-  const transparent=ghost&&['Wall finish','Floor surface','Roof membrane','Deck boards'].includes(m.userData.assembly);m.material.transparent=transparent;m.material.opacity=transparent?.18:1;m.material.depthWrite=!transparent;
+  const transparent=ghost&&['Wall finish','Floor surface','Roof membrane','Deck boards'].includes(m.userData.assembly);const opacity=transparent?.18:(m.userData.opacity??1);m.material.transparent=opacity<1;m.material.opacity=opacity;m.material.depthWrite=opacity===1;
  }
  dimGroup.visible=$('dims').checked&&!explode;labelRoot.hidden=!dimGroup.visible;
  if(selected&&!selected.visible)select(null);renderList();
@@ -291,7 +295,7 @@ function select(mesh){
  renderPartComments();
  if(!selected){$('inspector').innerHTML='<h2>Every piece,<br>accounted for.</h2><p>Select a part to inspect its dimensions.</p>';renderList();return;}
  selected.material.emissive.set('#68400f');const p=selected.userData,s=model.stocks[p.stock];
- $('inspector').innerHTML=`<div class="partid">${escape(p.id)}</div><span class="badge">${escape(p.status.toUpperCase())}</span><div class="size">${p.size.map(inches).join(' × ')}</div><p>${escape(s.name)}</p><dl><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd></dl>${p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
+ $('inspector').innerHTML=`<div class="partid">${escape(p.id)}</div><span class="badge">${escape(p.status.toUpperCase())}</span><div class="size">${p.size.map(inches).join(' × ')}</div><p>${escape(s.name)}</p><dl><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd></dl>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
 }
 function renderList(){if(!model)return;const q=$('search').value.toLowerCase();const filtered=meshes.filter(m=>m.visible&&`${m.userData.id} ${m.userData.assembly} ${model.stocks[m.userData.stock].name}`.toLowerCase().includes(q));$('partlist').innerHTML=filtered.map(m=>`<button class="partitem ${m===selected?'selected':''}" data-id="${escape(m.userData.id)}">${escape(m.userData.id)}</button>`).join('')||'<p>No matching visible parts.</p>';$('partlist').querySelectorAll('button').forEach(b=>b.onclick=()=>select(meshes.find(m=>m.userData.id===b.dataset.id)));}
 let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const partHit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0], environmentHit=environment.pick(ray);if(environmentHit&&(!partHit||environmentHit.distance<partHit.distance))inspectEnvironment(environmentHit.entry.asset.id);else select(partHit?.object);});

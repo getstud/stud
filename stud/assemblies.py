@@ -1,5 +1,5 @@
 """Reusable assemblies that declare the geometric relationships they require."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 
 from .model import Project
@@ -54,6 +54,7 @@ class FramedOpening:
     id: str
     frame: WallFrame
     roles: dict
+    dimensions: dict = field(default_factory=dict)
 
     def include_in_clearance(self, parts):
         """Tag host framing/finishes, including parts created after this builder.
@@ -149,7 +150,7 @@ def framed_opening(project, id, *, frame, start, width, bottom, height,
                 member(f'{pid}.{label}', f'cripple.{pid}.{label}', stud_stock,
                        u, 0, z0, thickness, depth, z1-z0)
 
-    opening = FramedOpening(id, frame, roles)
+    opening = FramedOpening(id, frame, roles, dict(start=start, width=width, bottom=bottom, height=height, wall_depth=depth))
     opening.include_in_clearance(staged.parts)
     rules, requirements = [], []
 

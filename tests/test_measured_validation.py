@@ -84,6 +84,18 @@ class RuleTests(unittest.TestCase):
         b['origin'][2]=.0001
         self.assertEqual(run({'kind':'face_alignment','parts':['a','b'],'axis':2},a,b)[0]['status'],'PASS')
 
+    def test_alignment_projects_actual_vertices_for_rotated_faces(self):
+        a=box('a',(10,1,1),(-5,-.5,0),(0,0,37))
+        b=box('b',(10,5,1),(-5,-2.5,0),(0,0,37))
+        direction=[math.cos(math.radians(37)),math.sin(math.radians(37)),0]
+        rule=dict(kind='face_alignment',parts=['a','b'],direction=direction,faces=['max','max'])
+        self.assertEqual(run(rule,a,b)[0]['status'],'PASS')
+        self.assertEqual(run(dict(kind='face_alignment',parts=['a','b'],axis=0),a,b)[0]['status'],'FAIL')
+        b['origin']=[v+.25*d for v,d in zip(b['origin'],direction)]
+        self.assertAlmostEqual(run(rule,a,b)[0]['measured']['error_in'],.25)
+        for change in ({'direction':[0,0,0]},{'axis':0},{'direction':[True,0,0]}):
+            with self.assertRaises(ValueError):run({**rule,**change},a,b)
+
     def test_opening_ignores_touching_jamb_but_detects_stud(self):
         jamb=box('jamb',(1,2,10),(-1,0,0));stud=box('stud',(1,2,10),(3,0,0))
         rule={'kind':'opening_clearance','parts':['jamb','stud'],'opening':{'size':[6,2,8],'origin':[0,0,0]}}

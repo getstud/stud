@@ -13,8 +13,8 @@ def lines(model):
             counts={}
             for b in r['bins']: counts[b['length']]=counts.get(b['length'],0)+1
             options=[(f"board:{length:g}",f"{length/12:g} ft board",count) for length,count in sorted(counts.items())]
-        elif r['kind']=='coverage':
-            options=[('pack',r['unit'],r['quantity'])]
+        elif r['kind'] in ('coverage','product'):
+            options=[('unit' if r['kind']=='product' else 'pack',r['unit'],r['quantity'])]
         elif r['kind']=='sheet':
             import math
             options=[('sheet',f"{s['sheet'][0]/12:g} × {s['sheet'][1]/12:g} ft sheet",math.ceil(r['square_ft']/(s['sheet'][0]*s['sheet'][1]/144)))]

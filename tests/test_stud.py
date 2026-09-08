@@ -152,6 +152,7 @@ class StudTests(unittest.TestCase):
                 self.assertIn(b'frame.stud.01', get('/api/parts.csv'))
                 self.assertTrue(get('/vendor/three.js'))
                 self.assertIn(b'createShowTool', get('/show.js'))
+                self.assertIn(b'outlineGeometry', get('/profile-geometry.js'))
                 self.assertIn(b'installAreaCapture', get('/area-capture.js'))
                 self.assertIn(b'createEnvironment', get('/environment.js'))
                 (project/'assets').mkdir()

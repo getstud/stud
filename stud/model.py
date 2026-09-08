@@ -15,9 +15,12 @@ class Stock:
     sheet: tuple | None = None
     url: str = ''
     coverage_sq_ft: float | None = None
+    coverage_linear_ft: float | None = None
     purchase_unit: str = 'pack'
     waste_factor: float = 0
     category: str = 'Other'
+    product: bool = False
+    sheet_thickness: float | None = None
 
 class Project:
     def __init__(self, name):
@@ -34,7 +37,16 @@ class Project:
             if field and not all(math.isfinite(v) and v > 0 for v in field): raise ValueError('Stock dimensions must be positive and finite')
         if candidate.section and (len(candidate.section) != 2 or not candidate.lengths): raise ValueError('Lumber needs a two-dimensional section and stock lengths')
         if candidate.sheet and len(candidate.sheet) != 2: raise ValueError('Sheet needs two dimensions')
+        if candidate.sheet_thickness is not None and (not candidate.sheet or isinstance(candidate.sheet_thickness,bool) or not math.isfinite(candidate.sheet_thickness) or candidate.sheet_thickness<=0):
+            raise ValueError('Sheet thickness requires sheet stock and a positive finite thickness')
         if candidate.coverage_sq_ft is not None and (not math.isfinite(candidate.coverage_sq_ft) or candidate.coverage_sq_ft<=0 or not math.isfinite(candidate.waste_factor) or candidate.waste_factor<0): raise ValueError('Invalid coverage allowance')
+        if candidate.coverage_linear_ft is not None:
+            if (not math.isfinite(candidate.coverage_linear_ft) or candidate.coverage_linear_ft<=0
+                or not math.isfinite(candidate.waste_factor) or candidate.waste_factor<0
+                or candidate.coverage_sq_ft or candidate.section or candidate.sheet or candidate.product):
+                raise ValueError('Linear coverage needs an exclusive positive yield and finite nonnegative waste')
+        if type(candidate.product) is not bool or (candidate.product and (candidate.section or candidate.sheet or candidate.coverage_sq_ft)):
+            raise ValueError('Purchased product stock is separate from lumber, sheet and coverage stock')
         self.stocks[id] = candidate
     def box(self, id, assembly, stock, size, origin, *, rotation=(0,0,0), status='proposed', note=''):
         if any(p['id']==id for p in self.parts): raise ValueError(f'Duplicate part: {id}')
@@ -64,6 +76,37 @@ class Project:
         part=self.parts[-1];part['size'][2]=height
         part['profile']={'bottom':list(bottom),'top':list(top)}
         if blank_height is not None: part['blank_size']=[width,depth,blank_height]
+
+    def banded_prism(self, id, assembly, stock, size, origin, bands, *, rotation=(0,0,0), note=''):
+        """One physical blank with connected stepped cuts across its depth."""
+        from profile_geometry import validate_bands
+        validate_bands(size,bands)
+        self.box(id,assembly,stock,size,origin,rotation=rotation,note=note)
+        self.parts[-1].update(profile={'bands':[
+            {key:list(pair) for key,pair in band.items()} for band in bands]},blank_size=list(size))
+
+    def layered_prism(self, id, assembly, stock, size, origin, layers, *, rotation=(0,0,0), note=''):
+        """One connected stock blank with scribed cuts at different depths."""
+        from profile_geometry import validate_layers
+        import copy
+        validate_layers(size,layers)
+        self.box(id,assembly,stock,size,origin,rotation=rotation,note=note)
+        self.parts[-1].update(profile={'layers':copy.deepcopy(layers)},blank_size=list(size))
+
+    def polygon_prism(self, id, assembly, stock, size, origin, outline, *, rotation=(0,0,0), note=''):
+        """Extrude a simple local Y/Z outline across X; size is the stock blank.
+
+        Plumb cuts and seats remain one physical member and one purchase cut.
+        Outline vertices must fit the blank. Holes and curved cuts are unsupported.
+        """
+        from profile_geometry import triangulate_outline
+        triangles=triangulate_outline(outline)
+        if len(size)!=3 or any(v<=0 or not math.isfinite(v) for v in size):
+            raise ValueError('Invalid profile blank')
+        if any(y < -1e-8 or y>size[1]+1e-8 or z < -1e-8 or z>size[2]+1e-8 for tri in triangles for y,z in tri):
+            raise ValueError('Outline exceeds stock blank')
+        self.box(id,assembly,stock,size,origin,rotation=rotation,note=note)
+        self.parts[-1].update(outline=[list(p) for p in outline],blank_size=list(size))
 
     def context_asset(self, id, *, source, origin=(0, 0, 0), rotation=(0, 0, 0), parameters=None, name=None, visible=True):
         """Register visual environment geometry, excluded from parts and takeoffs.
@@ -115,7 +158,11 @@ def coverage_area(part):
     top/bottom faces and trapezoidal sides rather than the bounding box.
     """
     width, depth, height = part['size']
-    if 'profile' not in part:
+    if 'outline' in part:
+        points=part['outline']
+        area=abs(sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(points,points[1:]+points[:1])))/2
+        return max(area,*(width*math.dist(a,b) for a,b in zip(points,points[1:]+points[:1])))
+    if 'profile' not in part or 'bands' in part['profile'] or 'layers' in part['profile']:
         return math.prod(sorted(part['size'])[-2:])
     bottom = part['profile']['bottom']
     top = part['profile']['top']
@@ -126,13 +173,29 @@ def coverage_area(part):
                width * front, width * back)
 
 
+def sheet_blank_candidates(blank, thickness, tolerance=.001):
+    """Possible planar dimensions using the declared sheet thickness."""
+    return [sorted(blank[j] for j in range(3) if j!=i)
+            for i in range(3) if abs(blank[i]-thickness)<=tolerance]
+
+
 def takeoff(parts,stocks):
     groups=defaultdict(list)
     for p in parts: groups[p['stock']].append(p)
     result=[]
     for sid,ps in groups.items():
         s=stocks[sid]; row=dict(stock=sid,name=s.name,parts=len(ps),url=s.url,category=s.category,status='proposed' if any(p['status']=='proposed' for p in ps) else 'verified')
-        if s.coverage_sq_ft:
+        if s.product:
+            count=len({p.get('purchase_component',p['id']) for p in ps})
+            row.update(kind='product',quantity=count,unit=s.purchase_unit,purchase=f'{count} × {s.purchase_unit}',basis='One purchased unit per component; visual subparts are not separate purchases. Product compatibility remains to verify.')
+        elif s.coverage_linear_ft:
+            lengths=[p.get('coverage_length_in') for p in ps]
+            if any(v is None or isinstance(v,bool) or not math.isfinite(v) or v<0 for v in lengths):
+                raise ValueError('Linear coverage parts require finite nonnegative coverage_length_in')
+            length=sum(lengths)/12
+            quantity=math.ceil(length*(1+s.waste_factor)/s.coverage_linear_ft)
+            row.update(kind='coverage',linear_ft=round(length,2),quantity=quantity,unit=s.purchase_unit,purchase=f'{quantity} × {s.purchase_unit}',basis=f'{length:.2f} linear ft net coverage plus {s.waste_factor:.0%} lap/cut allowance; {s.coverage_linear_ft:g} ft per purchase unit. Product-specific yield and installation remain to verify.')
+        elif s.coverage_sq_ft:
             area=sum(coverage_area(part) for part in ps)/144
             quantity=math.ceil(area*(1+s.waste_factor)/s.coverage_sq_ft)
             row.update(kind='coverage',square_ft=round(area,2),quantity=quantity,unit=s.purchase_unit,purchase=f'{quantity} × {s.purchase_unit}',basis=f'{area:.2f} sq ft largest-face area plus {s.waste_factor:.0%} cutting/waste allowance; {s.coverage_sq_ft:g} sq ft per purchase unit. Area allowance; final layout and accessories excluded.')
@@ -143,7 +206,12 @@ def takeoff(parts,stocks):
             for b in bins: lengths[b['length']]+=1
             row.update(kind='lumber',linear_ft=round(sum(x[1] for x in cuts)/12,2),purchase='; '.join(f'{n} × {l/12:g} ft' for l,n in sorted(lengths.items())),bins=bins,basis='1/8 in kerf per cut; exact full-length use needs no cut. No defect allowance; not optimized.')
         elif s.sheet:
-            area=sum(math.prod(sorted(p['size'])[-2:]) for p in ps)
+            area=0
+            for p in ps:
+                blank=p.get('blank_size',p['size'])
+                candidates=sheet_blank_candidates(blank,s.sheet_thickness) if s.sheet_thickness is not None else []
+                dims=candidates[0] if candidates else sorted(blank)[-2:]
+                area+=math.prod(dims)
             count=math.ceil(area/math.prod(s.sheet))
             row.update(kind='sheet',square_ft=round(area/144,2),purchase=f'{count} sheet(s) minimum by area',basis='Area lower bound only; no sheet nesting, offcut or grain-direction check. Not an order quantity.')
         else:

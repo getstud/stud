@@ -5,11 +5,13 @@ description: Create, revise, and check physical designs in Stud, the Python-base
 
 # Stud design
 
-Use the installed Stud app to create and revise design projects. Keep edits in the project’s design files and annotations; changes to Stud itself belong to a separate software-development task. Build parametric assemblies whose geometry, connection requirements, and material quantities come from the same dimensions. Use this workflow for the scope requested: a finish edit needs a targeted rebuild and review; a new design needs its interfaces established before detailed geometry.
+Use the installed Stud app for design projects, keeping design edits in the project’s files and annotations. Design the requested object and its construction assemblies: geometry, connection requirements, and material quantities come from the same dimensions. For buildings, keep scope on the structure and construction finishes; add furnishings or interior decoration only when explicitly requested. Express intended activities as space and clearance requirements. Explicit furniture-fabrication requests remain supported. Use this workflow for the scope requested: a finish edit needs a targeted rebuild and review; a new design needs its interfaces established before detailed geometry.
 
 ## Establish the working context
 
-Locate the installed `stud` command and the target design project. Verify the installation with `stud --version` and `stud --help`. A project has `design.py` exporting `project`; the installation supplies the CLI, model API, viewer, and validation engine. If Stud is unavailable, identify the missing dependency instead of constructing a substitute viewer.
+Identify whether the request concerns a construction project or development of Stud itself. For tool, skill, builder or validation work, implement reusable behavior and exercise it with explicitly labeled test inputs. Missing real-world site or product selections belong to the construction agent's intake workflow; they do not block tool development. Use the project-design workflow below when the user is actually commissioning or revising a physical design.
+
+Locate the installed `stud` command (or source checkout) and target project separately. Verify the installation with `stud --version` and `stud --help`. A project has `design.py` exporting `project`; the installation supplies the CLI, model API, viewer, and validation engine. If Stud is unavailable, identify the missing dependency instead of constructing a substitute viewer.
 
 For project setup, commands, modeling documentation, or unfamiliar validation behavior, read [Stud integration](references/stud-integration.md). Consult the installed modeling documentation as needed; a Stud source checkout is not required.
 
@@ -23,11 +25,13 @@ Build the design in coherent assembly stages, saving a valid model and checking 
 
 ## Turn intent into parameters and interfaces
 
+Keep architectural choices in the project specification and builder arguments. Examples demonstrate coordinated details; use the user’s preferences and your judgment to adapt their form, proportions, finishes and assembly grouping. Reuse the geometric requirements that make the chosen detail work.
+
 Keep a single authoritative specification in the project: requested dimensions, datum definitions, material sizes, openings, finishes, and provisional choices. State whether a dimension is outside framing, finished size, clear space, nominal stock, or actual stock. Normalize geometric calculations to inches; world X/Y/Z means width/depth/elevation.
 
-Carry forward accepted decisions. Use stated assumptions for reversible aesthetic or layout choices; request missing information when it materially determines fit, function, or required design evidence. Ask only for information relevant to the current scope.
+Carry forward accepted decisions. Use stated assumptions for reversible aesthetic or layout choices; request missing information when it materially determines fit, function, or required design evidence. Ask only for information relevant to the current scope. Use Codex `request_user_input` when available and callable in the current mode, or Claude `AskUserQuestion`. Otherwise use an available asynchronous question tool or concise chat fallback. Batch related questions, preserve answers, and wait for required choices while progressing independent work.
 
-For walls in a framed structure, ask whether the walls will use 2×4 or 2×6 lumber before generating wall geometry unless the user or existing project already specifies the framing. Carry that choice into wall depth, openings, and material quantities. Honor an explicitly chosen alternative wall system.
+For new framed buildings or changes to site conditions, foundations, member sizing, enclosure, ceiling intent, overhead clearance or roof ties, read [Framed buildings](references/framed-buildings.md) before generating geometry. Follow its site-input workflow when location affects the design. Ask for wall framing (such as 2×4 or 2×6) and roof style unless the user or existing project already specifies them. Carry wall framing into wall depth, openings, and material quantities, honoring an explicitly chosen alternative wall system. Establish roof form before placing roof-dependent walls; do not silently substitute another form.
 
 Define dependent surfaces before placing parts. Examples:
 
@@ -41,11 +45,11 @@ Give every shared surface one calculation. Derive mating members from that surfa
 
 ## Generate assemblies with their requirements
 
-Build in dependency order for the object: supports and primary frame, openings and moving parts, secondary supports, panels, then finishes and hardware. A shell preview is appropriate for exploring proportions; label its thicknesses and quantities as provisional until detailed.
+Recommend a bottom-up sequence for new structures: foundation and supports → beams, rims, joists and required blocking → subfloor → wall framing, openings, corner backing and lapped caps → roof framing, bearing and overhang supports → enclosure, units, trim and soffits → requested interior construction finishes. Plan opening and finish interfaces first; adapt assembly stages to the construction method. For other objects, follow their support and interface dependencies. A shell preview is appropriate for exploring proportions; label its thicknesses and quantities as provisional until detailed.
 
 Model wood-framed walls as individual studs, plates, and opening framing, with sheathing and finishes as separate parts. A single solid wall is only a provisional envelope for an explicitly requested massing or shell preview; replace it with individual framing members when developing the wall design.
 
-Use documented Stud assembly helpers where they fit the design. `WallFrame` and `framed_opening`, when available, handle wall transforms and generate opening requirements. For recurring assemblies specific to this design, keep helper functions in the project and give their parts stable IDs and explicit requirements.
+Use existing Stud builders before implementing another. `floor_frame`, `wall_frame`, `wall_enclosure`, `gable_roof`, `door_unit` and `window_unit`, when available, generate construction members and requirements; see the installation's `docs/construction.md`. `WallFrame` and `framed_opening` handle wall transforms and opening framing. For a new recurring assembly, use a focused builder returning stable part IDs or roles, interface geometry, and the requirements it owns.
 
 Use semantic IDs such as `cabinet.left.side` or `bench.top.panel.01`; preserve them when the same physical part changes. Orient repeated assemblies in local coordinates, then transform consistently into world coordinates. Stud boxes rotate about their centers.
 
@@ -76,7 +80,7 @@ Derive geometric thresholds from the intended interface. Alignment does not esta
 
 Keep intentional joint exceptions specific to a part pair with a reason. A known incomplete draft requirement remains visible as a warning with its reason; unavailable evidence remains unverified. Never weaken a check merely to obtain a successful build.
 
-**Ready to cover an assembly:** critical relationships pass, or the requested concept explicitly identifies what is provisional. Surfaces and finishes must not conceal unresolved geometry from the review.
+**Ready to cover an assembly:** its required members and interface checks exist, and critical relationships pass or the requested concept identifies the specific unresolved evidence. Automatic collision and stock checks cannot detect an omitted construction detail; a general construction disclaimer does not replace supported geometry or assembly requirements. Surfaces and finishes must not conceal unresolved geometry from the review.
 
 ## Keep the revision loop short
 
