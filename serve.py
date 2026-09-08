@@ -1,5 +1,5 @@
 """Local read-only viewer with automatic rebuilds. python3 serve.py --port 8765"""
-import argparse, csv, io, json, mimetypes, subprocess, sys, threading
+import argparse, csv, io, json, mimetypes, subprocess, sys, threading, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -68,7 +68,7 @@ class Handler(BaseHTTPRequestHandler):
                 d=model();s=io.StringIO();w=csv.writer(s);w.writerow(['material','modeled_parts','stock_allowance','basis','status','product_url'])
                 for r in d['materials']: w.writerow([r['name'],r['parts'],r['purchase'],r['basis'],r['status'],r['url']])
                 return self.send(s.getvalue().encode(),'text/csv','stud-materials.csv')
-            routes={'/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
+            routes={'/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/build-animation.js':'web/build-animation.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
             file=ROOT/routes[path]
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')
@@ -105,7 +105,7 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers();self.wfile.write(body)
     def log_message(self,*args):pass
 
-def serve(project_dir=None, port=8765):
+def serve(project_dir=None, port=8765, open_browser=True):
     global PROJECT, comments, prices, stamp, data
     PROJECT=Path(project_dir or Path.cwd()).resolve()
     if not (PROJECT/'design.py').is_file():
@@ -113,10 +113,11 @@ def serve(project_dir=None, port=8765):
     comments=CommentStore(PROJECT/'annotations/comments.json')
     prices=PriceStore(PROJECT/'annotations/prices.json')
     stamp=data=None
-    model()
     server=ThreadingHTTPServer(('127.0.0.1',port),Handler)
     print(f'stud · {PROJECT.name}: http://127.0.0.1:{server.server_port}',flush=True)
     try:
+        if open_browser:
+            webbrowser.open(f'http://127.0.0.1:{server.server_port}')
         server.serve_forever()
     except KeyboardInterrupt:
         pass
@@ -127,5 +128,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--port',type=int,default=8765)
     parser.add_argument('--project',type=Path,default=Path.cwd())
+    parser.add_argument('--no-open', action='store_true')
     args=parser.parse_args()
-    serve(args.project,args.port)
+    serve(args.project,args.port,open_browser=not args.no_open)

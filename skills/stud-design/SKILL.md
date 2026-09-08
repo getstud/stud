@@ -15,6 +15,12 @@ Read the installation's `engine/README.md` (or checkout README) and relevant API
 
 For an existing project, inspect its generators, assumptions, comments, validation report, and model revision before editing. Preserve unrelated model choices, stable IDs, annotations, and quotes. Treat executable designs as trusted local code only when their source is established.
 
+## Open the viewer before building
+
+For a new design, initialize its project, start `stud serve`, and confirm the viewer is open before writing the design geometry. For an existing design, open or reuse its viewer before making changes. When using Codex's in-app browser, start the server with `--no-open` and open its printed URL in a visible browser tab. Keep that tab and server running throughout the work.
+
+Build the design in coherent assembly stages, saving a valid model and checking that the viewer receives each revision before adding the next stage. The viewer animates new parts in model order after each successful rebuild. Add supports and framing before panels and finishes so the user can watch the design develop. Preserve stable part IDs across revisions; failed builds retain the last good preview. Keep validation requirements accurate at every stage and label incomplete relationships as provisional.
+
 ## Turn intent into parameters and interfaces
 
 Keep a single authoritative specification in the project: requested dimensions, datum definitions, material sizes, openings, finishes, and provisional choices. State whether a dimension is outside framing, finished size, clear space, nominal stock, or actual stock. Normalize geometric calculations to inches; world X/Y/Z means width/depth/elevation.

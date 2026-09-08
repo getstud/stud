@@ -12,8 +12,9 @@ Commands below use placeholders for verified absolute project paths:
 
 ```sh
 stud init /path/to/new-project --name "Project name"
-stud build /path/to/project
 stud serve /path/to/project --port 8766
+# After the viewer is open, edit and build the design in stages.
+stud build /path/to/project
 stud validate /path/to/project --json
 stud validate /path/to/project --strict
 ```
