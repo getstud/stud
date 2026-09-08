@@ -41,7 +41,7 @@ Open Codex and describe your project:
 
 > Use stud to design a workbench for my garage. It should be 6 feet wide and 24 inches deep, with a plywood top and a shelf underneath. Use standard lumber. Create a new project folder, open the viewer, and show me the dimensions and material list.
 
-Have the agent create the project and open its viewer before building the design in stages. New parts animate into view after each successful rebuild. The equivalent commands are:
+Have the agent create the project and open its viewer before building the design in stages. Existing designs appear immediately when the viewer opens. New parts drop into place and fade in after successful live rebuilds. The equivalent commands are:
 
 ```sh
 stud init my-workbench --name "Garage workbench"

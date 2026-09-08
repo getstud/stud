@@ -24,7 +24,7 @@ function escape(s){return String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt
 function inches(v){return `${Number(v.toFixed(3))}″`;}
 function feet(v){let f=Math.floor(v/12),i=Number((v-f*12).toFixed(3));return f?`${f}′ ${i}″`:`${i}″`;}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?escape(u.href):'';}catch{return '';}}
-function bounds(){const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;}
+function bounds(){return buildAnimation.atRest(()=>{const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(model&&$('dims').checked&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;});}
 function setView(name=currentView, frame=bounds()){
  currentView=name;const b=frame,center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
  const aspect=viewport.clientWidth/viewport.clientHeight;controls?.dispose();
@@ -152,6 +152,7 @@ function partGeometry(p){
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
 }
 function install(data){
+ const isLiveUpdate=Boolean(model);
  const previousIds=new Set(meshes.map(m=>m.userData.id));
  buildAnimation.finish();
  clearShow();
@@ -204,7 +205,7 @@ function install(data){
  $('notelist').innerHTML=data.notes.map(n=>`<li>${escape(n)}</li>`).join('');
  if(data.validation_results)renderValidation({revision:data.revision,...data.validation_results});
  applyDisplay();renderList();if(oldSelected)select(meshes.find(m=>m.userData.id===oldSelected));if(!camera)setView();renderComments();$('loading').hidden=true;
- buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
+ if(isLiveUpdate)buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
 }
 reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)buildAnimation.finish();});
 function applyDisplay(){
