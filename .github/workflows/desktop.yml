@@ -31,7 +31,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: node scripts/release-config.mjs
 
-      - name: Clear previous draft readiness before rebuilding
+      - name: Prepare draft and clear previous readiness
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
@@ -140,6 +140,7 @@ jobs:
           $process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstaller failed' }
       - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
           name: stud-${{ matrix.platform }}
           path: |

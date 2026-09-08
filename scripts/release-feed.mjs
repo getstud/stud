@@ -24,12 +24,16 @@ export async function publishFeed(mode, tag, { repository = process.env.GITHUB_R
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository || '')) throw new Error('GITHUB_REPOSITORY is required');
   const gh = (...args) => execute('gh', [...args, '--repo', repository], { encoding: 'utf8' });
   if (mode === 'invalidate') {
-    releaseVersion(tag.slice(1));
+    const release = releaseVersion(tag.slice(1));
     const releases = JSON.parse(execute('gh', ['api', '--paginate', '--slurp', `repos/${repository}/releases`], { encoding: 'utf8' })).flat();
     const existing = releases.find(r => r.tag_name === tag);
     if (existing) {
       if (!existing.draft) throw new Error('Published releases cannot be rebuilt; use a new version');
       if (existing.assets.some(a => a.name === 'release-ready.json')) gh('release', 'delete-asset', tag, 'release-ready.json', '--yes');
+    } else {
+      // The tag already exists. Omit a raw target SHA so GitHub need not create
+      // a new ref or request workflow-writing permission for release creation.
+      gh('release', 'create', tag, '--verify-tag', '--draft', ...(release.channel === 'preview' ? ['--prerelease'] : []), '--title', `stud ${tag}`, '--notes', 'Installers are being built and tested. Do not publish before release-ready.json is attached.');
     }
     return;
   }

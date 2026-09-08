@@ -1,0 +1,2 @@
+# Cryptographic test fixtures must retain their exact bytes on every platform.
+/desktop/test-fixtures/* -text
