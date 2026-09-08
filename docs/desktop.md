@@ -4,6 +4,12 @@ stud is distributed as a Tauri v2 application that includes the Python runtime,
 modeling engine, browser viewer, and native `stud` command. Node and a system
 Python installation are not required on the user's computer.
 
+The app includes the `stud-design` Codex skill at `skills/stud-design` in its
+resources (`stud.app/Contents/Resources` on macOS; the installation directory on
+Windows). Copy that entire folder into your Codex skills directory to enable it.
+The version-controlled source is `skills/stud-design`; desktop builds bundle it
+along with the engine README and validation reference it uses.
+
 The first desktop window handles setup and updates. Codex remains the design
 workspace: it runs `stud` against a project folder and opens the local viewer URL
 in its in-app browser. The desktop WebView does not load executable project

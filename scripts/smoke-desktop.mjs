@@ -44,6 +44,10 @@ const beforeFiles = await bundleFiles();
 let server;
 let blocker;
 try {
+  for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
+    'skills/stud-design/references/stud-integration.md', 'engine/README.md', 'engine/docs/validation.md']) {
+    assert.ok((await fs.readFile(path.join(resources, file), 'utf8')).length, `Missing bundled skill resource: ${file}`);
+  }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
   command('init', project, '--name', 'Installed app test');
   await fs.writeFile(path.join(project, 'helper.py'), "from pathlib import Path\nTITLE=Path('title.txt').read_text()\n");

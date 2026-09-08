@@ -67,6 +67,11 @@ def main(argv=None):
         if args.command == 'init':
             destination = init_project(args.directory, args.name)
             print(f'Created stud project: {destination}')
+            skill = ROOT / 'skills' / 'stud-design'
+            if not skill.is_dir():
+                skill = ROOT.parent / 'skills' / 'stud-design'
+            print(f'Before starting a design, install the skill from {json.dumps(str(skill))} in Codex if needed, '
+                  'then load and follow stud-design.')
             print(f'Open with: stud serve {json.dumps(str(destination))}')
         elif args.command == 'build':
             from build import build

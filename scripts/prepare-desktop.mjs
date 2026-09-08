@@ -33,8 +33,12 @@ await fs.rm(resources, { recursive: true, force: true });
 await fs.mkdir(resources, { recursive: true });
 await fs.cp(path.join(extracted, 'python'), path.join(resources, 'runtime'), { recursive: true, verbatimSymlinks: true });
 await fs.copyFile(path.join(root, 'desktop/THIRD_PARTY_NOTICES.md'), path.join(resources, 'THIRD_PARTY_NOTICES.md'));
+await fs.cp(path.join(root, 'skills/stud-design'), path.join(resources, 'skills/stud-design'), { recursive: true });
 const engine = path.join(resources, 'engine');
 await fs.mkdir(engine, { recursive: true });
+await fs.copyFile(path.join(root, 'README.md'), path.join(engine, 'README.md'));
+await fs.mkdir(path.join(engine, 'docs'), { recursive: true });
+await fs.copyFile(path.join(root, 'docs/validation.md'), path.join(engine, 'docs/validation.md'));
 const files = ['build.py', 'comments.py', 'pricing.py', 'serve.py', 'solid_geometry.py',
   'stud_cli.py', 'updates.py', 'validate.py', 'validation_rules.py'];
 for (const file of files) await fs.copyFile(path.join(root, file), path.join(engine, file));
