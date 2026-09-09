@@ -30,13 +30,14 @@ class AreaCommentsTests(unittest.TestCase):
     def test_image_persists_without_model_or_part_and_can_be_resolved(self):
         with tempfile.TemporaryDirectory() as directory:
             store = CommentStore(Path(directory)/'annotations/comments.json')
-            payload = area_payload()
+            payload = dict(area_payload(), anchor=[12.5, 36, -8])
             store.update(payload, None)
             # Retrying an uncertain save must not create a second record or image.
             store.update(payload, None)
             reopened = CommentStore(store.path)
             row, = reopened.read()
             self.assertEqual(row['kind'], 'area')
+            self.assertEqual(row['anchor'], [12.5, 36, -8])
             self.assertEqual(row['revision'], 'captured-revision')
             self.assertNotIn('part_id', row)
             self.assertNotIn('part_snapshot', row)

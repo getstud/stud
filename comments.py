@@ -1,5 +1,5 @@
 """Persistent part and area-screenshot comments, separate from geometry."""
-import base64, binascii, json, os, struct, threading, uuid, zlib
+import math, base64, binascii, json, os, struct, threading, uuid, zlib
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -73,6 +73,9 @@ class CommentStore:
                     revision = payload.get('revision')
                     if not isinstance(revision, str) or not 1 <= len(revision) <= 128:
                         raise ValueError('A screenshot needs its captured model revision.')
+                    anchor = payload.get('anchor')
+                    if anchor is not None and (not isinstance(anchor, list) or len(anchor) != 3 or any(type(v) not in (int, float) or not math.isfinite(v) for v in anchor)):
+                        raise ValueError('Invalid comment anchor.')
                     image, width, height = decode_screenshot(payload.get('image'))
                     relative = f'screenshots/{uuid.UUID(request_id)}.png'
                     target = self.path.parent / relative
@@ -82,13 +85,23 @@ class CommentStore:
                     os.replace(temporary, target)
                     rows.append(dict(id=request_id,kind='area',text=text.strip(),
                                      created_at=datetime.now(timezone.utc).isoformat(),resolved=False,
-                                     revision=revision,image=dict(path=relative,width=width,height=height,mime_type='image/png')))
+                                     revision=revision,anchor=anchor,image=dict(path=relative,width=width,height=height,mime_type='image/png')))
                 elif kind == 'part':
                     part=next((p for p in model['parts'] if p['id']==part_id),None)
                     if not part: raise ValueError('Part no longer exists. Select a current part.')
                     rows.append(dict(id=request_id,part_id=part_id,text=text.strip(),created_at=datetime.now(timezone.utc).isoformat(),resolved=False,revision=model['revision'],part_snapshot={k:part[k] for k in ('assembly','stock','size','origin','rotation')}))
                 else:
                     raise ValueError('Unknown comment kind.')
+            elif action in ('edit', 'delete'):
+                row=next((r for r in rows if r['id']==payload.get('id')),None)
+                if not row: raise ValueError('Comment not found.')
+                if action == 'edit':
+                    text=payload.get('text')
+                    if not isinstance(text,str) or not 1<=len(text.strip())<=5000: raise ValueError('Enter a comment of 1–5000 characters.')
+                    row['text']=text.strip()
+                else:
+                    row['deleted']=True
+                row['updated_at']=datetime.now(timezone.utc).isoformat()
             elif action=='resolve':
                 if not isinstance(payload.get('resolved'),bool): raise ValueError('resolved must be boolean')
                 row=next((r for r in rows if r['id']==payload.get('id')),None)

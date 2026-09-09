@@ -29,12 +29,15 @@
   apply();
   system.addEventListener('change', apply);
   document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('theme');
-    select.value = preference;
-    select.addEventListener('change', () => {
-      preference = select.value;
+    const buttons = document.querySelectorAll('[data-theme-option]');
+    const sync = () => buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeOption === preference)));
+    sync();
+    buttons.forEach(button => button.addEventListener('click', () => {
+      preference = button.dataset.themeOption;
       try { localStorage.setItem(key, preference); } catch { /* Keep the session preference. */ }
-      apply();
-    });
+      apply();sync();
+      document.getElementById('thememenu').open = false;
+      document.querySelector('#thememenu > summary').focus();
+    }));
   });
 })();

@@ -1,9 +1,13 @@
-// Screen-space rectangles only: no ray casting or part selection.
+// Screen-space selection; the viewer supplies part picking for click gestures.
 export function selectionRectangle(start, end, width, height) {
   const clamp = (value, max) => Math.max(0, Math.min(max, value));
   const x1 = clamp(start.x, width), y1 = clamp(start.y, height);
   const x2 = clamp(end.x, width), y2 = clamp(end.y, height);
   return {x: Math.min(x1, x2), y: Math.min(y1, y2), width: Math.abs(x2-x1), height: Math.abs(y2-y1)};
+}
+
+export function isCommentClick(start, end) {
+  return Math.hypot(end.x-start.x, end.y-start.y) < 8;
 }
 
 export function cropPixels(rectangle, screen, image) {
@@ -37,15 +41,39 @@ export function snapshotViewer(source, labels) {
   ctx.restore();return canvas;
 }
 
-export function installAreaCapture({viewport, capture, save}) {
+export function installAreaCapture({viewport, capture, save, onSaved, selectPart, anchorAt}) {
   const $ = id => document.getElementById(id);
   const overlay = $('areaoverlay'), marquee = $('areamarquee'), dialog = $('areacomment');
   let frozen = null, start = null, draft = null, saving = false;
 
+  function fadeCaptureOut() {
+    if (overlay.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const preview=overlay.cloneNode(true);
+    preview.removeAttribute('id');preview.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    preview.setAttribute('aria-hidden','true');preview.inert=true;
+    Object.assign(preview.style,{position:'absolute',inset:'0',zIndex:'5',pointerEvents:'none'});
+    // cloneNode does not copy a canvas bitmap.
+    const source=overlay.querySelector('canvas'),copy=preview.querySelector('canvas');
+    if(source&&copy){copy.getContext('2d').drawImage(source,0,0);Object.assign(copy.style,{position:'absolute',inset:'0',pointerEvents:'none'});}
+    viewport.append(preview);
+    preview.animate([{opacity:1},{opacity:0}],{duration:140,easing:'ease-out'}).finished.finally(()=>preview.remove());
+  }
   function stopCapture() {
+    fadeCaptureOut();
     overlay.hidden = true;start = null;frozen = null;
     overlay.querySelector('canvas')?.remove();marquee.hidden = true;
     $('capturearea').setAttribute('aria-pressed', 'false');
+  }
+  function openCommentModal() {
+    const area=draft.kind==='area';
+    $('comment-modal-title').textContent=area?'Comment on this area':'Comment on this part';
+    $('comment-subject').hidden=true;
+    $('comment-subject').textContent=area?'':draft.part_id;
+    $('areapreview').hidden=true;
+    if(area) $('areapreview').src=draft.image;
+    else $('areapreview').removeAttribute('src');
+    $('areatext').value='';$('areastatus').textContent='';
+    dialog.showModal();$('areatext').focus();
   }
   function cancelDraft() {
     if (saving) return;
@@ -56,6 +84,7 @@ export function installAreaCapture({viewport, capture, save}) {
     try {
       frozen = capture();
       overlay.prepend(frozen.canvas);overlay.hidden = false;marquee.hidden = true;
+      if(!matchMedia('(prefers-reduced-motion: reduce)').matches) overlay.animate([{opacity:0},{opacity:1}],{duration:140,easing:'ease-out'});
       $('capturearea').setAttribute('aria-pressed', 'true');
       $('areacancelcapture').focus();
     } catch (error) { $('commentstatus').textContent = error.message; }
@@ -84,15 +113,27 @@ export function installAreaCapture({viewport, capture, save}) {
   overlay.addEventListener('pointerup', event => {
     if (!start || !frozen) return;
     const box = overlay.getBoundingClientRect();
-    const rect = selectionRectangle(start, point(event), box.width, box.height);
+    const end = point(event), clicked = isCommentClick(start, end);
+    const rect = selectionRectangle(start, end, box.width, box.height);
     start = null;overlay.releasePointerCapture(event.pointerId);
+    if(clicked) {
+      marquee.hidden = true;
+      const partId=selectPart?.(event.clientX, event.clientY);
+      if(partId) {
+        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId};
+        stopCapture();openCommentModal();
+      }
+      return;
+    }
     if (rect.width < 8 || rect.height < 8) {marquee.hidden = true;return;}
     const pixels = cropPixels(rect, box, frozen.canvas);
     const image = document.createElement('canvas');image.width = pixels.width;image.height = pixels.height;
     image.getContext('2d').drawImage(frozen.canvas, pixels.x, pixels.y, pixels.width, pixels.height, 0, 0, pixels.width, pixels.height);
-    draft = {action:'add',kind:'area',id:crypto.randomUUID(),revision:frozen.revision,image:image.toDataURL('image/png')};
-    stopCapture();$('areapreview').src = draft.image;$('areatext').value = '';$('areastatus').textContent = '';
-    dialog.showModal();$('areatext').focus();
+    draft = {action:'add',kind:'area',id:crypto.randomUUID(),revision:frozen.revision,anchor:anchorAt?.(box.left+rect.x+rect.width/2,box.top+rect.y+rect.height/2),image:image.toDataURL('image/png')};
+    stopCapture();openCommentModal();
+  });
+  $('areatext').addEventListener('keydown',event=>{
+    if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();$('areaform').requestSubmit();}
   });
   $('areacancel').onclick = cancelDraft;
   dialog.addEventListener('cancel', event => {event.preventDefault();cancelDraft();});
@@ -101,13 +142,14 @@ export function installAreaCapture({viewport, capture, save}) {
     const text = $('areatext').value.trim();
     if (!text) {$('areastatus').textContent = 'Enter a comment first.';return;}
     saving = true;$('areasave').disabled = true;$('areacancel').disabled = true;$('areatext').disabled = true;
-    $('areastatus').textContent = 'Saving screenshot and comment…';
+    $('areastatus').textContent = 'Saving comment…';
     try {
       await save({...draft,text});
       saving = false;cancelDraft();
-      location.hash = 'review';
+      if(onSaved) onSaved();
+
     } catch (error) {
-      $('areastatus').textContent = `Not confirmed saved: ${error.message} Your screenshot and draft are kept; retry to confirm.`;
+      $('areastatus').textContent = `Not confirmed saved: ${error.message} Your draft is kept; retry to confirm.`;
     } finally {
       saving = false;$('areasave').disabled = false;$('areacancel').disabled = false;$('areatext').disabled = false;
     }

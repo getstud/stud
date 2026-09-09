@@ -116,7 +116,7 @@ coordinates are inches, X width, Y depth, Z up; every maximum must exceed its
 minimum. Views are `perspective`, `front`, `side`, and `top`. Optional
 `expected_revision` rejects a different revision.
 
-Showing reveals all assemblies, turns off exploded/transparent display, clears
+Showing reveals all assemblies, turns off exploded display, clears
 previous highlights, and brings the viewer into view. A single targeted part is
 also selected in the inspector. Surrounding geometry remains visible. Use
 **Fit model** to clear the focus and return to the full design.
