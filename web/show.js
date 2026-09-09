@@ -52,7 +52,7 @@ export function validateShowInput(input) {
 export function createShowTool({loadModel, display}) {
   return {
     name: 'show',
-    description: 'Show the current stud design to the user. Refreshes the model, reveals all assemblies, exits exploded/transparent display, and frames the whole design or highlights specified parts/a region. Changes only the viewer; does not edit the design or imply user approval. Coordinates are inches, X width, Y depth, Z up.',
+    description: 'Show the current stud design to the user. Refreshes the model, reveals all assemblies, exits exploded display, and frames the whole design or highlights specified parts/a region. Changes only the viewer; does not edit the design or imply user approval. Coordinates are inches, X width, Y depth, Z up.',
     inputSchema: showInputSchema,
     annotations: {readOnlyHint: false},
     execute: async (input = {}) => {

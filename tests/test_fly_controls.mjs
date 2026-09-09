@@ -16,10 +16,19 @@ test('flight follows camera, normalizes diagonals, releases focus and disposes l
   const controls = new FlyControls(camera, canvas);
   const emit = (type, props) => canvas.dispatchEvent(Object.assign(new Event(type, {cancelable:true}), props));
   const step = () => controls.update(controls.lastTime + 50);
-  canvas.focus();
+  assert.equal(document.activeElement, canvas, 'flight should accept movement immediately');
   emit('keydown', {code:'KeyW'}); step();
   assert.ok(Math.abs(camera.position.z + 3.6) < 1e-8);
+  emit('keyup', {code:'KeyW'});
+  for (const [code,axis,sign] of [['ArrowUp','z',-1],['ArrowDown','z',1],['ArrowLeft','x',-1],['ArrowRight','x',1]]) {
+    camera.position.set(0,0,0);
+    emit('keydown',{code}); step();
+    assert.ok(Math.abs(camera.position[axis]-sign*3.6)<1e-8);
+    emit('keyup',{code});
+  }
   camera.position.set(0,0,0);
+  emit('keydown', {code:'KeyW'});
+  emit('keydown', {code:'ArrowUp'});
   emit('keydown', {code:'KeyD'}); step();
   assert.ok(Math.abs(camera.position.length() - 3.6) < 1e-8);
   emit('keydown', {code:'Escape'});

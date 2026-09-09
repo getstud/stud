@@ -30,7 +30,7 @@ export class FlyControls {
     const keydown = event => {
       if (event.code === 'Escape') { clear(); canvas.blur(); return; }
       if (!this.enabled || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(event.code)) {
+      if (['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowLeft','ArrowDown','ArrowRight','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(event.code)) {
         event.preventDefault(); this.keys.add(event.code);
       }
     };
@@ -41,6 +41,7 @@ export class FlyControls {
       [canvas,'keydown',keydown],[canvas,'keyup',keyup],[canvas,'blur',clear],
       [window,'blur',clear],[document,'visibilitychange',clear]];
     bindings.forEach(([target, type, listener]) => target.addEventListener(type, listener));
+    canvas.focus({preventScroll: true});
     this.dispose = () => {
       clear();
       bindings.forEach(([target, type, listener]) => target.removeEventListener(type, listener));
@@ -54,7 +55,8 @@ export class FlyControls {
     this.lastTime = now;
     if (!this.enabled || document.activeElement !== this.canvas) {this.keys.clear(); return;}
     const held = code => Number(this.keys.has(code));
-    const movement = new THREE.Vector3(held('KeyD')-held('KeyA'), 0, held('KeyS')-held('KeyW'));
+    const direction = (letter, arrow) => Number(this.keys.has(letter) || this.keys.has(arrow));
+    const movement = new THREE.Vector3(direction('KeyD','ArrowRight')-direction('KeyA','ArrowLeft'), 0, direction('KeyS','ArrowDown')-direction('KeyW','ArrowUp'));
     movement.applyQuaternion(this.camera.quaternion);
     movement.y += held('KeyE')-held('KeyQ');
     // World units are inches: ordinary flight is six feet per second.

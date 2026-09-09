@@ -16,3 +16,12 @@ test('screen coordinates map to actual image pixels on scaled displays',()=>{
   assert.deepEqual(cropPixels(rect,{width:100,height:100},{width:200,height:200}),
     {x:21,y:41,width:60,height:80});
 });
+
+
+test('comment clicks allow hand jitter but do not turn thin drags into part picks', async () => {
+ const {isCommentClick}=await import('../web/area-capture.js');
+ assert.equal(isCommentClick({x:20,y:20},{x:20,y:20}),true);
+ assert.equal(isCommentClick({x:20,y:20},{x:23,y:24}),true);
+ assert.equal(isCommentClick({x:20,y:20},{x:80,y:21}),false);
+ assert.equal(isCommentClick({x:20,y:20},{x:21,y:80}),false);
+});

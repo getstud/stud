@@ -62,7 +62,7 @@ test('camera bounds during a layout resize do not cancel falling parts', async (
   animation.update(100);
   const fallingY = part.position.y;
   const bounds = runInNewContext(`${boundsSource}; bounds`, {
-    THREE, buildAnimation: animation, meshes: [part], model: null,
+    THREE, buildAnimation: animation, meshes: [part], model: null, assemblyReview: null,
   });
   const frame = bounds();
   assert.equal(animation.entries.length, 1, 'layout measurement must preserve the animation');
@@ -86,7 +86,7 @@ test('showing a newly built assembly preserves its reveal and frames resting par
   const fallingY = part.position.y;
   const elements = new Map();
   const $ = id => {
-    if (!elements.has(id)) elements.set(id, {hidden: true, checked: false, open: false, querySelectorAll: () => [], close() {}});
+    if (!elements.has(id)) elements.set(id, {hidden: true, checked: false, open: false, getAttribute: () => "false", querySelectorAll: () => [], close() {}});
     return elements.get(id);
   };
   let framed;
@@ -97,7 +97,8 @@ test('showing a newly built assembly preserves its reveal and frames resting par
     'displayShow',
   ].join('\n'), {THREE, $, buildAnimation: animation, performance: {now: () => 100},
     meshes: [part], model: {name: 'Test', dimensions: []}, revision: 'r2', currentView: 'perspective',
-    visibility: new Map(), selected: null, dimGroup: {}, labelRoot: {}, showFrame: null,
+    visibility: new Map(), selected: null, dimGroup: {}, labelRoot: {}, showFrame: null, assemblyReview: null,
+    endAssemblyReview() {}, drawingDimensions: {},
     showWorkspace() {}, clearShow() {}, clearValidationHighlights() {}, select() {}, renderList() {},
     setView: (view, frame) => {framed = frame;}, modelRegion: () => ({}),
     showGroup: new THREE.Group(), viewport: {scrollIntoView() {}}, renderer: {render() {}}, scene: {}, camera: {},
