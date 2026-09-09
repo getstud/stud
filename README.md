@@ -52,7 +52,11 @@ See the [desktop guide](docs/desktop.md) for building installers locally and det
 
 ### Run from source
 
-Install Git, Python 3.10+, and Node.js/npm. The Python engine uses the standard library, so no pip dependencies are needed. From a terminal:
+Install Git, Python 3.10+, and Node.js/npm. The Python engine uses the standard library, so no pip dependencies are needed.
+
+The source launcher looks for `python3` by default. If your Python executable has a different name or location, set `STUD_PYTHON` before running stud. For example, in Windows PowerShell, use `$env:STUD_PYTHON = "python"` if `python` runs Python 3.10+.
+
+From a terminal:
 
 ```sh
 git clone https://github.com/getstud/stud.git
@@ -70,8 +74,6 @@ npm run stud -- serve ../my-workbench
 ```
 
 Open [localhost:8765](http://127.0.0.1:8765) to view the project. Stop the server with Ctrl+C. The project directory must not already exist; keeping it outside the checkout makes it easier to update stud independently of your designs.
-
-The source launcher looks for `python3` by default. If your Python executable has a different name or location, set `STUD_PYTHON` before running stud. For example, in Windows PowerShell, use `$env:STUD_PYTHON = "python"` if `python` runs Python 3.10+.
 
 A [worked gable-shed example](examples/framed-shed/README.md) shows how the Python builders coordinate framing, roof edges, siding and trim. Adapt its architectural choices to the project; its checks and API patterns are reusable. Desktop packages include it under `engine/examples/framed-shed/`.
 
