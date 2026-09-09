@@ -52,7 +52,7 @@ def build(project_dir=None):
     data['validation_results'] = dict(findings=findings, coverage=coverage(data, findings))
     report=out/'validation.json'
     temp=report.with_suffix('.tmp')
-    temp.write_text(json.dumps(dict(revision=data['revision'],**data['validation_results']),indent=2))
+    temp.write_text(json.dumps(dict(revision=data['revision'],**data['validation_results']),indent=2), encoding='utf-8')
     os.replace(temp,report)
     failures=[f for f in findings if f['status']=='FAIL']
     if failures:
@@ -60,7 +60,7 @@ def build(project_dir=None):
         raise SystemExit(1)
     print(f"Validation: {sum(f['status']=='PASS' for f in findings)} passed, {sum(f['status']=='WARNING' for f in findings)} warnings, {sum(f['status']=='UNVERIFIED' for f in findings)} unverified. Report: {report}")
     for name,body in [('model.json',json.dumps(data,indent=2)),('parts.csv',parts_csv(data))]:
-        path=out/name; temp=path.with_suffix('.tmp');temp.write_text(body);os.replace(temp,path)
+        path=out/name; temp=path.with_suffix('.tmp');temp.write_text(body, encoding='utf-8');os.replace(temp,path)
     print(f"Built {len(data['parts'])} parts / revision {data['revision']}")
 
     return data
