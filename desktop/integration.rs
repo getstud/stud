@@ -1,3 +1,6 @@
+#[cfg(target_os = "macos")]
+#[path = "connections.rs"]
+pub mod connections;
 use std::path::{Path, PathBuf};
 #[cfg(target_os = "macos")]
 use std::{fs, process::Command};
@@ -16,7 +19,13 @@ pub fn cli_installed() -> bool {
     };
     #[cfg(target_os = "macos")]
     {
-        fs::read_link("/usr/local/bin/stud").ok().as_ref() == Some(&source)
+        connections::inspect(
+            Path::new("/usr/local/bin/stud"),
+            &source,
+            Path::new(connections::CLI_SUFFIX),
+        )
+        .ok()
+            == Some(connections::Connection::Connected)
     }
     #[cfg(windows)]
     {
@@ -50,6 +59,9 @@ pub fn install_cli() -> Result<String, String> {
         return Err(
             "Move stud to Applications and open it there before installing the CLI.".into(),
         );
+    }
+    if cli_installed() {
+        return Ok("CLI already connected.".into());
     }
     let destination = Path::new("/usr/local/bin/stud");
     if let Ok(metadata) = fs::symlink_metadata(destination) {

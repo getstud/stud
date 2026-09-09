@@ -24,7 +24,84 @@ struct Status {
     python: String,
     cli_path: String,
     cli_installed: bool,
+    connections: Option<Connections>,
     updates_configured: bool,
+}
+
+#[derive(Serialize)]
+struct Connections {
+    cli: String,
+    skill: String,
+    skill_path: String,
+    error: String,
+}
+
+#[cfg(target_os = "macos")]
+fn connection_paths(
+    app: &tauri::AppHandle,
+) -> Result<(std::path::PathBuf, std::path::PathBuf), String> {
+    let source = app
+        .path()
+        .resource_dir()
+        .map_err(|e| e.to_string())?
+        .join("skills/stud-design");
+    let home = app.path().home_dir().map_err(|e| e.to_string())?;
+    Ok((source, integration::connections::skill_destination(&home)))
+}
+
+fn connection_status(app: &tauri::AppHandle) -> Result<Option<Connections>, String> {
+    #[cfg(target_os = "macos")]
+    {
+        use integration::connections::*;
+        use std::path::Path;
+        let (source, destination) = connection_paths(app)?;
+        Ok(Some(Connections {
+            cli: inspect(
+                Path::new("/usr/local/bin/stud"),
+                &integration::cli_source()?,
+                Path::new(CLI_SUFFIX),
+            )?
+            .label()
+            .into(),
+            skill: inspect(&destination, &source, Path::new(SKILL_SUFFIX))?
+                .label()
+                .into(),
+            skill_path: destination.display().to_string(),
+            error: String::new(),
+        }))
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = app;
+        Ok(None)
+    }
+}
+
+#[tauri::command]
+async fn repair_connections(app: tauri::AppHandle) -> Result<String, String> {
+    #[cfg(target_os = "macos")]
+    {
+        use integration::connections::*;
+        use std::path::Path;
+        let (source, destination) = connection_paths(&app)?;
+        tauri::async_runtime::spawn_blocking(move || {
+            // Validate both connections before requesting privileges or changing either one.
+            if !source.join("SKILL.md").is_file() { return Err("The bundled skill is missing. Reinstall Stud.".into()); }
+            check_repair(&destination, &source, Path::new(SKILL_SUFFIX))?;
+            check_repair(Path::new("/usr/local/bin/stud"), &integration::cli_source()?, Path::new(CLI_SUFFIX))?;
+            integration::install_cli()?;
+            link_skill(&destination, &source).map_err(|e| format!("CLI connected, but the skill needs attention: {e}"))?;
+            if !integration::cli_installed() || inspect(&destination, &source, Path::new(SKILL_SUFFIX))? != Connection::Connected {
+                return Err("Connection verification failed. Check the connection status and try again.".into());
+            }
+            Ok("CLI and skill connected to this app. Start a new Codex task to load the updated skill.".into())
+        }).await.map_err(|e| e.to_string())?
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = app;
+        Err("Connection repair is available on macOS.".into())
+    }
 }
 
 fn updates_configured(app: &tauri::AppHandle) -> bool {
@@ -66,6 +143,14 @@ async fn status(app: tauri::AppHandle) -> Result<Status, String> {
         python,
         cli_path: integration::cli_source()?.display().to_string(),
         cli_installed: integration::cli_installed(),
+        connections: connection_status(&app).unwrap_or_else(|error| {
+            Some(Connections {
+                cli: "error".into(),
+                skill: "error".into(),
+                skill_path: String::new(),
+                error,
+            })
+        }),
         updates_configured: updates_configured(&app),
     })
 }
@@ -217,6 +302,7 @@ fn main() {
             list_projects,
             add_project,
             install_cli,
+            repair_connections,
             check_update,
             install_update
         ])

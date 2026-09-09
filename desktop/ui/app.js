@@ -4,6 +4,7 @@ let checking = false;
 let installing = false;
 let info;
 let addingProject = false;
+let connecting = false;
 let projectRefresh = 0;
 
 async function refresh() {
@@ -12,8 +13,26 @@ async function refresh() {
   $('runtime').textContent = info.python;
   $('runtime-dot').classList.toggle('ready', info.python.startsWith('Python '));
   $('cli-state').textContent = info.cliInstalled ? 'Connected' : 'One-time setup';
-  $('install-cli').disabled = false;
+  $('install-cli').disabled = connecting;
   $('install-cli').textContent = info.cliInstalled ? 'Reinstall command-line tool' : 'Install command-line tool ↗';
+  if (info.connections) {
+    const { cli, skill, skill_path, error } = info.connections;
+    const connected = cli === 'connected' && skill === 'connected';
+    const conflict = cli === 'conflict' || skill === 'conflict';
+    const failed = cli === 'error' || skill === 'error';
+    const stale = cli === 'stale' || skill === 'stale';
+    const labels = { error: 'Could not check connection', connected: 'Connected to this app', missing: 'Not installed', stale: 'Points to another Stud installation', conflict: 'Custom installation — preserved' };
+    $('connections').hidden = false;
+    $('connection-details').textContent = `CLI: ${labels[cli]}. Skill: ${labels[skill]}.`;
+    $('skill-path').textContent = skill_path;
+    $('connection-help').textContent = failed ? `Could not check connections: ${error}. Check access to the CLI and skills paths, then reopen Stud.` : conflict
+      ? 'Back up and move the custom installation aside to connect it to this app. Stud will not overwrite it.'
+      : connected ? 'App updates keep both connections current. Start a new Codex task to load an updated skill.'
+      : stale ? 'Repair connections to use the CLI and skill bundled with this app.' : 'Connect the CLI and skill to keep them current with app updates.';
+    $('cli-state').textContent = connected ? 'Connected' : (conflict || failed) ? 'Needs attention' : stale ? 'Repair needed' : 'Setup needed';
+    $('install-cli').textContent = connected ? 'Connections are current' : stale ? 'Repair connections' : 'Connect CLI and skill';
+    $('install-cli').disabled = connecting || connected || conflict || failed;
+  }
   $('copy-path').disabled = false;
   $('cli-path').textContent = info.cliPath;
   $('check-updates').disabled = !info.updatesConfigured;
@@ -33,11 +52,16 @@ async function checkUpdates() {
   finally { checking = false; $('check-updates').disabled = false; }
 }
 $('install-cli').addEventListener('click', async () => {
+  if (connecting) return;
+  connecting = true;
   $('install-cli').disabled = true;
-  $('cli-message').textContent = 'Installing the command-line tool…';
-  try { $('cli-message').textContent = await invoke('install_cli'); await refresh(); }
+  $('cli-message').textContent = info?.connections ? 'Connecting the CLI and skill…' : 'Installing the command-line tool…';
+  try { $('cli-message').textContent = await invoke(info?.connections ? 'repair_connections' : 'install_cli'); }
   catch (error) { $('cli-message').textContent = String(error); }
-  finally { $('install-cli').disabled = false; }
+  finally {
+    connecting = false;
+    try { await refresh(); } catch (error) { $('cli-message').textContent += ` Could not refresh connections: ${error}`; }
+  }
 });
 $('copy-path').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(info.cliPath); $('cli-message').textContent = 'CLI path copied.'; }
@@ -97,7 +121,10 @@ async function refreshProjects() {
   finally { if (revision === projectRefresh) $('refresh-projects').disabled = addingProject; }
 }
 $('refresh-projects').addEventListener('click', refreshProjects);
-window.addEventListener('focus', () => { if (!addingProject) refreshProjects(); });
+window.addEventListener('focus', () => {
+  if (!addingProject) refreshProjects();
+  if (invoke && !connecting && !installing) refresh().catch(error => { $('cli-message').textContent = String(error); });
+});
 refreshProjects();
 
 $('add-project').disabled = !invoke;
