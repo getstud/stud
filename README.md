@@ -22,9 +22,35 @@ The current workflow runs through **[ChatGPT for desktop](https://chatgpt.com/do
 
 ## Install
 
-The desktop app packages stud and its runtime for **macOS and Windows**. Follow the [desktop guide](docs/desktop.md) for installation and builds, then enable the `stud` command. The desktop window handles setup and updates; you review designs in the browser.
+### Desktop app (macOS and Windows)
 
-To run from source, install Python 3.10+ and Node.js/npm:
+Download an installer from [GitHub Releases](https://github.com/getstud/stud/releases). Current builds are marked **Pre-release**. Open the newest version's **Assets** section and choose the file for your computer:
+
+| Platform | Installer filename |
+| --- | --- |
+| macOS, Apple Silicon (M-series) | `stud_<version>_aarch64.dmg` |
+| macOS, Intel | `stud_<version>_x64.dmg` |
+| Windows, x64 | `stud_<version>_x64-setup.exe` |
+
+The desktop app includes stud, Python, and the browser viewer. You don't need to install Python or Node.js separately. The desktop window handles setup and updates; you review designs in the browser.
+
+**macOS**
+
+1. Open the stud `.dmg` installer and drag stud into Applications.
+2. Open stud and choose **Install command-line tool**. macOS may ask for an administrator password to add `/usr/local/bin/stud`.
+3. Restart your terminal or Codex, then run `stud --version` to confirm installation.
+
+**Windows**
+
+1. Run the stud `-setup.exe` installer. It installs for your user account and adds stud to your PATH.
+2. Restart your terminal or Codex, then run `stud --version` to confirm installation.
+3. If the command isn't found, open stud and choose **Install command-line tool** to repair the PATH entry, then restart your terminal.
+
+See the [desktop guide](docs/desktop.md) for building installers locally and details about updates.
+
+### Run from source
+
+Install Git, Python 3.10+, and Node.js/npm. The Python engine uses the standard library, so no pip dependencies are needed. From a terminal:
 
 ```sh
 git clone https://github.com/getstud/stud.git
@@ -33,7 +59,17 @@ npm ci
 npm link
 ```
 
-Check that the command is available with `stud --version`. If you prefer to skip `npm link`, run commands from the checkout as `npm run stud -- <command>`.
+Check that the command is available with `stud --version`. Keep the checkout in place: `npm link` points the command at this folder. If you prefer to skip `npm link`, run commands from the checkout as `npm run stud -- <command>`:
+
+```sh
+npm run stud -- --version
+npm run stud -- init ../my-workbench --name "Garage workbench"
+npm run stud -- serve ../my-workbench
+```
+
+Open [localhost:8765](http://127.0.0.1:8765) to view the project. Stop the server with Ctrl+C. The project directory must not already exist; keeping it outside the checkout makes it easier to update stud independently of your designs.
+
+The source launcher looks for `python3` by default. If your Python executable has a different name or location, set `STUD_PYTHON` before running stud. For example, in Windows PowerShell, use `$env:STUD_PYTHON = "python"` if `python` runs Python 3.10+.
 
 A [worked gable-shed example](examples/framed-shed/README.md) shows how the Python builders coordinate framing, roof edges, siding and trim. Adapt its architectural choices to the project; its checks and API patterns are reusable. Desktop packages include it under `engine/examples/framed-shed/`.
 
