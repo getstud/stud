@@ -6,7 +6,9 @@ Python installation are not required on the user's computer.
 
 The app includes the `stud-design` Codex skill at `skills/stud-design` in its
 resources (`stud.app/Contents/Resources` on macOS; the installation directory on
-Windows). Copy that entire folder into your Codex skills directory to enable it.
+Windows). On macOS, setup links the skill into `$CODEX_HOME/skills` (or
+`~/.codex/skills` when `CODEX_HOME` is unset), so it follows app updates. On
+Windows, copy that entire folder into your Codex skills directory to enable it.
 The version-controlled source is `skills/stud-design`; desktop builds bundle it
 along with the engine README and validation reference it uses.
 
@@ -20,13 +22,19 @@ content or expose its desktop permissions to the model viewer.
 ### macOS
 
 1. Open the DMG and drag stud into Applications.
-2. Open stud and choose **Install command-line tool**. macOS may request an
+2. Open stud and choose **Connect CLI and skill**. macOS may request an
    administrator password to add `/usr/local/bin/stud`.
 3. In a new Codex terminal, run `stud --version`.
 
-The command is a symlink into the app, so app updates update the CLI too. If an
-unrelated `stud` command already occupies that path, the app refuses to overwrite
-it. If you move or rename the app later, run CLI installation again.
+The CLI and skill are symlinks into the app, so app updates update both. The
+setup window checks both connections on launch (including after an update) and
+when it regains focus. Links to an older Stud installation show **Repair
+connections**; missing links show setup. Correct links need no repair or password.
+Custom commands, unrelated links, and copied or edited skill folders are preserved
+and reported as conflicts. Back them up and move them aside before connecting.
+Start a new Codex task to load an updated skill; existing tasks can retain the
+skill instructions they already loaded. App update status is separate from
+connection status.
 
 ### Windows
 
