@@ -521,3 +521,8 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 #drawing-context { width: max-content; max-width: calc(100% - 40px); }
 
 .page-tabs #thememenu { margin-left: auto; }
+
+.saved-comment-markers { position: absolute; bottom: 12px; right: 12px; max-width: calc(100% - 24px); display: flex; gap: 8px; overflow-x: auto; pointer-events: auto; padding: 4px; }
+.saved-comment-markers .comment-marker { position: static; transform: none; flex-shrink: 0; }
+#commentstatus { position: absolute; bottom: 56px; left: 12px; max-width: calc(100% - 24px); padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); z-index: 7; }
+#view-comment-image { text-decoration: underline; font-size: 12px; padding: 8px 0; }

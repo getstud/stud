@@ -41,7 +41,7 @@ export function snapshotViewer(source, labels) {
   ctx.restore();return canvas;
 }
 
-export function installAreaCapture({viewport, capture, save, onSaved, selectPart, anchorAt}) {
+export function installAreaCapture({viewport, capture, save, onSaved, selectPart, selectedPart, anchorAt}) {
   const $ = id => document.getElementById(id);
   const overlay = $('areaoverlay'), marquee = $('areamarquee'), dialog = $('areacomment');
   let frozen = null, start = null, draft = null, saving = false;
@@ -79,15 +79,25 @@ export function installAreaCapture({viewport, capture, save, onSaved, selectPart
     if (saving) return;
     dialog.close();draft = null;$('areatext').value = '';$('areapreview').removeAttribute('src');
   }
-  $('capturearea').onclick = () => {
+  $('capturearea').onclick = event => {
     if (!overlay.hidden) {stopCapture();return;}
+    $('commentstatus').hidden=true;
+    if(event.detail===0) {
+      const partId=selectedPart?.();
+      if(partId) {
+        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId};
+        openCommentModal();return;
+      }
+      $('commentstatus').textContent='Select a part in Parts, then press Comment to add a note.';
+      $('commentstatus').hidden=false;return;
+    }
     try {
       frozen = capture();
       overlay.prepend(frozen.canvas);overlay.hidden = false;marquee.hidden = true;
       if(!matchMedia('(prefers-reduced-motion: reduce)').matches) overlay.animate([{opacity:0},{opacity:1}],{duration:140,easing:'ease-out'});
       $('capturearea').setAttribute('aria-pressed', 'true');
       $('areacancelcapture').focus();
-    } catch (error) { $('commentstatus').textContent = error.message; }
+    } catch (error) { $('commentstatus').textContent = error.message; $('commentstatus').hidden=false; }
   };
   $('areacancelcapture').onclick = stopCapture;
   document.addEventListener('keydown', event => {
