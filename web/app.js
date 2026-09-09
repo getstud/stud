@@ -591,9 +591,9 @@ function renderComments(){
 }
 async function commentRequest(payload){
  const r=await fetch('/api/comments',{method:payload?'POST':'GET',headers:payload?{'Content-Type':'application/json'}:{},body:payload?JSON.stringify(payload):undefined,cache:'no-store',signal:AbortSignal.timeout(10000)});
- const d=await r.json();if(!r.ok)throw new Error(d.error||'Comments unavailable');comments=d.comments.filter(c=>!c.deleted);renderComments();
+ const d=await r.json();if(!r.ok)throw new Error(d.error||'Comments unavailable');comments=d.comments.filter(c=>!c.deleted);$('commentstatus').hidden=true;renderComments();
 }
-async function refreshComments(){try{await commentRequest();}catch(e){$('commentstatus').textContent='Comments unavailable: '+e.message;}finally{setTimeout(refreshComments,5000);}}
+async function refreshComments(){try{await commentRequest();}catch(e){$('commentstatus').textContent='Comments unavailable: '+e.message;$('commentstatus').hidden=false;}finally{setTimeout(refreshComments,5000);}}
 refreshComments();
 
 let estimate=null;
@@ -751,7 +751,7 @@ const showTool=createShowTool({loadModel,display:displayShow});
 registerShowTool(document.modelContext,showTool).catch(error=>console.warn('stud show tool could not register:',error));
 
 $('closeareaimage').onclick=()=>$('areaimageview').close();
-installAreaCapture({viewport,capture:()=>{
+installAreaCapture({viewport,selectedPart:()=>selected?.userData.id,capture:()=>{
  if(!model||!camera)throw new Error('Load a design before capturing an area.');
  buildAnimation.finish();
  renderer.render(scene,camera);
@@ -821,17 +821,19 @@ $('close-warning').onclick=()=>{$('warning-detail').hidden=true;clearValidationH
 
 function renderCommentMarkers(){
  const root=$('comment-markers');root.replaceChildren();commentMarkers=[];
+ const saved=document.createElement('div');saved.className='saved-comment-markers';saved.setAttribute('aria-label','Comments from earlier views');root.append(saved);
  for(const c of comments.filter(c=>!c.resolved)){
-  if(c.kind==='area'&&(!c.anchor||c.revision!==revision))continue;
+  const detached=c.kind==='area'?(!c.anchor||c.revision!==revision):!meshes.some(m=>m.userData.id===c.part_id);
   const button=document.createElement('button');button.className='comment-marker';
   button.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 4h10a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H8l-5 3V8a4 4 0 0 1 4-4Z"/></svg>';
-  button.title=c.text;button.setAttribute('aria-label','Comment: '+c.text);
-  attachAnnotationHover(button,meshes.filter(m=>m.userData.id===c.part_id),c.anchor);
-  button.onclick=()=>openCommentEditor(c,button);root.append(button);commentMarkers.push({button,c});
+  button.title=(detached?'Earlier view: ':'')+c.text;button.setAttribute('aria-label','Comment: '+button.title);
+  if(!detached)attachAnnotationHover(button,meshes.filter(m=>m.userData.id===c.part_id),c.anchor);
+  button.onclick=()=>openCommentEditor(c,button);(detached?saved:root).append(button);commentMarkers.push({button,c,detached});
  }
 }
 function updateCommentMarkers(){
- for(const {button,c} of commentMarkers){
+ for(const {button,c,detached} of commentMarkers){
+  if(detached)continue;
   const mesh=meshes.find(m=>m.userData.id===c.part_id);
   if(c.kind==='area'?c.revision!==revision:!mesh?.visible){button.hidden=true;continue;}
   const point=c.kind==='area'?new THREE.Vector3(...c.anchor):new THREE.Box3().setFromObject(mesh).getCenter(new THREE.Vector3());
@@ -845,6 +847,11 @@ function openCommentEditor(comment,marker){
  editingComment=comment.id;
  const dialog=$('comment-editor'),rect=marker.getBoundingClientRect();
  $('edit-comment-text').value=comment.text;$('edit-comment-status').textContent='';
+ $('view-comment-image').hidden=!comment.image;
+ $('view-comment-image').onclick=()=>{
+  $('savedareaimage').src=`/api/comment-images/${encodeURIComponent(comment.id)}`;
+  $('savedareatext').textContent=comment.text;$('areaimageview').showModal();
+ };
  dialog.showModal();
  positionEditor(rect);
  $('edit-comment-text').focus();
