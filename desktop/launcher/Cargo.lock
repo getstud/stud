@@ -20,7 +20,7 @@ checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
 
 [[package]]
 name = "stud-launcher"
-version = "1.0.0-preview.8"
+version = "1.0.0-preview.9"
 dependencies = [
  "fs2",
  "libc",
