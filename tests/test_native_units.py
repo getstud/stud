@@ -156,6 +156,31 @@ class NativeUnitsTests(unittest.TestCase):
             with self.assertRaises(StudError) as error:Session(root)
             self.assertEqual(error.exception.category,'unit_mismatch')
 
+    def test_real_worker_rejects_model_unit_reassignment(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for units,other in [('in','mm'),('mm','in')]:
+                root=Path(temporary)/units;root.mkdir()
+                (root/'design.py').write_text(board_source(units),encoding='utf-8')
+                initial=initialize(root,units=units)
+                with Session(root) as session:
+                    for after_part in (False,True):
+                        with self.subTest(units=units,after_part=after_part):
+                            request=session.begin(key=str(after_part),expected_head=initial['checkpoint'],intent='Reject changed units')
+                            source_text=f"import cadquery as cq\nfrom stud.cad import Model\nmodel=Model('Fixed units',units={units!r})\nmodel.part('board',cq.Workplane('XY').box(1,2,3))\nmodel.requirement('valid','solid_valid',['board'])\n"
+                            assignment=f'model.units={other!r}\n'
+                            source_text=source_text+assignment if after_part else source_text.replace("model.part('board',",assignment+"model.part('board',",1)
+                            (Path(request['workspace'])/'design.py').write_text(source_text,encoding='utf-8')
+                            source=session.source(request['id'])['source_id']
+                            build=session.wait(session.evaluate(request['id'],source)['id'],timeout=60)
+                            try:
+                                self.assertEqual(build['status'],'generation_failed',build)
+                                manifest=read_json(Path(build['artifact_path'])/'manifest.json')
+                                self.assertEqual(manifest['units'],units)
+                                self.assertNotEqual(manifest['completion']['geometry'],'complete')
+                                self.assertIn('units are fixed',manifest['diagnostics']['message'])
+                                self.assertTrue(all(asset['units']==units for asset in manifest['assets'].values()))
+                            finally:session.cancel(request['id'])
+
     def test_cli_creates_native_inch_default_and_explicit_metric(self):
         with tempfile.TemporaryDirectory() as temporary,patch('stud_cli.register'):
             for units in ('in','mm'):

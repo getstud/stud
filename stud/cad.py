@@ -50,7 +50,7 @@ def publication_context(callback, directory, runtime, settings, units='mm'):
 class Model:
     def __init__(self, name, *, units=None):
         self.context = _publication.get()
-        self.units=validate_units(units if units is not None else (self.context['units'] if self.context else 'mm'))
+        self._units=validate_units(units if units is not None else (self.context['units'] if self.context else 'mm'))
         if self.context and self.units!=self.context['units']:
             raise StudError('unit_mismatch','The model units must match the project; geometry is not converted implicitly.')
         self.name = name
@@ -71,6 +71,14 @@ class Model:
         # The worker can retain a partially evaluated model after an exception.
         if self.context:
             self.context['callback']('model_created', self)
+
+    @property
+    def units(self):
+        return self._units
+
+    @units.setter
+    def units(self, value):
+        raise StudError('unit_mismatch','Model units are fixed at creation and cannot be reassigned.')
 
     def _unique(self, collection, key):
         if not isinstance(key, str) or not key.strip() or key in collection:
