@@ -528,7 +528,7 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 #view-comment-image { text-decoration: underline; font-size: 12px; padding: 8px 0; }
 
 /* Saved design alternatives share one canvas and one unchanging viewpoint. */
-#option-comparison{position:absolute;top:66px;left:20px;right:20px;z-index:3;pointer-events:none}
+#option-comparison{display:flex;align-items:center;gap:4px;width:max-content;max-width:calc(100% - 40px);position:absolute;top:66px;left:20px;right:20px;z-index:3;pointer-events:none}
 .option-tabs{pointer-events:auto;display:flex;gap:2px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--overlay);width:max-content;max-width:100%;scrollbar-width:thin;box-shadow:0 3px 14px #00000006}
 .option-tabs button{position:relative;flex:0 0 auto;padding:5px 10px;line-height:18px;white-space:nowrap;max-width:260px;text-overflow:ellipsis;overflow:hidden;border-radius:3px;font-size:11px;color:var(--muted);transition:background-color 100ms,color 100ms}
 .option-tabs button[aria-selected=true]{background:var(--ink);color:var(--on-ink);font-weight:500}
@@ -540,6 +540,15 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 @keyframes option-pulse{to{opacity:.25}}
 @media(prefers-reduced-motion:reduce){.option-tabs button{transition:none}.option-tabs button.is-pending::after{animation:none}}
 @media(max-width:650px){#option-comparison{left:10px;right:10px;top:61px}.option-tabs button{max-width:200px}}
-#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:114px;max-height:calc(100dvh - 194px)}
-#workspace:has(#option-comparison) #viewport > #validation-toggle{top:max(25dvh,160px)}
-@media(max-width:650px){#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:109px;max-height:calc(100dvh - 185px)}}
+#workspace:has(#option-comparison:not([hidden])) #modelpanel,#workspace:has(#option-comparison:not([hidden])) #inspectorpanel{top:114px;max-height:calc(100dvh - 194px)}
+#workspace:has(#option-comparison:not([hidden])) #viewport > #validation-toggle{top:max(25dvh,160px)}
+@media(max-width:650px){#workspace:has(#option-comparison:not([hidden])) #modelpanel,#workspace:has(#option-comparison:not([hidden])) #inspectorpanel{top:109px;max-height:calc(100dvh - 185px)}}
+
+.workspace-tools > #optiontoggle{display:inline-flex;align-items:center;justify-content:center;width:40px;padding:10px}
+#optiontoggle[aria-expanded=true]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.option-history,.option-close{pointer-events:auto;flex-shrink:0;background:var(--overlay);border:1px solid var(--line);border-radius:5px;color:var(--muted)}
+.option-history{padding:8px;font-size:10px;white-space:nowrap}
+.option-close{width:30px;height:32px;font-size:18px}
+.option-tabs{min-width:0}
+@media(max-width:650px){#option-comparison{max-width:calc(100% - 20px)}}
+@media(max-width:450px){.workspace-tools > #modeltoggle{width:40px;justify-content:center;padding:10px}.workspace-tools > #modeltoggle span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.workspace-tools{gap:6px}.canvashead{gap:6px}}

@@ -1,9 +1,17 @@
 import {OptionComparison,createComparisonTools} from '/option-comparison.js';
 
 export function installOptionTabs(adapter){
- const root=document.createElement('div');root.id='option-comparison';
- root.innerHTML='<div class="option-tabs" role="tablist" aria-label="Compare design options"></div><span class="option-message" role="status"></span>';
+ const root=document.createElement('div');root.id='option-comparison';root.hidden=true;
+ root.innerHTML='<div class="option-tabs" role="tablist" aria-label="Compare design options"></div><a class="option-history" href="#design-versions" title="Manage options and checkpoints">Checkpoints ↗</a><button class="option-close" type="button" aria-label="Close options" title="Close options">×</button><span class="option-message" role="status"></span>';
  document.querySelector('.stage').prepend(root);
+ const toggle=document.createElement('button');toggle.id='optiontoggle';toggle.type='button';
+ toggle.title='Options & checkpoints';toggle.setAttribute('aria-label','Options & checkpoints');toggle.setAttribute('aria-controls',root.id);toggle.setAttribute('aria-expanded','false');
+ toggle.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 7v10m0-4h4a8 8 0 0 0 8-6"/></svg>';
+ document.querySelector('.workspace-tools').append(toggle);
+ const setOpen=open=>{root.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open)root.querySelector('[aria-selected=true]')?.scrollIntoView({block:'nearest',inline:'nearest'});};
+ toggle.onclick=()=>setOpen(root.hidden);
+ root.querySelector('.option-close').onclick=()=>{setOpen(false);toggle.focus();};
+ root.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setOpen(false);toggle.focus();}});
  document.getElementById('viewport').setAttribute('role','tabpanel');
  const tabs=root.querySelector('.option-tabs'),message=root.querySelector('.option-message');
  let error=null;
@@ -50,7 +58,7 @@ export function installOptionTabs(adapter){
   if(['history_displayed','live_displayed','comparison_complete','plans_complete'].includes(event.detail?.type))return;
   refresh();
  });
- const tools=createComparisonTools(controller);
+ const tools=createComparisonTools(controller).map(tool=>tool.name==='list_options'?tool:{...tool,execute:input=>{setOpen(true);return tool.execute(input);}});
  // #24 can include these same descriptors in the shared tool registry.
  Promise.resolve().then(()=>adapter.registerTools?adapter.registerTools(tools):
   Promise.all(tools.map(tool=>document.modelContext?.registerTool?.(tool))))
