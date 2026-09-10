@@ -1,5 +1,5 @@
-//! Exercise Tauri's real feed parsing and signature verification without
-//! installing anything. The fixture key is test-only; its private key is absent.
+//! Exercise Tauri's real feed parsing and signature verification. The ignored
+//! native acceptance probe installs only into an explicitly prepared test folder.
 use std::{
     io::{Read, Write},
     net::TcpListener,
@@ -98,4 +98,59 @@ fn signed_update_download_is_verified() {
 #[test]
 fn tampered_update_download_is_rejected() {
     download_fixture(true);
+}
+
+#[test]
+#[ignore = "requires a signed candidate and an isolated previous installation"]
+fn native_signed_update_installation() {
+    use std::{fs, path::PathBuf};
+    let config: serde_json::Value = serde_json::from_slice(
+        &fs::read(std::env::var("STUD_NATIVE_UPDATE_PROBE").expect("probe configuration")).unwrap(),
+    ).unwrap();
+    let field = |name: &str| config[name].as_str().expect(name).to_owned();
+    let root = PathBuf::from(field("root")).canonicalize().unwrap();
+    #[cfg(windows)]
+    {
+        assert_eq!(std::env::var("GITHUB_ACTIONS").as_deref(), Ok("true"));
+        assert_eq!(std::env::var("RUNNER_ENVIRONMENT").as_deref(), Ok("github-hosted"));
+        assert!(root.starts_with(PathBuf::from(std::env::var("RUNNER_TEMP").unwrap()).canonicalize().unwrap()));
+    }
+    assert!(root.file_name().unwrap().to_string_lossy().starts_with("stud-update-probe-"));
+    assert_eq!(fs::read(root.join(".probe-owned")).unwrap(), b"stud native update acceptance\n");
+    let executable = PathBuf::from(field("executable")).canonicalize().unwrap();
+    assert!(executable.starts_with(&root), "The previous app must be inside the probe folder");
+    // Keep the already validated ordinary path for NSIS /D. Windows canonical
+    // paths use a verbatim prefix that is unsuitable for installer arguments.
+    let install_directory = PathBuf::from(field("executable")).parent().unwrap().to_path_buf();
+    let marker = root.join("verified-update.json");
+    let endpoint = field("endpoint");
+    assert!(endpoint.starts_with("http://127.0.0.1:"));
+    let expected_version = field("version");
+    let accepted_version = expected_version.clone();
+    let app = mock_app(true); // This explicit loopback exception is test-only.
+    tauri::async_runtime::block_on(async {
+        let builder = app.updater_builder()
+            .pubkey(field("pubkey"))
+            .target("native-probe")
+            .executable_path(&executable)
+            .restart_after_install(false)
+            .installer_arg(format!("/D={}", install_directory.display()))
+            .version_comparator(move |_, remote| remote.version.to_string() == accepted_version)
+            .endpoints(vec![format!("{endpoint}/latest.json").parse().unwrap()]).unwrap()
+            .timeout(Duration::from_secs(300));
+        let updater = builder.build().unwrap();
+        let update = updater.check().await.unwrap().expect("signed candidate");
+        assert_eq!(update.version, expected_version);
+        let bytes = update.download(|_, _| {}, || {}).await.unwrap();
+        fs::write(&marker, serde_json::to_vec(&serde_json::json!({
+            "version": update.version, "verified_bytes": bytes.len(),
+            "signature_verified": true, "phase": "installing"
+        })).unwrap()).unwrap();
+        // Windows launches NSIS with /UPDATE and exits this test process. The
+        // parent then waits for the installed CLI to report the new version.
+        update.install(bytes).unwrap();
+        fs::write(&marker, serde_json::to_vec(&serde_json::json!({
+            "version": expected_version, "signature_verified": true, "phase": "installed"
+        })).unwrap()).unwrap();
+    });
 }

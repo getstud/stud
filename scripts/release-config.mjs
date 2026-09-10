@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { channelPath } from './release-channel.mjs';
+import { channelPath, verifyRelease } from './release-channel.mjs';
 
 export function releaseConfig(repository, publicKey, channel = 'stable') {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository || '')) throw new Error('Set STUD_RELEASE_REPOSITORY to owner/repository');
@@ -12,8 +12,12 @@ export function releaseConfig(repository, publicKey, channel = 'stable') {
   } } };
 }
 if (process.argv[1] && import.meta.url === (await import('node:url')).pathToFileURL(process.argv[1]).href) {
-  const config = releaseConfig(process.env.STUD_RELEASE_REPOSITORY || process.env.GITHUB_REPOSITORY, process.env.STUD_UPDATER_PUBLIC_KEY, process.env.STUD_RELEASE_CHANNEL || 'stable');
+  const version = JSON.parse(await fs.readFile('package.json','utf8')).version;
+  const release = await verifyRelease(`v${version}`);
+  if(process.env.STUD_RELEASE_CHANNEL && process.env.STUD_RELEASE_CHANNEL!==release.channel)throw new Error('Release channel must match the package version');
+  const config = releaseConfig(process.env.STUD_RELEASE_REPOSITORY || process.env.GITHUB_REPOSITORY, process.env.STUD_UPDATER_PUBLIC_KEY, release.channel);
   if (!process.env.TAURI_SIGNING_PRIVATE_KEY) throw new Error('TAURI_SIGNING_PRIVATE_KEY is required');
   await fs.writeFile('src-tauri/release.conf.json', JSON.stringify(config, null, 2) + '\n');
+  if(process.env.GITHUB_ENV)await fs.appendFile(process.env.GITHUB_ENV,`STUD_RELEASE_CHANNEL=${release.channel}\n`);
   console.log('Prepared signed GitHub release configuration.');
 }

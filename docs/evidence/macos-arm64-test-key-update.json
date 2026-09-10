@@ -1,0 +1,20 @@
+{
+  "cli": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-update-probe-8ip03t/previous/stud.app/Contents/MacOS/stud",
+  "previous_version": "1.0.0-preview.7",
+  "version": "1.0.0-preview.8",
+  "signature_verified": true,
+  "payload_bytes": 567052870,
+  "signing_key_kind": "local-test",
+  "public_key_sha256": "d5a667f1c932d291487b041e24643532b69aac6d277e5d4597129c67b50fc3fd",
+  "project_id": "project_342978ac3e5c4ebd8a23969e2fc682c8",
+  "checkpoint": "590827e26c1b239980bcb96be3308d5b420b5c0e",
+  "preserved": {
+    "project": true,
+    "checkpoint": true,
+    "prompt": true,
+    "prices": true,
+    "pdf": true,
+    "unrelated_file": true
+  },
+  "smoke_passed": true
+}

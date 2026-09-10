@@ -211,8 +211,9 @@ cargo test --release --manifest-path src-tauri/Cargo.toml --bin stud-desktop
 node scripts/smoke-desktop.mjs /path/to/packaged/stud
 ```
 
-The Rust tests check a real signed update fixture, rejection of tampered bytes,
-and production HTTPS enforcement without installing an update.
+The default Rust tests check a real signed update fixture, rejection of tampered
+bytes, and production HTTPS enforcement. An explicitly ignored native probe is
+run only with an isolated previous installation and signed candidate artifacts.
 
 The smoke test uses only the app's Python, creates an external project with spaces
 and Unicode in its name, builds and validates it, serves all viewer assets, saves
@@ -220,8 +221,14 @@ a comment, and checks that CLI sessions and updates exclude each other. The CI
 Windows job installs the actual NSIS artifact before running that smoke test,
 then uninstalls it. macOS jobs mount the DMG, copy the application to a separate
 installation directory, unmount the image, and smoke that installed application.
-Test a signed old-to-new update on both platforms before the
-first public release.
+The manual workflow's `signed_candidate` option builds and tests production-signed
+artifacts without publishing a release. Signed candidates and tag builds then run
+`scripts/ci-native-update.mjs` on each native host.
+It downloads the newest older published installer, uses Tauri's actual signature
+verification and installation path, and verifies native project, prompt, price,
+history, PDF and unrelated-file preservation. Its evidence is uploaded with the
+candidate artifacts. See [the acceptance procedure](ACCEPTANCE.md) for the exact
+scope and distinction between test-key trials and production signing.
 
 References: [Tauri v2 updater](https://v2.tauri.app/plugin/updater/),
 [Windows installers](https://v2.tauri.app/distribute/windows-installer/),
