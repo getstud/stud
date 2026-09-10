@@ -2,16 +2,17 @@ import {OptionComparison,createComparisonTools} from '/option-comparison.js';
 
 export function installOptionTabs(adapter){
  const root=document.createElement('div');root.id='option-comparison';
- root.innerHTML='<div class="option-heading"><span>Design options</span><a href="#design-versions" title="Manage saved options">Manage ↗</a></div><div class="option-tabs" role="tablist" aria-label="Compare design options"></div><div class="option-caption"><span class="option-message" role="status"></span><span class="option-writer"></span></div>';
+ root.innerHTML='<div class="option-tabs" role="tablist" aria-label="Compare design options"></div><span class="option-message" role="status"></span>';
  document.querySelector('.stage').prepend(root);
  document.getElementById('viewport').setAttribute('role','tabpanel');
- const tabs=root.querySelector('.option-tabs'),message=root.querySelector('.option-message'),writer=root.querySelector('.option-writer');
+ const tabs=root.querySelector('.option-tabs'),message=root.querySelector('.option-message');
  let error=null;
  const controller=new OptionComparison({...adapter,onChange:render});
  const run=async action=>{error=null;try{await action();}catch(problem){if(problem.code!=='SUPERSEDED')error=problem.message;}render(controller.state());};
  function render(state){
   const focused=document.activeElement?.dataset.option;
-  const entries=[{id:'live',label:'Live design',active:state.displayed.mode==='live'},...state.options.map(option=>({id:option.id,label:option.label,active:option.displayed,head:option.head}))];
+  const editing=`Editing: ${state.editing.label||'—'}${state.editing.request_id?' · request open':''}`;
+  const entries=[{id:'live',label:'Live',active:state.displayed.mode==='live'},...state.options.map(option=>({id:option.id,label:option.label,active:option.displayed,head:option.head,editing:option.editing_target}))];
   // Keep tab nodes stable while asynchronous refreshes arrive, including focus.
   for(const node of [...tabs.children])if(!entries.some(entry=>entry.id===node.dataset.option))node.remove();
   for(const entry of entries){
@@ -20,7 +21,10 @@ export function installOptionTabs(adapter){
     button.onclick=()=>run(()=>entry.id==='live'?controller.returnLive():controller.switchOption(entry.id));
     button.onpointerenter=()=>{const option=controller.options.find(option=>option.id===entry.id);if(option)void controller.prepared(option).catch(()=>{});};
    }
-   button.textContent=entry.label;button.title=entry.head?`${entry.label} · saved ${entry.head.slice(0,12)}`:'Latest design from the active editing option';
+   button.textContent=entry.label;
+   button.classList.toggle('is-editing',Boolean(entry.editing));
+   button.setAttribute('aria-label',`${entry.label}${entry.editing?', active editing option':''}`);
+   button.title=entry.head?`${entry.label} · saved ${entry.head.slice(0,12)}${entry.editing?`\n${editing}${state.editing.intent?`\n${state.editing.intent}`:''}`:''}`:`Latest design\n${editing}`;
    const becameActive=entry.active&&button.getAttribute('aria-selected')!=='true';
    button.setAttribute('aria-selected',String(entry.active));button.tabIndex=entry.active?0:-1;
    button.classList.toggle('is-pending',state.pending===entry.id);
@@ -32,10 +36,8 @@ export function installOptionTabs(adapter){
   root.setAttribute('aria-busy',String(Boolean(state.pending)));
   const pending=entries.find(entry=>entry.id===state.pending);
   const shown=entries.find(entry=>entry.active);
-  message.textContent=error|| (pending?`Opening ${pending.label}…`:state.displayed.mode==='live'?'Explore a detail, then flip between saved options.':`${shown?.label||'Saved checkpoint'} · Same viewpoint`);
+  message.textContent=error||(pending?`Opening ${pending.label}…`:`${state.displayed.mode==='live'?'Live design':shown?.label||'Saved checkpoint'} · Same viewpoint. ${editing}`);
   message.classList.toggle('has-error',Boolean(error));
-  writer.textContent=`Editing: ${state.editing.label||'—'}${state.editing.request_id?' · request open':''}`;
-  writer.title=state.editing.intent||'Comparing saved options leaves this editing target unchanged.';
   if(!state.pending)adapter.onSettled?.();
  }
  tabs.addEventListener('keydown',event=>{

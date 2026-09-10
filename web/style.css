@@ -529,19 +529,17 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 
 /* Saved design alternatives share one canvas and one unchanging viewpoint. */
 #option-comparison{position:absolute;top:66px;left:20px;right:20px;z-index:3;pointer-events:none}
-.option-heading{display:flex;align-items:center;gap:12px;margin:0 2px 7px;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
-.option-heading a{pointer-events:auto;margin-left:auto;letter-spacing:0;text-transform:none;font-size:11px}
-.option-tabs{pointer-events:auto;display:flex;gap:3px;overflow-x:auto;overscroll-behavior-x:contain;padding:4px;border:1px solid var(--line);border-radius:7px;background:var(--overlay);width:max-content;max-width:100%;scrollbar-width:thin;box-shadow:0 3px 14px #00000006}
-.option-tabs button{position:relative;flex:0 0 auto;padding:9px 15px;white-space:nowrap;max-width:300px;text-overflow:ellipsis;overflow:hidden;border-radius:4px;font-size:12px;color:var(--muted);transition:background-color 100ms,color 100ms}
+.option-tabs{pointer-events:auto;display:flex;gap:2px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--overlay);width:max-content;max-width:100%;scrollbar-width:thin;box-shadow:0 3px 14px #00000006}
+.option-tabs button{position:relative;flex:0 0 auto;padding:5px 10px;line-height:18px;white-space:nowrap;max-width:260px;text-overflow:ellipsis;overflow:hidden;border-radius:3px;font-size:11px;color:var(--muted);transition:background-color 100ms,color 100ms}
 .option-tabs button[aria-selected=true]{background:var(--ink);color:var(--on-ink);font-weight:500}
-.option-tabs button:first-child{border-right:1px solid var(--line);border-radius:4px 0 0 4px}
-.option-tabs button.is-pending::after{content:'';position:absolute;left:15px;right:15px;bottom:3px;height:2px;background:var(--accent);animation:option-pulse 700ms ease-in-out infinite alternate}
-.option-caption{display:flex;gap:16px;justify-content:space-between;margin:7px 2px 0;font-size:10px;color:var(--muted);line-height:1.4}
-.option-message{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.option-message.has-error{color:var(--danger);pointer-events:auto;white-space:normal;background:var(--paper);padding:4px 7px;border-radius:3px}
-.option-writer{white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
+.option-tabs button:first-child{border-right:1px solid var(--line);border-radius:3px 0 0 3px}
+.option-tabs button.is-editing::before{content:'';display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' d='m10 3 3 3M3 10l7.5-7.5a2.1 2.1 0 0 1 3 3L6 13l-4 1z'/%3E%3C/svg%3E") center/contain no-repeat}
+.option-tabs button.is-pending::after{content:'';position:absolute;left:10px;right:10px;bottom:2px;height:2px;background:var(--accent);animation:option-pulse 700ms ease-in-out infinite alternate}
+.option-message{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.option-message.has-error{top:calc(100% + 6px);left:0;width:max-content;max-width:100%;height:auto;margin:0;padding:6px 9px;clip-path:none;color:var(--danger);pointer-events:auto;white-space:normal;background:var(--paper);border:1px solid var(--line);border-radius:4px;font-size:11px}
 @keyframes option-pulse{to{opacity:.25}}
 @media(prefers-reduced-motion:reduce){.option-tabs button{transition:none}.option-tabs button.is-pending::after{animation:none}}
-@media(max-width:650px){#option-comparison{left:10px;right:10px;top:61px}.option-tabs button{padding:9px 12px;max-width:200px}.option-caption{gap:8px;font-size:9px}.option-heading{margin-bottom:5px}}
-#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:168px;max-height:calc(100dvh - 248px)}
-#workspace:has(#option-comparison) #viewport > #validation-toggle{top:max(25dvh,230px)}
-@media(max-width:650px){#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:162px;max-height:calc(100dvh - 238px)}}
+@media(max-width:650px){#option-comparison{left:10px;right:10px;top:61px}.option-tabs button{max-width:200px}}
+#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:114px;max-height:calc(100dvh - 194px)}
+#workspace:has(#option-comparison) #viewport > #validation-toggle{top:max(25dvh,160px)}
+@media(max-width:650px){#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:109px;max-height:calc(100dvh - 185px)}}
