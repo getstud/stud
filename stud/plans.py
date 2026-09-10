@@ -1,11 +1,12 @@
 """Vector construction/review packets from a fixed evaluated model.
 
 Projection is performed by OCCT. Dimensions are measured before projection;
-the PDF's explicit millimeter-to-point transform is archived for verification.
+the PDF's explicit project-unit-to-point transform is archived for verification.
 """
 import csv
 from html import escape
 import io
+import json
 import math
 from pathlib import Path
 import re
@@ -29,52 +30,61 @@ from .checks import resolve_point
 from .contracts import StudError, atomic_write, digest, read_json, write_json
 from .evaluated import load_model, object_scope, location_from_matrix
 from .fabrication import audit_fabrication
+from .units import defaults as unit_defaults
 
 POINTS_PER_MM = 72 / 25.4
-GENERATOR_VERSION = 4
+GENERATOR_VERSION = 6
 PAPER = {'letter':letter, 'a4':A4}
 
 
-def format_length(mm, units='imperial'):
+def points_per_unit(units):
+    return 72 if units=='in' else POINTS_PER_MM
+
+
+def format_length(value, units='imperial'):
     if units == 'mm':
-        return f'{mm:g} mm'
+        return f'{value:g} mm'
     from fractions import Fraction
-    value = Fraction(round(mm / 25.4 * 16),16)
-    whole, remainder = divmod(value.numerator, value.denominator)
+    fraction = Fraction(round(abs(value) * 16),16)
+    if abs(float(fraction)-abs(value))>1e-7:
+        return f'{round(value,4)+0:.4f}'.rstrip('0').rstrip('.')+' in'
+    whole, remainder = divmod(fraction.numerator, fraction.denominator)
     text = str(whole) if whole or not remainder else ''
     if remainder:
-        text += (' ' if text else '') + f'{remainder}/{value.denominator}'
-    return f'{mm:.2f} mm (~{text} in)' if abs(float(value)*25.4-mm)>1e-6 else text+' in'
+        text += (' ' if text else '') + f'{remainder}/{fraction.denominator}'
+    return ('-' if value<0 and fraction else '')+text+' in'
 
 
 def operation_text(operation, units='imperial'):
     kind=operation.get('kind')
+    description=operation.get('description') or ''
     if kind=='square_cut':
-        length=operation.get('finished_length_mm')
+        length=operation.get('finished_length')
         return 'Square-cut both ends'+(f' to {format_length(length,units)}.' if length else '.')
     if kind=='panel_cut':
-        size=operation.get('finished_size_mm',[])
+        size=operation.get('finished_size',[])
         return 'Cut panel'+(' to '+' x '.join(format_length(v,units) for v in size[:2]) if size else '')+'.'
     if kind=='bore':
-        text=f'Bore {format_length(operation["diameter_mm"],units)} diameter'+(' through.' if operation.get('through') else '.')
-        if operation.get('center_mm'):text+=' Center '+', '.join(format_length(v,units) for v in operation['center_mm'])+' from the local blank corner.'
+        text=f'Bore {format_length(operation["diameter"],units)} diameter'+(' through.' if operation.get('through') else '.')
+        if operation.get('center'):text+=' Center '+', '.join(format_length(v,units) for v in operation['center'])+' from the local blank corner.'
         if operation.get('axis'):text+=f' Drill through the local {operation["axis"]} direction.'
         return text
     if kind=='slope_cut':return f'Slope cut: rise/run {operation["slope"]:g}.'
-    if kind=='plumb_cut':return f'Cut both ends plumb at rise/run {operation["slope"]:g}; horizontal run {format_length(operation["horizontal_run_mm"],units)}. The listed blank length includes the angled end cuts.'
+    if kind=='plumb_cut':return f'Cut both ends plumb at rise/run {operation["slope"]:g}; horizontal run {format_length(operation["horizontal_run"],units)}. The listed blank length includes the angled end cuts.'
     if kind=='birdsmouth':
-        points=operation.get('stock_seat_endpoints_mm')
-        if points:return 'Mark the seat line on the rectangular blank Y-Z face between '+ ' and '.join(f'(Y {format_length(p[1],units)}, Z {format_length(p[2],units)})' for p in points)+'. Cut the seat between these marks; its assembled horizontal width is '+format_length(operation['seat_mm'],units)+'.'
-        return f'Birdsmouth seat {format_length(operation["seat_mm"],units)} wide, at {format_length(operation["seat_z_mm"],units)} above the {operation.get("frame","unspecified")} datum.'
-    if kind=='beveled_edge':return 'Bevel the top edge from '+format_length(operation['low_height_mm'],units)+' to '+format_length(operation['high_height_mm'],units)+f' high, rise/run {operation["slope"]:g}.'
-    if kind=='beveled_end':return 'Cut the upper end to '+format_length(operation['low_length_mm'],units)+' on one edge and '+format_length(operation['high_length_mm'],units)+' on the other.'
-    if kind=='rectangular_opening':return 'Cut '+operation.get('opening_id','opening')+' rectangle '+ ' x '.join(format_length(v,units) for v in operation['size_mm'])+'; lower-left offset '+', '.join(format_length(v,units) for v in operation['origin_mm'])+' on the sheet.'
-    if kind=='housing':return (operation.get('description') or 'Cut housing.')+' Size '+ ' x '.join(format_length(v,units) for v in operation['size_mm'])+'; local origin '+', '.join(format_length(v,units) for v in operation['origin_mm'])+'.'
-    if kind=='profile_cut':return (operation.get('description') or 'Cut the closed outline on the local blank face.')+(' Join coordinates '+ '; '.join('('+', '.join(format_length(v,units) for v in point)+')' for point in operation['profile_mm'])+'.' if operation.get('profile_mm') else ' Outline coordinates are missing.')
-    return operation.get('description') or 'Unspecified operation; review required.'
+        points=operation.get('stock_seat_endpoints')
+        if points:return 'Mark the seat line on the rectangular blank Y-Z face between '+ ' and '.join(f'(Y {format_length(p[1],units)}, Z {format_length(p[2],units)})' for p in points)+'. Cut the seat between these marks; its assembled horizontal width is '+format_length(operation['seat'],units)+'.'
+        return f'Birdsmouth seat {format_length(operation["seat"],units)} wide, at {format_length(operation["seat_z"],units)} above the {operation.get("frame","unspecified")} datum.'
+    if kind=='beveled_edge':return 'Bevel the top edge from '+format_length(operation['low_height'],units)+' to '+format_length(operation['high_height'],units)+f' high, rise/run {operation["slope"]:g}.'
+    if kind=='beveled_end':return 'Cut the upper end to '+format_length(operation['low_length'],units)+' on one edge and '+format_length(operation['high_length'],units)+' on the other.'
+    if kind=='rectangular_opening':return 'Cut '+operation.get('opening_id','opening')+' rectangle '+ ' x '.join(format_length(v,units) for v in operation['size'])+'; lower-left offset '+', '.join(format_length(v,units) for v in operation['origin'])+' on the sheet.'
+    if kind=='housing':return (description or 'Cut housing.')+' Size '+ ' x '.join(format_length(v,units) for v in operation['size'])+'; local origin '+', '.join(format_length(v,units) for v in operation['origin'])+'.'
+    if kind=='profile_cut':return (description or 'Cut the closed outline on the local blank face.')+(' Join coordinates '+ '; '.join('('+', '.join(format_length(v,units) for v in point)+')' for point in operation['profile'])+'.' if operation.get('profile') else ' Outline coordinates are missing.')
+    return description or 'Unspecified operation; review required.'
 
 
 def preflight(model, manifest):
+    tolerance=unit_defaults(model.units)['query_tolerance']
     findings=audit_fabrication(manifest)
     def missing(category, target, message):
         findings.append(dict(category=category, target=target, message=message))
@@ -94,9 +104,9 @@ def preflight(model, manifest):
                 raise StudError('unsupported_measurement','This packet requires an explicit supported dimension measurement.')
             a,b=resolve_point(model,dimension['start']),resolve_point(model,dimension['end'])
             value=math.dist(a,b)
-            if 'expected_mm' in dimension and abs(value-dimension['expected_mm'])>dimension.get('tolerance_mm',.01):
+            if 'expected' in dimension and abs(value-dimension['expected'])>dimension.get('tolerance',tolerance):
                 missing('stale_dimension',key,'The authored dimension expectation no longer matches geometry.')
-            resolved[key]=dict(**dimension,start_point=a,end_point=b,value_mm=value)
+            resolved[key]=dict(**dimension,start_point=a,end_point=b,value=value)
         except (StudError,ValueError,TypeError) as error:
             missing('unresolved_dimension',key,str(error))
     for view in manifest['drawings']:
@@ -111,7 +121,7 @@ def preflight(model, manifest):
             missing('unresolved_detail',view['id'],'The parent drawing for this detail is missing.')
     for obj in model.objects.values():
         blank=obj.get('blank')
-        if not blank or not blank.get('size_mm') or not blank.get('operations'):
+        if not blank or not blank.get('size') or not blank.get('operations'):
             missing('missing_cut_information',obj['id'],'A reproducible cut needs a specified blank and operations.')
     connections={c['id']:c for c in manifest['connections']}
     for connection in connections.values():
@@ -169,16 +179,16 @@ def preflight(model, manifest):
             if not panels:
                 missing('incomplete_sheet',sheet['id'],'Sheet has no identified panel cuts.')
             for index,panel in enumerate(panels):
-                x,y=panel['origin_mm'];w,h=panel['size_mm']
-                sw,sh=sheet['size_mm'];kerf=sheet.get('kerf_mm',0)
-                if x<0 or y<0 or w<=0 or h<=0 or x+w>sw+.01 or y+h>sh+.01:
+                x,y=panel['origin'];w,h=panel['size']
+                sw,sh=sheet['size'];kerf=sheet.get('kerf',0)
+                if x<0 or y<0 or w<=0 or h<=0 or x+w>sw+tolerance or y+h>sh+tolerance:
                     missing('sheet_fit',sheet['id'],f'Panel {panel["object_id"]} does not fit its actual sheet.')
                 if panel['object_id'] not in model.objects or not panel.get('supported_edges'):
                     missing('incomplete_sheet',sheet['id'],'Panel targets and supported edges must be explicit.')
                 elif panel['object_id'] in model.objects:
                     blank=model.objects[panel['object_id']].get('blank') or {}
-                    axes=blank.get('panel_axes',[0,1]);size=blank.get('size_mm',[])
-                    if len(size)!=3 or len(axes)!=2 or any(axis not in (0,1,2) for axis in axes) or any(abs(size[axis]-measure)>.01 for axis,measure in zip(axes,(w,h))):
+                    axes=blank.get('panel_axes',[0,1]);size=blank.get('size',[])
+                    if len(size)!=3 or len(axes)!=2 or any(axis not in (0,1,2) for axis in axes) or any(abs(size[axis]-measure)>tolerance for axis,measure in zip(axes,(w,h))):
                         missing('stale_sheet_cut',panel['object_id'],'The sheet cut dimensions differ from the part blank.')
                     for edge,supports in panel.get('supported_edges',{}).items():
                         if isinstance(supports,str):supports=[supports]
@@ -189,8 +199,8 @@ def preflight(model, manifest):
                         if not requirement or requirement['kind']!='panel_edge_support' or requirement['targets'][0]!=panel['object_id']:
                             missing('unresolved_sheet_support',panel['object_id'],'The named native edge-backing requirement is missing or references another panel.')
                 for other in panels[:index]:
-                    ox,oy=other['origin_mm'];ow,oh=other['size_mm']
-                    if x<ox+ow+kerf-.01 and ox<x+w+kerf-.01 and y<oy+oh+kerf-.01 and oy<y+h+kerf-.01:
+                    ox,oy=other['origin'];ow,oh=other['size']
+                    if x<ox+ow+kerf-tolerance and ox<x+w+kerf-tolerance and y<oy+oh+kerf-tolerance and oy<y+h+kerf-tolerance:
                         missing('sheet_overlap',sheet['id'],'Panel cuts overlap or omit the declared cutting loss.')
     return dict(status='complete' if not findings else 'review', findings=findings,
                 dimensions=resolved, geometry=manifest['completion']['geometry'],
@@ -208,13 +218,13 @@ def view_basis(view):
 
 
 def crop_bounds(view):
-    """An optional rectangle in the drawing's right/up plane, in millimeters."""
-    crop=view.get('crop_mm')
+    """An optional rectangle in the drawing's right/up plane, in project units."""
+    crop=view.get('crop')
     if crop is None:return None
     if (not isinstance(crop,(list,tuple)) or len(crop)!=4 or
         not all(isinstance(v,(int,float)) and math.isfinite(v) for v in crop) or
         crop[2]<=crop[0] or crop[3]<=crop[1]):
-        raise StudError('invalid_view','crop_mm requires [left, bottom, right, top] in the view plane.')
+        raise StudError('invalid_view','crop requires [left, bottom, right, top] in the view plane.')
     return list(crop)
 
 
@@ -243,7 +253,7 @@ def project_vector(model, view, scale):
     bounds=projected.BoundingBox()
     if min(bounds.xlen,bounds.ylen) <= 1e-7:
         raise StudError('invalid_view','Projection is edge-on; choose a view with visible area.')
-    factor=POINTS_PER_MM/scale
+    factor=points_per_unit(model.units)/scale
     left,bottom,crop_right,top=crop_bounds(view) or [bounds.xmin,bounds.ymin,bounds.xmax,bounds.ymax]
     if crop_right<bounds.xmin or left>bounds.xmax or top<bounds.ymin or bottom>bounds.ymax:
         raise StudError('unresolved_view','The cropped detail is outside its selected geometry.')
@@ -254,7 +264,7 @@ def project_vector(model, view, scale):
     root.set('width',str((crop_right-left)*factor));root.set('height',str((top-bottom)*factor))
     group=next(node for node in root if node.tag.endswith('g') and 'transform' in node.attrib)
     group.set('transform',f'scale({factor}, {-factor}) translate({-left},{-top})')
-    if view.get('crop_mm'):
+    if view.get('crop'):
         ns='{http://www.w3.org/2000/svg}'
         definitions=ET.SubElement(root,ns+'defs');clip=ET.SubElement(definitions,ns+'clipPath',{'id':'detail-crop','clipPathUnits':'userSpaceOnUse'})
         ET.SubElement(clip,ns+'rect',dict(x='0',y='0',width=str((crop_right-left)*factor),height=str((top-bottom)*factor)))
@@ -267,7 +277,7 @@ def project_vector(model, view, scale):
     drawing=svg2rlg(io.BytesIO(svg_bytes))
     if drawing is None:
         raise StudError('projection_failed','Could not convert the projected vector linework.')
-    return drawing, dict(bounds=dict(min=[left,bottom],max=[crop_right,top]),crop_mm=view.get('crop_mm'),
+    return drawing, dict(bounds=dict(min=[left,bottom],max=[crop_right,top]),crop=view.get('crop'),
                          factor=factor,basis=[list(v.toTuple()) for v in (right,vertical,direction)],
                          objects=ids,section_objects=section_objects,svg=svg_bytes)
 
@@ -280,7 +290,10 @@ class Packet:
         self.margin=float(spec.get('margin_mm',12.7))*POINTS_PER_MM
         if not 8*POINTS_PER_MM <= self.margin < min(self.width,self.height)/4:
             raise StudError('invalid_print_spec','Choose printable margins of at least 8 mm.')
-        self.units=spec.get('units','imperial')
+        self.units='imperial' if model.units=='in' else 'mm'
+        if spec.get('units',self.units)!=self.units:
+            raise StudError('unit_mismatch','Plan units must match the project; unit conversion is not implicit.')
+        self.points_per_unit=points_per_unit(model.units)
         self.canvas=Canvas(str(self.directory/'plans.pdf'),pagesize=(self.width,self.height),pageCompression=1,invariant=1)
         self.canvas.setTitle(f'{manifest["name"]} - {checkpoint[:12]}')
         self.canvas.setAuthor('stud')
@@ -311,11 +324,13 @@ class Packet:
     def footer(self):
         c=self.canvas;m=self.margin
         c.setStrokeColor(colors.black);c.setLineWidth(.6)
-        y=m+16;length=100*POINTS_PER_MM
+        y=m+16;length=100*POINTS_PER_MM if self.units=='mm' else 4*72
         c.line(m,y,m+length,y)
         for x in (m,m+length):c.line(x,y-3,x,y+3)
         c.setFillColor(colors.HexColor('#4d5752'));c.setFont('Helvetica',7)
-        c.drawString(m,y+6,'Scale check: this line is exactly 100 mm (3.937 in) on the page.')
+        label='100 mm' if self.units=='mm' else '4 in'
+        c.drawString(m,y+6,f'Scale check: this line is exactly {label} on the page.')
+        self.pages[-1]['calibration']=dict(length_points=length,label=label,start=[m,y],end=[m+length,y])
         c.drawString(m,m,'Print at 100% / Actual size. Do not fit to page.')
         c.drawRightString(self.width-m,m,f'Sheet {len(self.pages)}')
         c.showPage()
@@ -350,7 +365,7 @@ class Packet:
         crop=crop_bounds(view)
         projected_width=crop[2]-crop[0] if crop else max(p[0] for p in points)-min(p[0] for p in points)
         projected_height=crop[3]-crop[1] if crop else max(p[1] for p in points)-min(p[1] for p in points)
-        needed=max(projected_width*POINTS_PER_MM/available_w,projected_height*POINTS_PER_MM/available_h)
+        needed=max(projected_width*self.points_per_unit/available_w,projected_height*self.points_per_unit/available_h)
         scale=view.get('scale',self.spec.get('scale'))
         if scale is None:
             scale=next((n for n in (1,2,5,10,20,25,50,100,200,500,1000) if n>=needed),None)
@@ -398,7 +413,7 @@ class Packet:
             if math.dist(a,b)<.1:
                 raise StudError('plan_layout',f'Dimension {key} is edge-on in this drawing.')
             c=self.canvas;c.setStrokeColor(colors.HexColor('#486557'));c.setFillColor(colors.HexColor('#25372f'));c.setLineWidth(.45)
-            label=(dimension.get('label')+' ' if dimension.get('label') else '')+format_length(dimension['value_mm'],self.units)
+            label=(dimension.get('label')+' ' if dimension.get('label') else '')+format_length(dimension['value'],self.units)
             c.setFont('Helvetica',8)
             if abs(a[0]-b[0])>=abs(a[1]-b[1]):
                 line_y=y-22-horizontal*20;horizontal+=1
@@ -414,7 +429,7 @@ class Packet:
                 c.line(line_x,a[1],line_x,b[1])
                 for point in (a,b):c.line(line_x-3,point[1]-3,line_x+3,point[1]+3)
                 c.saveState();c.translate(line_x-5,(a[1]+b[1])/2);c.rotate(90);c.drawCentredString(0,0,label);c.restoreState()
-            printed.append(dict(id=key,value_mm=dimension['value_mm'],start=a,end=b,label=label))
+            printed.append(dict(id=key,value=dimension['value'],start=a,end=b,label=label))
         # Label callouts occupy a dedicated gutter, with ordered, nonoverlapping rows.
         callouts=[]
         for pid in projection.get('section_objects') if projection.get('section_objects') is not None else ids:
@@ -460,15 +475,15 @@ class Packet:
         shapes={key:dict(value) for key,value in self.model.shapes.items()}
         for key,offset in step.get('exploded',{}).items():
             if key in shapes:shapes[key]['world']=shapes[key]['world'].moved(cq.Location(cq.Vector(*offset)))
-        temporary=SimpleNamespace(shapes=shapes,objects=self.model.objects,assemblies=self.model.assemblies)
+        temporary=SimpleNamespace(units=self.model.units,shapes=shapes,objects=self.model.objects,assemblies=self.model.assemblies)
         right,up,_=view_basis(view);points=[]
         for key in ids:
             box=shapes[key]['world'].BoundingBox()
             points.extend((cq.Vector(x,y,z).dot(right),cq.Vector(x,y,z).dot(up)) for x in (box.xmin,box.xmax)
                           for y in (box.ymin,box.ymax) for z in (box.zmin,box.zmax))
         width=self.width-2*self.margin-24
-        needed=max((max(p[0] for p in points)-min(p[0] for p in points))*POINTS_PER_MM/width,
-                   (max(p[1] for p in points)-min(p[1] for p in points))*POINTS_PER_MM/height)
+        needed=max((max(p[0] for p in points)-min(p[0] for p in points))*self.points_per_unit/width,
+                   (max(p[1] for p in points)-min(p[1] for p in points))*self.points_per_unit/height)
         scale=next((n for n in (1,2,5,10,20,25,50,100,200,500,1000) if n>=needed),1000)
         drawing,projection=project_vector(temporary,view,scale)
         x=self.margin+12+(width-drawing.width)/2;bottom=y-drawing.height
@@ -487,10 +502,10 @@ class Packet:
             layouts=[]
             for column,sheet in enumerate(sheets[start:start+2]):
                 x=self.margin+column*(width+24);top=self.height-self.margin-92
-                sw,sh=sheet['size_mm'];available_h=self.height-2*self.margin-290
-                required=max(sw*POINTS_PER_MM/width,sh*POINTS_PER_MM/available_h)
+                sw,sh=sheet['size'];available_h=self.height-2*self.margin-290
+                required=max(sw*self.points_per_unit/width,sh*self.points_per_unit/available_h)
                 scale=next(n for n in (1,2,5,10,20,25,50,100,200,500,1000) if n>=required)
-                factor=POINTS_PER_MM/scale;bottom=top-sh*factor
+                factor=self.points_per_unit/scale;bottom=top-sh*factor
                 c=self.canvas;c.setFont('Helvetica-Bold',9);c.setFillColor(colors.HexColor('#25372f'))
                 c.drawString(x,top+14,f'Sheet {start+column+1} | 1:{scale}')
                 c.setStrokeColor(colors.HexColor('#9aa79e'));c.setLineWidth(.6);c.setFillColor(colors.HexColor('#f6f8f5'))
@@ -501,20 +516,20 @@ class Packet:
                     if pid not in self.model.shapes:continue
                     obj=self.model.objects[pid];blank=obj.get('blank') or {};axes=blank.get('panel_axes',[0,1])
                     u=cq.Vector(*[int(i==axes[0]) for i in range(3)]);v=cq.Vector(*[int(i==axes[1]) for i in range(3)])
-                    local=SimpleNamespace(objects={pid:obj},assemblies={},shapes={pid:{'world':self.model.shapes[pid]['local']}})
+                    local=SimpleNamespace(units=self.model.units,objects={pid:obj},assemblies={},shapes={pid:{'world':self.model.shapes[pid]['local']}})
                     view=dict(objects=[pid],direction=u.cross(v).toTuple(),up=v.toTuple(),hidden_lines=False)
                     drawing,projection=project_vector(local,view,scale)
-                    px,py=panel['origin_mm'];w,h=panel['size_mm'];bx,by=projection['bounds']['min']
+                    px,py=panel['origin'];w,h=panel['size'];bx,by=projection['bounds']['min']
                     ox=x+(px+bx)*factor;oy=bottom+(py+by)*factor
                     renderPDF.draw(drawing,c,ox,oy)
                     c.setStrokeColor(colors.HexColor('#93a699'));c.setDash(2,2);c.rect(x+px*factor,bottom+py*factor,w*factor,h*factor);c.setDash()
                     c.setFillColor(colors.HexColor('#25372f'));c.setFont('Helvetica',7)
                     c.drawString(x+px*factor+3,bottom+(py+h)*factor-10,obj['mark'])
                     rows.append(obj['mark']+': '+format_length(w,self.units)+' x '+format_length(h,self.units))
-                    layouts.append(dict(sheet_id=sheet['id'],object_id=pid,mark=obj['mark'],origin_mm=[px,py],size_mm=[w,h],
+                    layouts.append(dict(sheet_id=sheet['id'],object_id=pid,mark=obj['mark'],origin=[px,py],size=[w,h],
                         bounds_points=[x+px*factor,bottom+py*factor,x+(px+w)*factor,bottom+(py+h)*factor],scale_denominator=scale))
                 y=bottom-14
-                y=self.paragraph('Blank: '+format_length(sw,self.units)+' x '+format_length(sh,self.units)+'. Kerf '+format_length(sheet.get('kerf_mm',0),self.units)+'.',x,y,width,self.cell_style)
+                y=self.paragraph('Blank: '+format_length(sw,self.units)+' x '+format_length(sh,self.units)+'. Kerf '+format_length(sheet.get('kerf',0),self.units)+'.',x,y,width,self.cell_style)
                 for row in rows:y=self.paragraph(row,x,y,width,self.cell_style)
                 self.paragraph('Solid lines show actual finished outlines and openings. Dashed rectangles show starting panel blanks. See the part cuts for offsets and operations.',x,y,width,self.cell_style)
             self.pages[-1]['layouts']=layouts;self.footer()
@@ -547,7 +562,7 @@ class Packet:
         rows=[]
         for obj in self.model.objects.values():
             blank=obj.get('blank') or {}
-            size=' x '.join(format_length(v,self.units) for v in blank.get('size_mm',[])) or 'Unspecified'
+            size=' x '.join(format_length(v,self.units) for v in blank.get('size',[])) or 'Unspecified'
             operations=' '.join(operation_text(operation,self.units) for operation in blank.get('operations',[])) or 'Unspecified'
             rows.append([obj['mark'],obj['label']+' / '+obj['id'],size,operations])
         self.table('Parts and cuts',['Mark','Part / persistent ID','Starting blank','Specified operations'],rows,
@@ -556,12 +571,18 @@ class Packet:
         rows=[]
         for row in estimate.get('rows',[]):
             specification=row.get('specification',{});description=row['product_id'].replace('.',' ').title()
-            if specification.get('stock_length_mm'):
-                description+=' / '+format_length(float(specification['stock_length_mm']),self.units)+' stock'
-            if specification.get('section_mm'):
-                description+=' / '+ ' x '.join(format_length(float(value),self.units) for value in specification['section_mm'])+' section'
-            if specification.get('thickness_mm'):
-                description+=' / '+format_length(float(specification['thickness_mm']),self.units)+' thick'
+            if specification.get('stock_length'):
+                description+=' / '+format_length(float(specification['stock_length']),self.units)+' stock'
+            if specification.get('section'):
+                description+=' / '+ ' x '.join(format_length(float(value),self.units) for value in specification['section'])+' section'
+            if specification.get('thickness'):
+                description+=' / '+format_length(float(specification['thickness']),self.units)+' thick'
+            for key in ('sheet','size'):
+                if specification.get(key):
+                    description+=' / '+ ' x '.join(format_length(float(value),self.units) for value in specification[key])+' '+key
+            for key in ('diameter','length'):
+                if specification.get(key):description+=' / '+key+' '+format_length(float(specification[key]),self.units)
+            if specification.get('gauge'):description+=' / '+str(specification['gauge'])
             if float(row.get('pack_size',1))!=1:
                 description+=' / '+str(row['pack_size'])+' per '+row['purchase_unit']
             quote=row.get('quote') or {}
@@ -584,14 +605,14 @@ class Packet:
         stock_rows=[]
         for row in estimate.get('rows',[]):
             for stock in row.get('stock',[]):
-                if 'length_mm' not in stock:continue
+                if 'length' not in stock:continue
                 marks=[]
                 for cut in stock['cuts']:
                     obj=self.model.objects.get(cut['object_id'],{})
-                    marks.append(obj.get('mark','MISSING')+' '+format_length(float(cut['length_mm']),self.units))
-                remainder=format_length(float(stock['remaining_mm']),self.units)
-                remainder+=' reusable after final kerf' if 'trailing_kerf_mm' in stock else ' unused; saved legacy plan includes any final kerf'
-                stock_rows.append([len(stock_rows)+1,format_length(float(stock['length_mm']),self.units),'; '.join(marks),remainder])
+                    marks.append(obj.get('mark','MISSING')+' '+format_length(float(cut['length']),self.units))
+                remainder=format_length(float(stock['remaining']),self.units)
+                remainder+=' reusable after final kerf' if 'trailing_kerf' in stock else ' unused; saved legacy plan includes any final kerf'
+                stock_rows.append([len(stock_rows)+1,format_length(float(stock['length']),self.units),'; '.join(marks),remainder])
         if stock_rows:self.table('Stock cutting plan',['Board','Stock length','Cuts in order; allow kerf between cuts','Offcut / unused length'],stock_rows,
                                   [width*.08,width*.2,width*.54,width*.18],'stock_cuts')
         self.sheet_layouts()
@@ -656,7 +677,7 @@ def generate(directory, output, *, checkpoint, print_spec=None, views=None, esti
         raise StudError('incomplete_geometry','Only an explicitly diagnostic packet is allowed for partial geometry.')
     output=Path(output)
     output.mkdir(parents=True,exist_ok=False)
-    spec={'paper':'letter','margin_mm':12.7,'units':'imperial','template_version':1,'layout':'compact',**(print_spec or {})}
+    spec={'paper':'letter','margin_mm':12.7,'units':'imperial' if model.units=='in' else 'mm','template_version':1,'layout':'compact',**(print_spec or {})}
     if spec['paper'] not in PAPER:raise StudError('invalid_print_spec','Supported papers are letter and a4.')
     if spec['units'] not in ('mm','imperial'):raise StudError('invalid_print_spec','Supported printed units are mm and imperial.')
     selected=[view for view in manifest['drawings'] if views is None or view['id'] in views]
@@ -674,14 +695,14 @@ def generate(directory, output, *, checkpoint, print_spec=None, views=None, esti
     if include_lists:packet.lists()
     packet.canvas.save()
     parts=io.StringIO();writer=csv.writer(parts)
-    writer.writerow(['checkpoint','build_id','part_id','mark','label','blank_mm','operations','cut_label','material'])
-    for obj in model.objects.values():writer.writerow([checkpoint,manifest['build_id'],obj['id'],obj['mark'],obj['label'],
-                                                       (obj.get('blank') or {}).get('size_mm'),(obj.get('blank') or {}).get('operations'),getattr(packet,'labels',{}).get(obj['id']),obj.get('material')])
+    writer.writerow(['checkpoint','build_id','part_id','mark','label','units','blank','operations','cut_label','material'])
+    for obj in model.objects.values():writer.writerow([checkpoint,manifest['build_id'],obj['id'],obj['mark'],obj['label'],model.units,
+                                                       (obj.get('blank') or {}).get('size'),(obj.get('blank') or {}).get('operations'),getattr(packet,'labels',{}).get(obj['id']),obj.get('material')])
     atomic_write(output/'parts.csv',parts.getvalue().encode())
     materials=io.StringIO();writer=csv.writer(materials)
-    writer.writerow(['checkpoint','build_id','estimate_id','price_basis_id','product','quantity','purchase_unit','unit_price','line_total','currency'])
+    writer.writerow(['checkpoint','build_id','estimate_id','price_basis_id','product','quantity','purchase_unit','unit_price','line_total','currency','specification'])
     for row in (estimate or {}).get('rows',[]):writer.writerow([checkpoint,manifest['build_id'],estimate['id'],estimate['price_basis_id'],
-        row['product_id'],row['quantity'],row['purchase_unit'],row['unit_price'],row['line_total'],estimate['currency']])
+        row['product_id'],row['quantity'],row['purchase_unit'],row['unit_price'],row['line_total'],estimate['currency'],json.dumps(row['specification'],sort_keys=True)])
     atomic_write(output/'materials.csv',materials.getvalue().encode())
     result=dict(schema_version=1,project_id=manifest['project_id'],source_id=manifest['source_id'],build_id=manifest['build_id'],
         checkpoint=checkpoint,generator_version=GENERATOR_VERSION,runtime=manifest['runtime'],print_spec=spec,include_lists=include_lists,

@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-10T12:20:48.049576+00:00",
+  "checks": [
+    {
+      "example": "workbench",
+      "checkpoint": "5400267230644c0ad7990fdaa54eab1b77637bb2",
+      "build_id": "build_5be1075730bf49e0b5eb6ab157e6ec83",
+      "pages": 4,
+      "pdf_sha256": "a892708e359d40dd86be74b862bc5de41aa0d48a327e200de725d599d959143d",
+      "export_hashes_verified": 7,
+      "units": "in",
+      "calibration_points": 288
+    },
+    {
+      "example": "opening",
+      "checkpoint": "ca8aced76ca1b8bbeea80e1f8661c04cf1cf3db0",
+      "build_id": "build_2401b3a9b774474b913e259e30edf49b",
+      "pages": 3,
+      "pdf_sha256": "6a41ef03b46c7f7a391529d68e9d4a80a515dae253a586a64abf1a429a1fbbc4",
+      "export_hashes_verified": 5,
+      "units": "in",
+      "calibration_points": 288
+    },
+    {
+      "example": "roof-joint",
+      "checkpoint": "f8e71b97bd4e94fc4083a0427965f295e6c6c0ec",
+      "build_id": "build_c09e042292b0488d88e9132fa62b6a12",
+      "pages": 3,
+      "pdf_sha256": "9609e7aee837867ed1991eb7af1f0bdbfdbb259366a45f393beff2367c1b768b",
+      "export_hashes_verified": 4,
+      "units": "in",
+      "calibration_points": 288
+    },
+    {
+      "example": "shed",
+      "checkpoint": "ea44f082fc42a1e8a95232911d210b7e42f353c0",
+      "build_id": "build_d78790f16e3b48d7a0a6211b5182531c",
+      "pages": 13,
+      "pdf_sha256": "57e1313d116a4cef5f8a583d2d328d7042fc52ae9073c2b32e0f8b4c627cf249",
+      "export_hashes_verified": 21,
+      "units": "in",
+      "calibration_points": 288
+    }
+  ],
+  "visual_review": {
+    "pages_inspected": 23,
+    "render_height_pixels": 1200,
+    "text_clipping": false,
+    "overlapping_cut_labels": false,
+    "calibration_and_native_inch_labels": true
+  }
+}

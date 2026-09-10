@@ -30,21 +30,28 @@ def runtime_fingerprint():
     return dict(id=digest(details), **details)
 
 
-def new_manifest(name, project_id):
+def new_manifest(name, project_id, units='mm'):
+    from .units import validate,defaults
+    validate(units)
     return dict(schema_version=1, project_id=project_id, name=name, engine='cadquery',
                 entrypoint='design.py', source_files=['*.py', 'src/**/*.py', 'inputs/**/*'],
-                units='mm', display_units='imperial', runtime={'packages': DEPENDENCIES},
-                evaluation={'deterministic': False, 'linear_tolerance_mm': 0.1,
-                            'angular_tolerance': 0.1, 'query_tolerance_mm': 0.01},
-                print={'paper': 'letter', 'margin_mm': 12.7, 'template_version': 1})
+                units=units, display_units='imperial' if units=='in' else 'mm', runtime={'packages': DEPENDENCIES},
+                evaluation={'deterministic': False, **defaults(units)},
+                print={'paper': 'letter', 'margin_mm': 12.7, 'units':'imperial' if units=='in' else 'mm','template_version': 1})
 
 
 def manifest_at(root):
     manifest = read_json(confined(root, 'stud.json'))
     if not isinstance(manifest, dict) or manifest.get('schema_version') != 1:
         raise StudError('migration_required', 'This folder needs an explicit stud project conversion.')
-    if manifest.get('engine') != 'cadquery' or manifest.get('units') != 'mm':
-        raise StudError('unsupported_project', 'Expected a CadQuery project with millimeter coordinates.')
+    if manifest.get('engine') != 'cadquery':
+        raise StudError('unsupported_project', 'Expected a CadQuery project.')
+    from .units import validate,defaults
+    validate(manifest.get('units'))
+    evaluation=manifest.get('evaluation',{})
+    if not isinstance(evaluation,dict):
+        raise StudError('invalid_manifest','Evaluation settings must be an object.')
+    manifest['evaluation']={**defaults(manifest['units']),**evaluation}
     if not manifest.get('project_id') or not isinstance(manifest.get('source_files'), list):
         raise StudError('invalid_manifest', 'Project identity and declared source files are required.')
     confined(root, manifest['entrypoint'])

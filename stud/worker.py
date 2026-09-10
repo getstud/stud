@@ -80,7 +80,7 @@ def run(job):
         sys.path.insert(0, str(source))
         os.chdir(source)
         execution_started = time.perf_counter()
-        with redirect_stdout(sys.stderr), publication_context(publish, directory, job['runtime'], job['settings']):
+        with redirect_stdout(sys.stderr), publication_context(publish, directory, job['runtime'], job['settings'],units=manifest['units']):
             try:
                 namespace = runpy.run_path(str(source / manifest['entrypoint']), run_name='__stud_design__')
             finally:

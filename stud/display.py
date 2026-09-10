@@ -1,8 +1,7 @@
 """Presentation adapters for the established viewer, without a second model engine.
 
-The canonical model is the millimeter CadQuery manifest. These inch-valued
-labels and table rows maintain the existing UI; solid and mesh data are always
-the worker's native results, referenced as immutable assets.
+CAD coordinates remain in the declared project units. The established viewer
+uses inches for camera and GPU coordinates; labels use the project units.
 """
 import csv
 import io
@@ -13,6 +12,7 @@ from urllib.parse import quote
 
 from .contracts import StudError, digest, identifier, read_json
 from .estimate import calculate, purchase_lines
+from .units import convert
 
 
 def displayed_manifest(session):
@@ -78,6 +78,7 @@ def model_for_viewer(session):
 
 
 def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,checkpoint=None):
+    factor=convert(1,manifest['units'],'in')
     assemblies={a['id']:a['label'] for a in manifest['assemblies']}
     demands={d['product_id']:d for d in manifest['demands']}
     stocks={}
@@ -86,36 +87,36 @@ def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,che
         demand=demands.get(material,{})
         spec=demand.get('specification',{})
         stocks[material]=dict(name=material.replace('.',' ').title(),color=obj.get('color','#d8b982'),url='',
-            section=[v/25.4 for v in spec['section_mm']] if spec.get('section_mm') else None,
-            sheet=[v/25.4 for v in spec['sheet_mm']] if spec.get('sheet_mm') else None,
-            sheet_thickness=spec.get('thickness_mm',0)/25.4 if spec.get('thickness_mm') else None)
+            section=[v*factor for v in spec['section']] if spec.get('section') else None,
+            sheet=[v*factor for v in spec['sheet']] if spec.get('sheet') else None,
+            sheet_thickness=spec.get('thickness',0)*factor if spec.get('thickness') else None)
     parts=[]
     for obj in manifest['objects']:
         asset=manifest['assets'][obj['shape_key']];bounds=asset['bounds']
-        size=[(b-a)/25.4 for a,b in zip(bounds['min'],bounds['max'])]
-        origin=[obj['placement'][i][3]/25.4 for i in range(3)]
+        size=[(b-a)*factor for a,b in zip(bounds['min'],bounds['max'])]
+        origin=[obj['placement'][i][3]*factor for i in range(3)]
         blank=obj.get('blank') or {}
         part=dict(id=obj['id'],name=obj['label'],mark=obj['mark'],assembly=assemblies.get(obj['parent'],obj['parent'] or 'Parts'),
             assembly_id=obj['parent'],stock=obj.get('material') or 'unspecified',size=size,origin=origin,
             rotation=_rotation(obj['placement']),status='modeled',note='',color=obj.get('color'),
-            blank_size=[v/25.4 for v in blank['size_mm']] if blank.get('size_mm') else None,
-            cut_length=blank.get('cut_length_mm',0)/25.4 or None,
+            blank_size=[v*factor for v in blank['size']] if blank.get('size') else None,
+            cut_length=blank.get('cut_length',0)*factor or None,
             cad=dict(build_id=manifest['build_id'],source_id=manifest['source_id'],shape_key=obj['shape_key'],
-                     mesh_url=f'/api/v1/builds/{manifest["build_id"]}/{asset["mesh"]}',mesh_sha256=asset['mesh_sha256'],
+                     mesh_url=f'/api/v1/builds/{manifest["build_id"]}/{asset["mesh"]}',mesh_sha256=asset['mesh_sha256'],units=asset['units'],
                      placement=obj['placement'],local_bounds=bounds,operations=blank.get('operations',[]),provenance=obj.get('provenance')))
         parts.append(part)
     dimensions=[]
     for dimension in manifest['dimensions']:
         a,b=_point(manifest,dimension['start']),_point(manifest,dimension['end'])
         if a is not None and b is not None:
-            dimensions.append(dict(id=dimension['id'],label=dimension['label'],start=[v/25.4 for v in a],end=[v/25.4 for v in b],inches=math.dist(a,b)/25.4))
+            dimensions.append(dict(id=dimension['id'],label=dimension['label'],start=[v*factor for v in a],end=[v*factor for v in b],inches=math.dist(a,b)*factor))
     inputs=inputs if inputs is not None else inputs_for_model(session,manifest,job)
     materials=[]
     try:purchases=purchase_lines(manifest['demands'],inputs)
     except StudError as error:purchases=[dict(product_id='unavailable',object_ids=[],quantity=None,purchase_unit='',basis=str(error),missing=[str(error)])]
     for purchase in purchases:
         label=purchase['product_id'].replace('.',' ').title()
-        if purchase.get('specification',{}).get('stock_length_mm'):label+=' / '+str(float(purchase['specification']['stock_length_mm'])/25.4)+' in stock'
+        if purchase.get('specification',{}).get('stock_length'):label+=' / '+str(float(purchase['specification']['stock_length']))+' '+manifest['units']+' stock'
         materials.append(dict(stock=purchase['product_id'],name=label,parts=len(set(purchase['object_ids'])),
             purchase=f'{purchase["quantity"] if purchase["quantity"] is not None else "Unknown"} {purchase["purchase_unit"]}',basis=purchase['basis'],
             status='Incomplete' if purchase['missing'] else 'Specified purchases',url=''))
@@ -133,7 +134,7 @@ def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,che
     if not checks.get('coverage',{}).get('complete'):
         findings.append(dict(status='UNVERIFIED',rule='Coverage',parts=checks.get('coverage',{}).get('uncovered_objects',[]),message='Some geometric requirements have not been verified.'))
     latest=session.job(session.state['latest_build']) if session.state['latest_build'] and presentation is None else job
-    return dict(schema_version=1,engine='cadquery',units='in',name=manifest['name'],revision=revision,parts=parts,stocks=stocks,
+    return dict(schema_version=1,engine='cadquery',units='in',display_units=manifest['units'],name=manifest['name'],revision=revision,parts=parts,stocks=stocks,
         dimensions=dimensions,materials=materials,environment=[],
         validation_results=dict(findings=findings,coverage=checks.get('coverage',{})),
         cad=dict(project_id=manifest['project_id'],build_id=manifest['build_id'],source_id=manifest['source_id'],
@@ -234,8 +235,8 @@ def csv_for_viewer(session,path):
     stream=io.StringIO();writer=csv.writer(stream)
     checkpoint=job.get('checkpoint') or ''
     if path=='/api/parts.csv':
-        writer.writerow(['project_id','source_id','build_id','checkpoint','part_id','mark','label','blank_mm'])
-        for obj in manifest['objects']:writer.writerow([manifest['project_id'],manifest['source_id'],manifest['build_id'],checkpoint,obj['id'],obj['mark'],obj['label'],(obj.get('blank') or {}).get('size_mm')])
+        writer.writerow(['project_id','source_id','build_id','checkpoint','part_id','mark','label','units','blank'])
+        for obj in manifest['objects']:writer.writerow([manifest['project_id'],manifest['source_id'],manifest['build_id'],checkpoint,obj['id'],obj['mark'],obj['label'],manifest['units'],(obj.get('blank') or {}).get('size')])
     else:
         estimate=current_estimate(session,manifest)
         writer.writerow(['source_id','build_id','checkpoint','estimate_id','price_basis_id','product','quantity','unit','unit_price','amount','currency'])

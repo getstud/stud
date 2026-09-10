@@ -39,7 +39,7 @@ For deliberate focus, write a JSON input using actual IDs:
 {"expected_build":"BUILD_ID","objects":["bench.top"]}
 ```
 
-Then run `stud show /path/to/project --input focus.json --wait`. A result waiting for a viewer is not an acknowledgement. Regions in this native command are millimeters. The legacy WebMCP presentation adapter continues to use its own documented inch coordinates; do not pass native millimeters directly to it.
+Then run `stud show /path/to/project --input focus.json --wait`. A result waiting for a viewer is not an acknowledgement. Regions in this native command use the project units from `stud.json`. The browser WebMCP presentation adapter uses its documented viewer coordinates; use the native CLI for project-coordinate focus.
 
 For a native measurement:
 
@@ -47,7 +47,7 @@ For a native measurement:
 {"build_id":"BUILD_ID","source_id":"SOURCE_ID","targets":["beam:start","beam:end"]}
 ```
 
-Run `stud measure /path/to/project --input measurement.json --wait`. Named references resolve against the archived native shape. Picked measurements include the object and point in millimeters and report snapping/tolerance evidence. Stale/missing targets produce explicit errors.
+Run `stud measure /path/to/project --input measurement.json --wait`. Named references resolve against the archived native shape. Picked measurements include the object and point in native project units (`in` or `mm`) and report snapping/tolerance evidence. Stale/missing targets produce explicit errors.
 
 ## Alternatives and packets
 

@@ -2,7 +2,7 @@
 
 Use this branch for sheds, clubhouses and similar framed structures. Design physical construction assemblies and their load-path interfaces. Interior use informs clearances; decorating and furnishing need an explicit request.
 
-Apply these construction criteria to the project's format. The `WallFrame`, `wall_enclosure`, `select_rafter_size`, `asphalt_roof` and boxed-overhang APIs referenced below belong to the retained legacy model. For current CadQuery projects, read `docs/cadquery.md` and `stud.buildings`; use a project-owned CadQuery function for details those native helpers do not implement. Do not mix inch-based legacy parts with a millimeter manifest.
+Apply these construction criteria to the project's format. The `WallFrame`, `wall_enclosure`, `select_rafter_size`, `asphalt_roof` and boxed-overhang APIs referenced below belong to the retained legacy model. For current CadQuery projects, read `docs/cadquery.md` and the general `stud.buildings` framing helpers; compose specific buildings in project-owned CadQuery functions. Keep the project format and declared native units consistent across geometry, materials and checks. The native US construction helpers require an inch project.
 
 ## Decisions before geometry
 

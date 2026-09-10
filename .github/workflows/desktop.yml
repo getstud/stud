@@ -182,6 +182,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/ci-native-update.mjs ${{ matrix.triple }}
+      - name: Save native acceptance evidence
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: stud-evidence-${{ matrix.platform }}
+          path: docs/evidence/updates/${{ matrix.platform }}.json
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

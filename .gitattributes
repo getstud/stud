@@ -1,2 +1,6 @@
 # Cryptographic test fixtures must retain their exact bytes on every platform.
 /desktop/test-fixtures/* -text
+# Packet hashes and PDF offsets must survive checkout unchanged.
+*.pdf binary
+/docs/evidence/**/*.csv -text
+*.brep binary

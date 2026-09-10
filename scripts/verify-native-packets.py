@@ -21,11 +21,12 @@ def main():
     evidence=[]
     for name in args.examples:
         root=base/name;root.mkdir()
-        (root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial')\n")
-        initial=initialize(root,name)
+        (root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial',units='in')\n")
+        initial=initialize(root,name,units="in")
         with Session(root) as session:
             request=session.begin(key='packet-fixture',expected_head=initial['checkpoint'],intent='Build the '+name+' packet fixture')
-            (Path(request['workspace'])/'design.py').write_bytes((ENGINE/'examples'/('cadquery-'+name)/'design.py').read_bytes())
+            for source_file in (ENGINE/'examples'/('cadquery-'+name)).glob('*.py'):
+                (Path(request['workspace'])/source_file.name).write_bytes(source_file.read_bytes())
             source=session.source(request['id'])['source_id']
             finished=session.wait(session.finish(request['id'],expected_source=source,summary='Generate '+name+' fabrication evidence')['id'],timeout=600)
             if finished['status']!='complete':raise RuntimeError(finished)

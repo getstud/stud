@@ -171,7 +171,7 @@ stud --version                     print the installed version
 
 ## Under the hood
 
-The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. Current models use millimeters, with Z pointing up; `inches()` converts imperial inputs. Legacy models retain their inch-based API.
+The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. New projects use inches by default; `stud init PATH --units mm` creates a metric project. Geometry and stock use those native units with Z up, and units remain fixed across project edits. An imperial 2×4 uses its actual 1.5 × 3.5 inch section. Legacy models retain their existing API.
 
 The browser viewer uses Three.js. In a compatible browser, the optional WebMCP `show` tool lets an agent focus the viewer on particular parts or a region. Browsers without WebMCP still support the normal viewer interface.
 

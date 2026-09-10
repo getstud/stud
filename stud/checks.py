@@ -6,6 +6,7 @@ import cadquery as cq
 
 from .cad import point_at
 from .contracts import StudError
+from .units import requirement_units
 
 
 def resolve_point(model, reference):
@@ -67,12 +68,21 @@ def panel_edge_support(model, part_id, support_ids, direction_local):
                 if not remaining.Edges():break
                 remaining=remaining.cut(contact)
             missing=sum(e.Length() for e in remaining.Edges())
-            edges.append(dict(length_mm=edge.Length(),unbacked_mm=missing,center_mm=list(edge.Center().toTuple())))
-    return sum(edge['unbacked_mm'] for edge in edges),edges
+            edges.append(dict(length=edge.Length(),unbacked=missing,center=list(edge.Center().toTuple())))
+    return sum(edge['unbacked'] for edge in edges),edges
+
+
+def _requirement_units(model,requirement):
+    kind = requirement['kind']
+    units=requirement_units(model.units,kind)
+    if requirement.get('units',units)!=units:
+        raise StudError('unit_mismatch',f'{kind} requires {units} in this project.')
+    return units
 
 
 def measure_requirement(model, requirement):
     kind = requirement['kind']
+    units=_requirement_units(model,requirement)
     targets = requirement['targets']
     threshold, tolerance = float(requirement['threshold']), float(requirement['tolerance'])
     if not math.isfinite(threshold) or not math.isfinite(tolerance) or tolerance < 0:
@@ -92,7 +102,7 @@ def measure_requirement(model, requirement):
         if not isinstance(direction,(list,tuple)) or len(direction)!=3 or not all(math.isfinite(v) for v in direction) or math.dist(direction,[0,0,0])<1e-9:
             raise StudError('invalid_requirement','Panel backing requires a nonzero local direction toward its supports.')
         value,edges=panel_edge_support(model,targets[0],targets[1:],direction)
-        return value,value<=threshold+tolerance,dict(operation='native perimeter minus opposing contact faces',units='mm',edges=edges)
+        return value,value<=threshold+tolerance,dict(operation='native perimeter minus opposing contact faces',units=units,edges=edges)
     if kind == 'solid_valid':
         if not targets:raise StudError('invalid_requirement','Solid validity requires at least one target.')
         valid=all(model.shapes[t]['world'].isValid() for t in targets)
@@ -102,13 +112,13 @@ def measure_requirement(model, requirement):
             raise StudError('invalid_requirement', 'Stock fit requires one part in its stock frame.')
         obj = model.objects[targets[0]]
         blank = obj.get('blank')
-        if not blank or not blank.get('size_mm'):
+        if not blank or not blank.get('size'):
             raise StudError('unresolved_reference', 'Stock blank dimensions are missing.', references=targets)
-        size = blank['size_mm']
-        origin = blank.get('origin_mm', [0, 0, 0])
+        size = blank['size']
+        origin = blank.get('origin', [0, 0, 0])
         stock = cq.Workplane('XY').box(*size, centered=(False, False, False)).translate(origin).val()
         outside = model.shapes[targets[0]]['local'].cut(stock).Volume()
-        return outside, outside <= tolerance ** 3, dict(operation='solid minus blank', blank=blank, units='mm3')
+        return outside, outside <= tolerance ** 3, dict(operation='solid minus blank', blank=blank, units=units)
     if kind == 'collision_free':
         if not targets:
             raise StudError('invalid_requirement','Interference checking requires physical parts.')
@@ -127,8 +137,8 @@ def measure_requirement(model, requirement):
                 queried+=1
                 volume=model.shapes[left]['world'].intersect(model.shapes[right]['world']).Volume()
                 if volume>tolerance**3:
-                    value+=volume;pairs.append({'parts':[left,right],'volume_mm3':volume})
-        return value,value<=threshold+tolerance**3,dict(operation='OCCT common solid volumes',units='mm3',pairs=pairs,queried_pairs=queried)
+                    value+=volume;pairs.append({'parts':[left,right],'volume':volume})
+        return value,value<=threshold+tolerance**3,dict(operation='OCCT common solid volumes',units=units,pairs=pairs,queried_pairs=queried)
     if len(targets) != 2:
         raise StudError('invalid_requirement', f'{kind} requires exactly two target parts.')
     a, b = (model.shapes[target]['world'] for target in targets)
@@ -138,7 +148,7 @@ def measure_requirement(model, requirement):
         return value, passed, dict(operation='OCCT minimum solid distance')
     if kind == 'collision':
         value = a.intersect(b).Volume()
-        return value, value <= threshold + tolerance ** 3, dict(operation='OCCT common solid volume', units='mm3')
+        return value, value <= threshold + tolerance ** 3, dict(operation='OCCT common solid volume', units=units)
     if kind in ('contact', 'support'):
         policy=requirement.get('policy',{})
         direction=None
@@ -149,7 +159,7 @@ def measure_requirement(model, requirement):
             direction=cq.Vector(*values).normalized()
         area = contact_area(a, b, tolerance, direction=direction)
         return area, area+tolerance**2 >= threshold and area > 0, dict(operation='opposing planar contact projected perpendicular to bearing direction' if direction else 'opposing planar face intersection',
-            direction=list(direction.toTuple()) if direction else None,distance_mm=a.distance(b), units='mm2')
+            direction=list(direction.toTuple()) if direction else None,distance=a.distance(b), units=units)
     raise StudError('unsupported_measurement', f'Unsupported requirement: {kind}')
 
 
@@ -169,6 +179,7 @@ def check_model(model, *, cache_path=None, reuse=True):
         query_started=time.perf_counter()
         cached=None
         try:
+            _requirement_units(model,requirement)
             key=cache.key(model,requirement) if cache else None
             cached=cache.get(key) if cache and key else None
             if cached is None:

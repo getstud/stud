@@ -44,8 +44,14 @@ Only open trusted designs: design.py and its helpers are executable Python.
     return destination
 
 
-def init_project(destination, name=None, example=None):
+def init_project(destination, name=None, example=None, units="in"):
     """New projects use the CadQuery authoring and explicit request contract."""
+    from stud.units import validate
+    validate(units)
+    if example and units!="in":
+        raise ValueError("The US construction examples require --units in.")
+    length, thickness, depth, stock, kerf = (24, 1.5, 3.5, 96, .125) if units=="in" else (600, 38, 89, 2400, 3)
+    product = f"lumber.{thickness:g}x{depth:g}"
     destination=Path(destination).resolve()
     if destination.exists():
         raise ValueError(f'Destination already exists: {destination}. Choose a new directory.')
@@ -55,17 +61,17 @@ def init_project(destination, name=None, example=None):
 import cadquery as cq
 from stud.cad import Model
 
-model = Model({title!r})
-model.part('starter', cq.Workplane('XY').box(600, 38, 89, centered=(False,False,False)),
-           label='Starter member', material='lumber.38x89', blank={{'size_mm':[600,38,89], 'cut_length_mm':600,
-               'operations':[{{'kind':'square_cut','finished_length_mm':600}}]}})
+model = Model({title!r}, units={units!r})
+model.part('starter', cq.Workplane('XY').box({length}, {thickness}, {depth}, centered=(False,False,False)),
+           label='Starter member', material={product!r}, blank={{'size':[{length},{thickness},{depth}], 'cut_length':{length},
+               'operations':[{{'kind':'square_cut','finished_length':{length}}}]}})
 model.reference('starter','left',point=(0,0,0))
-model.reference('starter','right',point=(600,0,0))
-model.requirement('starter.length','length',['starter:left','starter:right'],threshold=600)
+model.reference('starter','right',point=({length},0,0))
+model.requirement('starter.length','length',['starter:left','starter:right'],threshold={length})
 model.requirement('starter.blank','stock_fit',['starter'])
-model.demand('starter.lumber',product_id='lumber.38x89',specification={{'material':'softwood','section_mm':[38,89]}},
-             object_ids=['starter'],purchase_unit='board',unit='mm',stock_lengths_mm=[2400],
-             cuts_mm=[{{'object_id':'starter','length_mm':600}}])
+model.demand('starter.lumber',product_id={product!r},specification={{'material':'softwood','section':[{thickness},{depth}]}},
+             object_ids=['starter'],purchase_unit='board',unit={units!r},stock_lengths=[{stock}],kerf={kerf},
+             cuts=[{{'object_id':'starter','length':{length}}}])
 model.dimension('starter.length','starter:left','starter:right',label='Length')
 model.drawing('starter.front',dimensions=['starter.length'])
 ''', encoding='utf-8')
@@ -74,10 +80,11 @@ model.drawing('starter.front',dimensions=['starter.length'])
         for source in (ROOT/'examples'/('cadquery-'+example)).glob('*.py'):
             shutil.copyfile(source,destination/source.name)
     from stud.history import initialize
-    initialize(destination,title)
+    initialize(destination,title,units=units)
     (destination/'README.md').write_text(f'''# {title}
 
-Open with `stud serve .`. Geometry is ordinary Python and CadQuery in millimeters.
+Open with `stud serve .`. Geometry is ordinary Python and CadQuery in {"inches" if units=="in" else "millimeters"}.
+Project units are fixed at creation; all geometry, stock and operations use these units.
 
 For a design change, inspect `stud status .`, begin a request with its expected
 option head, edit the returned workspace, evaluate, and finish with its source ID.
@@ -105,6 +112,7 @@ def main(argv=None):
     init = commands.add_parser('init', help='Create a new project with a starter model')
     init.add_argument('directory', type=Path)
     init.add_argument('--name')
+    init.add_argument('--units',choices=['in','mm'],default='in',help='Native project units, fixed at creation (default: in)')
     init.add_argument('--example',choices=['workbench','opening','roof-joint','shed','mansion'])
     commands.add_parser('doctor', help='Check bundled Python, CadQuery, PDF and Git runtime')
     for operation in ('status','begin','source','evaluate','finish','cancel','job','plans',
@@ -219,7 +227,7 @@ def main(argv=None):
             print(json.dumps(result,allow_nan=False))
             return 1 if isinstance(result,dict) and result.get('status') in ('failed','generation_failed') else 0
         if args.command == 'init':
-            destination = init_project(args.directory, args.name, args.example)
+            destination = init_project(args.directory, args.name, args.example, args.units)
             print(f'Created stud project: {destination}')
             skill = ROOT / 'skills' / 'stud-design'
             if not skill.is_dir():

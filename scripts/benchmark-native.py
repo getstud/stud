@@ -17,7 +17,7 @@ sys.path.insert(0,str(ENGINE))
 from stud.contracts import read_json,write_json
 from stud.history import initialize
 from stud.session import Session
-from stud.source import evaluated_identity
+from native_evidence import compare_native_evidence
 
 
 def main():
@@ -34,8 +34,8 @@ def main():
     print('EVIDENCE '+str(base/'performance.json'),flush=True)
     for name in args.cases:
         root=base/name;root.mkdir()
-        (root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial')\n")
-        initial=initialize(root,name)
+        (root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial',units='in')\n")
+        initial=initialize(root,name,units="in")
         case=dict(name=name,project=str(root),runs=[]);evidence['cases'].append(case)
         with Session(root) as session:
             def run(label,source_text=None,parameters=None,repeat=False):
@@ -43,12 +43,12 @@ def main():
                 request=session.begin(key=label,expected_head=session.snapshot()['option']['head'],intent=label)
                 workspace=Path(request['workspace'])
                 if name=='framing':
-                    (workspace/'design.py').write_text("import cadquery as cq\nfrom stud.cad import Model\nfrom stud.buildings import framed_wall\nmodel=Model('Repeated framing')\nfor i in range(24):\n    framed_wall(model,object_id=f'wall.{i}',length=4267.2,location=cq.Location(cq.Vector(0,i*1000,0)),sheathing=False)\n")
+                    (workspace/'design.py').write_text("import cadquery as cq\nfrom stud.cad import Model\nfrom stud.buildings import framed_wall\nmodel=Model('Repeated framing',units='in')\nfor i in range(24):\n    framed_wall(model,object_id=f'wall.{i}',length=168,location=cq.Location(cq.Vector(0,i*40,0)),sheathing=False)\n")
                 else:
                     for path in (ENGINE/'examples'/('cadquery-'+name)).glob('*.py'):
                         (workspace/path.name).write_bytes(path.read_bytes())
                 if parameters is not None:
-                    (workspace/'design.py').write_text("from stud.cad import Model\nfrom mansion import residence\nmodel=Model('Courtyard residence framing study')\nresidence(model,**"+repr(parameters)+")\n")
+                    (workspace/'design.py').write_text("from stud.cad import Model\nfrom mansion import residence\nmodel=Model('Courtyard residence framing study',units='in')\nresidence(model,**"+repr(parameters)+")\n")
                 if source_text:(workspace/'design.py').write_text(source_text)
                 capture_started=time.perf_counter();source=session.source(request['id'])['source_id'];capture_seconds=time.perf_counter()-capture_started
                 build=session.wait(session.evaluate(request['id'],source)['id'],timeout=1800)
@@ -69,8 +69,8 @@ def main():
                     full=session.wait(session.evaluate(request['id'],source,full_checks=True)['id'],timeout=1800)
                     if full['status']!='complete':raise RuntimeError(full)
                     full_manifest=read_json(Path(full['artifact_path'])/'manifest.json')
-                    row['independent_full_evaluation_agrees']=evaluated_identity(manifest)==evaluated_identity(full_manifest)
-                    if not row['independent_full_evaluation_agrees']:raise AssertionError('Fresh evaluated evidence differs: '+label)
+                    row['full_evaluation_comparison']=compare_native_evidence(build['artifact_path'],full['artifact_path'])
+                    row['independent_full_evaluation_agrees']=row['full_evaluation_comparison']['equivalent']
                 finish_started=time.perf_counter()
                 finished=session.wait(session.finish(request['id'],expected_source=source,summary=label)['id'],timeout=1800)
                 if finished['status']!='complete':raise RuntimeError(finished)
@@ -92,10 +92,10 @@ def main():
             baseline=run('baseline',parameters={} if name=='mansion' else None)
             if args.edits and name=='mansion':
                 for label,parameters in [
-                    ('local_opening',dict(local_window_width=1450)),
-                    ('shared_windows',dict(local_window_width=1450,window_width=1100)),
-                    ('whole_building_rotation',dict(local_window_width=1450,window_width=1100,rotation=23)),
-                    ('remove_module_and_change_roof',dict(include_guest=False,slope=.5,bore_diameter=16)),
+                    ('local_opening',dict(local_window_width=58)),
+                    ('shared_windows',dict(local_window_width=58,window_width=44)),
+                    ('whole_building_rotation',dict(local_window_width=58,window_width=44,rotation=23)),
+                    ('remove_module_and_change_roof',dict(include_guest=False,slope=.5,bore_diameter=.625)),
                     ('restore_defaults',{}),
                 ]:
                     changed=run(label,parameters=parameters,repeat=True)

@@ -1,5 +1,7 @@
 # Measured workloads
 
+The September 9 measurements below predate the native-unit example correction. The inch-authored workload is being revalidated before these figures are used as current acceptance evidence.
+
 These are local acceptance measurements, not a hardware-independent capacity promise. The test machine is an Apple M4 running macOS 26.6.2 with Python 3.13. The browser measurements use Chrome with ANGLE Metal; software-rendered results are reported separately. Native execution, including the full Python design, remains in a worker process.
 
 ## Workload and targets
@@ -49,9 +51,9 @@ The earlier provisional six-second startup target was too tight for the final wo
 
 ## Correctness of reuse
 
-The native query cache is disposable and scoped to the runtime fingerprint. Keys include exact native BREP identities, relevant world placements, targets, numerical policy, thresholds, tolerances and millimeter units. Local stock-fit checks can share an entry for identical local solids and blanks. World relationship checks invalidate on placement changes. Cache misses and malformed entries execute the native query. No bounding-box result substitutes for a native measurement.
+The native query cache is disposable and scoped to the runtime fingerprint. Keys include exact native BREP identities, relevant world placements, targets, numerical policy, thresholds, tolerances and declared project units. Local stock-fit checks can share an entry for identical local solids and blanks. World relationship checks invalidate on placement changes. Cache misses and malformed entries execute the native query. No bounding-box result substitutes for a native measurement.
 
-Each edited source is evaluated once with query reuse and again with reuse explicitly disabled. The comparison includes geometry, placements, authored references, quantities, findings, instructions and drawings, excluding only execution identities, timings, provenance paths and cache keys. Every edit is finalized and compared at a common saved price basis. Unit cases separately cover every query kind, cache corruption, publication replacement and current-job priority over historical evaluation.
+Each edited source is evaluated once with query reuse and again with reuse explicitly disabled. The benchmark compares source/runtime, authored metadata, placements, quantities, measured values, statuses, coverage, instructions and drawings exactly. When OCCT emits distinct BREP bytes for the same geometry, it verifies both native hashes, requires matching topology counts and requires both directional solid differences to complete as empty compounds, without added fuzzy tolerance. Only derived bounding-box padding (native kernel precision plus arithmetic ULPs) and supplementary contact-distance roundoff (at most 1e-12 native units) have numeric allowances. Added tiny bores, moved equal-volume bores, split solids, placement/quantity changes and corrupt archives are rejected by regressions, including under optimized Python. Exact cache keys and the conservative production-history identity check are unchanged. Every edit is finalized and compared at a common saved price basis. Unit cases separately cover every query kind, cache corruption, publication replacement and current-job priority over historical evaluation.
 
 The viewer shares immutable mesh assets and patches persistent object instances. Its ordered event stream replaces repeated idle native model/check downloads. Missing-asset and disconnected-event recovery are exercised by the complete browser acceptance script.
 

@@ -1,4 +1,4 @@
-import {workshopInches,cutSpecification,mountingLevel,groupAssemblyCuts} from '/assembly-instructions.js';
+import {workshopInches as imperialWorkshopInches,cutSpecification,mountingLevel,groupAssemblyCuts} from '/assembly-instructions.js';
 import {placeAnnotation,editorPosition} from '/annotation-layout.js';
 import * as THREE from 'three';
 import {outlineGeometry,bandedGeometry,layeredGeometry} from '/profile-geometry.js';
@@ -10,7 +10,7 @@ import {preserveCamera} from '/camera-transition.js';
 import {FlyControls} from '/fly-controls.js';
 import {BuildAnimation} from '/build-animation.js';
 import {BuildCamera, stopOnCameraInput} from '/build-camera.js';
-import {CadScene} from '/cad-scene.js';
+import {CadScene,viewerFactor} from '/cad-scene.js';
 import {ProjectEvents} from '/project-events.js';
 import {installVersions} from '/versions.js';
 const buildCamera=new BuildCamera();
@@ -86,7 +86,7 @@ function inspectEnvironment(id) {
  $('inspectorpanel').hidden = false;
  $('inspectortitle').textContent = 'ENVIRONMENT INSPECTOR';
  const asset = entry.asset;
- $('inspector').innerHTML = `<h2>${escape(asset.name)}</h2><span class="badge">ENVIRONMENT</span><p>Visual context. Excluded from materials and construction checks.</p><dl><dt>Origin (in.)</dt><dd>${asset.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${asset.rotation.join(', ')}</dd></dl><pre>${escape(JSON.stringify(asset.parameters, null, 2))}</pre>`;
+ $('inspector').innerHTML = `<h2>${escape(asset.name)}</h2><span class="badge">ENVIRONMENT</span><p>Visual context. Excluded from materials and construction checks.</p><dl><dt>Origin (${model?.display_units||'in'})</dt><dd>${asset.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${asset.rotation.join(', ')}</dd></dl><pre>${escape(JSON.stringify(asset.parameters, null, 2))}</pre>`;
 }
 $('environmenttoggle').onchange = () => {endAssemblyReview();environment.setEnabled($('environmenttoggle').checked);};
 $('fitscene').onclick = () => {buildCamera.stop();endAssemblyReview();clearShow();showFrame = bounds().union(environment.bounds());setView(currentView, showFrame);};
@@ -94,8 +94,9 @@ const validationGroup=new THREE.Group();scene.add(validationGroup);
 let validationReport=null,validationSignature='',validationHighlights=new Set();
 function vec(v){return new THREE.Vector3(v[0],v[2],-v[1]);}
 function escape(s){return String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
-function inches(v){return `${Number(v.toFixed(3))}″`;}
-function feet(v){let f=Math.floor(v/12),i=Number((v-f*12).toFixed(3));return f?`${f}′ ${i}″`:`${i}″`;}
+function workshopInches(v){return model?.display_units==='mm'?inches(v):imperialWorkshopInches(v);}
+function inches(v){if(model?.display_units==='mm')return `${Number((v*25.4).toFixed(3))} mm`;return `${Number(v.toFixed(3))}″`;}
+function feet(v){if(model?.display_units==='mm')return inches(v);let f=Math.floor(v/12),i=Number((v-f*12).toFixed(3));return f?`${f}′ ${i}″`:`${i}″`;}
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?escape(u.href):'';}catch{return '';}}
 function bounds(){return buildAnimation.atRest(()=>{const box=new THREE.Box3();for(const m of meshes)if(m.visible)box.expandByObject(m);if(!assemblyReview&&model&&($('dims').getAttribute('aria-pressed')==='true')&&!$('explode').checked)for(const d of model.dimensions){box.expandByPoint(vec(d.start));box.expandByPoint(vec(d.end));}return box.isEmpty()?new THREE.Box3(new THREE.Vector3(0,0,-96),new THREE.Vector3(144,160,0)):box;});}
 let focusDistance = 100;
@@ -133,7 +134,7 @@ function setView(name=currentView, frame=bounds(), preserve=false){
  else {controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=name==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();}
  document.querySelectorAll('[data-mode]').forEach(b=>{const active=b.dataset.mode===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  $('navigationhint').textContent=name==='firstperson'?'WASD / arrows fly · Drag to look · Q/E down/up · Shift faster · Esc release':name==='perspective'?'Drag to orbit · Click a part to inspect':'Drag to pan · Scroll to zoom · Click a part to inspect';
- $('viewlabel').textContent=`${name==='firstperson'?'FLY':name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · INCHES`;
+ $('viewlabel').textContent=`${name==='firstperson'?'FLY':name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · ${model?.display_units==='mm'?'MILLIMETERS':'INCHES'}`;
 }
 const showGroup = new THREE.Group();scene.add(showGroup);
 let showFrame = null;
@@ -364,7 +365,7 @@ function select(mesh){
  renderPartComments();
  if(!selected){$('inspector').innerHTML='<h2>Every piece,<br>accounted for.</h2><p>Select a part to inspect its dimensions.</p>';renderList();return;}
  selected.material.emissive.set('#68400f');const p=selected.userData,s=model.stocks[p.stock],fabrication=partMeasurement(selected);
- $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><span class="badge">${escape(p.status.toUpperCase())}</span><details class="parttechnical"><summary>Details</summary><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd>${p.cad?.provenance?`<dt>Source</dt><dd>${escape(p.cad.provenance.file||'')} : ${p.cad.provenance.line||'—'}</dd>`:''}</dl></details>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
+ $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><span class="badge">${escape(p.status.toUpperCase())}</span><details class="parttechnical"><summary>Details</summary><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (${model?.display_units||'in'})</dt><dd>${p.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd>${p.cad?.provenance?`<dt>Source</dt><dd>${escape(p.cad.provenance.file||'')} : ${p.cad.provenance.line||'—'}</dd>`:''}</dl></details>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
 }
 const expandedAssemblies=new Set();
 function partMeasurement(mesh){
@@ -422,7 +423,7 @@ function drawAssemblyInstructions(records,view,frame){
   const candidates=group.records.map(record=>{
    const a=new THREE.Vector3(),b=new THREE.Vector3();
    if(record.spec.axis>=0){
-    if(record.part.cad){const {min,max}=record.part.cad.local_bounds;a.fromArray(min.map((v,i)=>(v+max[i])/2/25.4));b.copy(a);a.setComponent(record.spec.axis,min[record.spec.axis]/25.4);b.setComponent(record.spec.axis,max[record.spec.axis]/25.4);}
+    if(record.part.cad){const {min,max}=record.part.cad.local_bounds;const factor=viewerFactor(record.part.cad.units);a.fromArray(min.map((v,i)=>(v+max[i])/2*factor));b.copy(a);a.setComponent(record.spec.axis,min[record.spec.axis]*factor);b.setComponent(record.spec.axis,max[record.spec.axis]*factor);}
     else{a.setComponent(record.spec.axis,-record.part.size[record.spec.axis]/2);b.setComponent(record.spec.axis,record.part.size[record.spec.axis]/2);}
    }
    a.applyMatrix4(record.matrix);b.applyMatrix4(record.matrix);
@@ -643,7 +644,7 @@ async function applyFocusTask(){
   await loadModel();
   if(focusTask!==jobId)return;
   if(model?.cad?.build_id!==job.build_id)throw new Error('The model changed before the requested view could be shown.');
-  displayShow({part_ids:job.objects,region:job.region?{min:job.region.min.map(v=>v/25.4),max:job.region.max.map(v=>v/25.4)}:undefined});
+  displayShow({part_ids:job.objects,region:job.region?{min:job.region.min.map(v=>v*viewerFactor(model.display_units)),max:job.region.max.map(v=>v*viewerFactor(model.display_units))}:undefined});
   const ack=await fetch('/api/v1/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
    operation:'acknowledge_show',key:`${jobId}:viewer`,arguments:{job_id:jobId,build_id:job.build_id,
     camera:{position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),target:controls.target?.toArray(),units:'viewer inches'}}})});

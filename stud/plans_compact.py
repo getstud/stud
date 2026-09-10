@@ -14,7 +14,8 @@ from reportlab.platypus import Paragraph, Table, TableStyle
 
 from .contracts import StudError, atomic_write, digest
 from .evaluated import object_scope
-from .plans import Packet, POINTS_PER_MM, crop_bounds, format_length, operation_text, ordered_steps, project_vector, view_basis
+from .units import defaults as unit_defaults
+from .plans import Packet, crop_bounds, format_length, operation_text, ordered_steps, project_vector, view_basis
 
 
 def normalized(value):
@@ -27,6 +28,7 @@ def normalized(value):
 
 def cut_groups(model,demands=None):
     """Group the same fabrication recipe only when native finished solids agree."""
+    volume_tolerance=unit_defaults(model.units)['query_tolerance']**3
     candidates=defaultdict(list);groups=[];labels={}
     all_demands=list(demands) if demands is not None else list(getattr(model,'demands',{}).values())
     for obj in model.objects.values():
@@ -38,7 +40,7 @@ def cut_groups(model,demands=None):
             first=model.shapes[candidate['objects'][0]]['local'];second=model.shapes[obj['id']]['local']
             # Coincident shape frames and recipes can differ by floating-point
             # noise. Native symmetric subtraction rejects a hidden local edit.
-            if abs(first.Volume()-second.Volume())<.001 and first.cut(second).Volume()<.001 and second.cut(first).Volume()<.001:
+            if abs(first.Volume()-second.Volume())<volume_tolerance and first.cut(second).Volume()<volume_tolerance and second.cut(first).Volume()<volume_tolerance:
                 group=candidate;break
         if group is None:
             group=dict(label=f'C{len(groups)+1:02d}',objects=[],blank=obj.get('blank') or {},material=obj.get('material'),example=obj['label'],material_keys=materials)
@@ -152,7 +154,7 @@ class CompactPacket(Packet):
         aw=width-left-gutter;ah=height-top-bottom
         if min(aw,ah)<20:
             raise StudError('plan_layout','The dimensions need more room; split this view or use the expanded layout.')
-        required=max((bounds[2]-bounds[0])*POINTS_PER_MM/aw,(bounds[3]-bounds[1])*POINTS_PER_MM/ah)
+        required=max((bounds[2]-bounds[0])*self.points_per_unit/aw,(bounds[3]-bounds[1])*self.points_per_unit/ah)
         scale=view.get('scale',self.spec.get('scale'))
         if scale is None:scale=next((n for n in (1,2,5,10,15,20,25,30,40,50,75,100,150,200,500,1000) if n>=required),None)
         if scale is None or scale<required-1e-9:raise StudError('plan_layout','The requested scale needs a larger sheet or expanded packet layout.')
@@ -179,7 +181,7 @@ class CompactPacket(Packet):
             if crop and any(p[0]<dx-.1 or p[0]>dx+drawing.width+.1 or p[1]<dy-.1 or p[1]>dy+drawing.height+.1 for p in (a,b)):
                 raise StudError('plan_layout',f'Dimension {dimension["id"]} is outside the cropped detail.')
             c.setStrokeColor(colors.HexColor('#486557'));c.setFillColor(colors.HexColor('#25372f'));c.setLineWidth(.4);c.setFont('Helvetica',7.5)
-            label=(dimension.get('label','')+' '+format_length(dimension['value_mm'],self.units)).strip()
+            label=(dimension.get('label','')+' '+format_length(dimension['value'],self.units)).strip()
             if abs(a[0]-b[0])>=abs(a[1]-b[1]):
                 at=dy-14-horizontal*18;horizontal+=1
                 for p in (a,b):c.line(p[0],p[1],p[0],at-3);c.line(p[0]-2,at-2,p[0]+2,at+2)
@@ -188,7 +190,7 @@ class CompactPacket(Packet):
                 at=dx-12-vertical*18;vertical+=1
                 for p in (a,b):c.line(p[0],p[1],at-3,p[1]);c.line(at-2,p[1]-2,at+2,p[1]+2)
                 c.line(at,a[1],at,b[1]);c.saveState();c.translate(at-3,(a[1]+b[1])/2);c.rotate(90);c.drawCentredString(0,0,label);c.restoreState()
-            printed.append(dict(id=dimension['id'],value_mm=dimension['value_mm'],start=a,end=b,label=label))
+            printed.append(dict(id=dimension['id'],value=dimension['value'],start=a,end=b,label=label))
         # One callout per fabrication type avoids repeating 30 identical stud
         # labels. The cut schedule carries its exact count and member mapping.
         anchors={}
@@ -226,16 +228,16 @@ class CompactPacket(Packet):
                 if key not in recipes:
                     recipes[key]=f'D{len(recipes)+1:02d}';details.append((recipes[key],' '.join(operation_text(op,self.units) for op in special)))
                 code=recipes[key]
-            size=' × '.join(format_length(v,self.units) for v in blank.get('size_mm',[])) or 'Unspecified'
+            size=' × '.join(format_length(v,self.units) for v in blank.get('size',[])) or 'Unspecified'
             for operation in operations:
                 if operation.get('kind')=='square_cut':
-                    finished=operation.get('finished_length_mm')
-                    if finished is not None and (not blank.get('size_mm') or abs(finished-max(blank['size_mm']))>.01):
+                    finished=operation.get('finished_length')
+                    if finished is not None and (not blank.get('size') or abs(finished-max(blank['size']))>unit_defaults(self.model.units)['query_tolerance']):
                         size+='; finish length '+format_length(finished,self.units)
                 elif operation.get('kind')=='panel_cut':
-                    finished=operation.get('finished_size_mm')
+                    finished=operation.get('finished_size')
                     axes=blank.get('panel_axes',[0,1])
-                    if finished and (len(blank.get('size_mm',[]))!=3 or any(abs(finished[i]-blank['size_mm'][axis])>.01 for i,axis in enumerate(axes))):
+                    if finished and (len(blank.get('size',[]))!=3 or any(abs(finished[i]-blank['size'][axis])>unit_defaults(self.model.units)['query_tolerance'] for i,axis in enumerate(axes))):
                         size+='; finish panel '+' × '.join(format_length(v,self.units) for v in finished[:2])
             material='/'.join(self.materials[key]['label'] for key in group['material_keys']) or (group.get('material') or 'Unknown')
             rows.append([group['label']+'/'+material,len(group['objects']),group['example'],size,code])
@@ -252,15 +254,17 @@ class CompactPacket(Packet):
         description=material+' · '+product_id.replace('.',' ')
         for key in ('material','species','grade','type'):
             if spec.get(key):description+=' · '+str(spec[key])
-        if spec.get('stock_length_mm'):description+=' · '+format_length(float(spec['stock_length_mm']),self.units)
-        if spec.get('section_mm'):description+=' · '+' × '.join(format_length(float(v),self.units) for v in spec['section_mm'])
-        if spec.get('thickness_mm'):description+=' · '+format_length(float(spec['thickness_mm']),self.units)+' thick'
-        if spec.get('sheet_mm'):description+=' · '+' × '.join(format_length(float(v),self.units) for v in spec['sheet_mm'])+' sheet'
+        if spec.get('stock_length'):description+=' · '+format_length(float(spec['stock_length']),self.units)
+        if spec.get('section'):description+=' · '+' × '.join(format_length(float(v),self.units) for v in spec['section'])
+        if spec.get('thickness'):description+=' · '+format_length(float(spec['thickness']),self.units)+' thick'
+        if spec.get('sheet'):description+=' · '+' × '.join(format_length(float(v),self.units) for v in spec['sheet'])+' sheet'
         for key,value in spec.items():
-            if key in ('material','species','grade','type','stock_length_mm','section_mm','thickness_mm','sheet_mm'):continue
-            label=key.removesuffix('_mm').replace('_',' ')
-            if key.endswith('_mm') and isinstance(value,(int,float)):
+            if key in ('material','species','grade','type','stock_length','section','thickness','sheet','length_unit'):continue
+            label=key.replace('_',' ')
+            if key in ('length','width','height','depth','diameter') and isinstance(value,(int,float)):
                 value=format_length(value,self.units)
+            elif key=='size' and isinstance(value,list):
+                value=' × '.join(format_length(float(v),self.units) for v in value)
             elif isinstance(value,(dict,list)):
                 value=json.dumps(value,ensure_ascii=False,sort_keys=True)
             description+=' · '+label+': '+str(value)
@@ -289,19 +293,19 @@ class CompactPacket(Packet):
         groups={}
         for row in estimate.get('rows',[]):
             for stock in row.get('stock',[]):
-                if 'length_mm' not in stock:continue
-                cuts=[dict(label=self.labels.get(cut['object_id'],'Missing: '+cut['object_id']),length_mm=cut['length_mm'],kerf_before_mm=cut.get('kerf_before_mm','0')) for cut in stock['cuts']]
-                key=digest(dict(spec=row['specification'],length=stock['length_mm'],cuts=cuts,offcut=stock['remaining_mm'],trailing=stock.get('trailing_kerf_mm')))
+                if 'length' not in stock:continue
+                cuts=[dict(label=self.labels.get(cut['object_id'],'Missing: '+cut['object_id']),length=cut['length'],kerf_before=cut.get('kerf_before','0')) for cut in stock['cuts']]
+                key=digest(dict(spec=row['specification'],length=stock['length'],cuts=cuts,offcut=stock['remaining'],trailing=stock.get('trailing_kerf')))
                 if key not in groups:groups[key]=dict(label=f'B{len(groups)+1:02d}',quantity=0,stock=stock,cuts=cuts,specification=row['specification'],material=self.demand_material.get(row.get('demand_id'),''),boards=[])
                 groups[key]['quantity']+=1;groups[key]['boards'].append(stock['id'])
         self.inventory['boards']=list(groups.values())
         rows=[]
         for group in groups.values():
-            stock=group['stock'];section=group['specification'].get('section_mm',[])
-            size=group['material']+' · '+' × '.join(format_length(float(v),self.units) for v in section)+' × '+format_length(float(stock['length_mm']),self.units)
-            cuts=' + '.join(cut['label']+' ('+format_length(float(cut['length_mm']),self.units)+')' for cut in group['cuts'])
-            if stock.get('kerf_mm') is not None:cuts+='; kerf '+format_length(float(stock['kerf_mm']),self.units)
-            loss=stock.get('trailing_kerf_mm');offcut=format_length(float(stock['remaining_mm']),self.units)
+            stock=group['stock'];section=group['specification'].get('section',[])
+            size=group['material']+' · '+' × '.join(format_length(float(v),self.units) for v in section)+' × '+format_length(float(stock['length']),self.units)
+            cuts=' + '.join(cut['label']+' ('+format_length(float(cut['length']),self.units)+')' for cut in group['cuts'])
+            if stock.get('kerf') is not None:cuts+='; kerf '+format_length(float(stock['kerf']),self.units)
+            loss=stock.get('trailing_kerf');offcut=format_length(float(stock['remaining']),self.units)
             if loss is None:offcut+=' including final kerf'
             rows.append([group['label'],group['quantity'],size,cuts,offcut])
         self.flow_table('Board cutting plan — repeat each row for its quantity',['Plan','Qty','Stock section × length','Cuts in order; allow saw kerf','Reusable offcut'],rows,
@@ -312,8 +316,8 @@ class CompactPacket(Packet):
         sheets={}
         for demand in self.manifest['demands']:
             for sheet in demand.get('sheets') or []:
-                panels=[dict(label=self.labels.get(p['object_id'],'Missing: '+p['object_id']),origin_mm=p['origin_mm'],size_mm=p['size_mm']) for p in sheet['panels']]
-                signature=digest(normalized(dict(specification=demand['specification'],size_mm=sheet['size_mm'],panels=panels,kerf_mm=sheet.get('kerf_mm',0))))
+                panels=[dict(label=self.labels.get(p['object_id'],'Missing: '+p['object_id']),origin=p['origin'],size=p['size']) for p in sheet['panels']]
+                signature=digest(normalized(dict(specification=demand['specification'],size=sheet['size'],panels=panels,kerf=sheet.get('kerf',0))))
                 if signature not in sheets:sheets[signature]=dict(label=f'S{len(sheets)+1:02d}',quantity=0,sheet=sheet,panels=panels,sheets=[],material=self.demand_material[demand['id']],specification=demand['specification'])
                 sheets[signature]['quantity']+=1;sheets[signature]['sheets'].append(sheet['id'])
         self.inventory['sheets']=list(sheets.values())
@@ -324,16 +328,16 @@ class CompactPacket(Packet):
             width=(self.body_width-20)/3;height=(self.current_y-self.margin-68-20)/3
             for index,group in enumerate(values[start:start+9]):
                 x=self.margin+(index%3)*(width+10);top=self.current_y-(index//3)*(height+10)
-                sheet=group['sheet'];sw,sh=sheet['size_mm'];thickness=group['specification'].get('thickness_mm')
-                thickness=f'{float(thickness):g}' if thickness is not None else '?'
+                sheet=group['sheet'];sw,sh=sheet['size'];thickness=group['specification'].get('thickness')
+                thickness=format_length(float(thickness),self.units) if thickness is not None else 'unspecified thickness'
                 self.canvas.setFont('Helvetica-Bold',8);self.canvas.setFillColor(colors.HexColor('#25372f'))
-                self.canvas.drawString(x,top-8,f'{group["label"]}/{group["material"]} · {group["quantity"]} sheet(s) · {thickness} mm')
-                required=max(sw*POINTS_PER_MM/(width-12),sh*POINTS_PER_MM/(height-48))
-                scale=next(n for n in (5,10,20,25,30,40,50,75,100,150,200) if n>=required);factor=POINTS_PER_MM/scale
+                self.canvas.drawString(x,top-8,f'{group["label"]}/{group["material"]} · {group["quantity"]} sheet(s) · {thickness}')
+                required=max(sw*self.points_per_unit/(width-12),sh*self.points_per_unit/(height-48))
+                scale=next(n for n in (5,10,20,25,30,40,50,75,100,150,200) if n>=required);factor=self.points_per_unit/scale
                 dx=x+(width-sw*factor)/2;bottom=top-20-sh*factor
                 c=self.canvas;c.setFillColor(colors.HexColor('#f5f8f4'));c.setStrokeColor(colors.HexColor('#b0bcb2'));c.rect(dx,bottom,sw*factor,sh*factor,stroke=1,fill=1)
                 for part,summary in zip(sheet['panels'],group['panels']):
-                    pid=part['object_id'];px,py=part['origin_mm'];w,h=part['size_mm']
+                    pid=part['object_id'];px,py=part['origin'];w,h=part['size']
                     if pid not in self.model.shapes:
                         c.setFillColor(colors.HexColor('#9d492e'));c.setFont('Helvetica',7)
                         c.drawString(dx+px*factor+2,bottom+(py+h)*factor-10,'Missing part — see review')
@@ -344,14 +348,21 @@ class CompactPacket(Packet):
                     # Preserve either sheet-plane handedness by using the local
                     # projected bounds, as in the expanded native sheet views.
                     direction=cq.Vector(*vectors[0]).cross(cq.Vector(*vectors[1]));view=dict(id=pid,objects=[pid],direction=direction.toTuple(),up=vectors[1],dimensions=[])
-                    local=SimpleNamespace(shapes={pid:dict(entry,world=entry['local'])},objects={pid:self.model.objects[pid]},assemblies={})
+                    local=SimpleNamespace(units=self.model.units,shapes={pid:dict(entry,world=entry['local'])},objects={pid:self.model.objects[pid]},assemblies={})
                     drawing,projection=project_vector(local,view,scale)
                     ox=dx+px*factor;oy=bottom+py*factor
                     c.saveState();c.setDash(2,2);c.setStrokeColor(colors.HexColor('#96a399'));c.rect(ox,oy,w*factor,h*factor,stroke=1,fill=0);c.restoreState()
                     renderPDF.draw(drawing,c,ox+projection['bounds']['min'][0]*factor,oy+projection['bounds']['min'][1]*factor)
-                    c.setFillColor(colors.HexColor('#25372f'));c.setFont('Helvetica',7);c.drawString(ox+2,oy+h*factor-9,summary['label'])
+                    c.setFillColor(colors.HexColor('#25372f'));c.setFont('Helvetica',7)
+                    label=summary['label']
+                    if c.stringWidth(label,'Helvetica',7)+4>w*factor and h*factor>=c.stringWidth(label,'Helvetica',7)+4:
+                        # Put narrow-strip labels along the strip so adjacent
+                        # cut types remain distinct at the actual print scale.
+                        c.saveState();c.translate(ox+(w*factor+5)/2,oy+h*factor-3);c.rotate(90)
+                        c.drawRightString(0,0,label);c.restoreState()
+                    else:c.drawString(ox+2,oy+h*factor-9,label)
                 c.setFont('Helvetica',7);c.drawString(x,bottom-12,f'{format_length(sw,self.units)} × {format_length(sh,self.units)} · 1:{scale}')
-                c.drawString(x,bottom-22,f'Kerf {sheet.get("kerf_mm",0):g} mm')
+                c.drawString(x,bottom-22,'Kerf '+format_length(sheet.get('kerf',0),self.units))
                 self.pages[-1]['layouts'].append(dict(label=group['label'],quantity=group['quantity'],scale_denominator=scale,
                     bounds_points=[dx,bottom,dx+sw*factor,bottom+sh*factor],sheet_ids=group['sheets']))
         self.close_page()
@@ -403,7 +414,7 @@ class CompactPacket(Packet):
             shape=self.model.shapes[pid]['world'].moved(cq.Location(cq.Vector(*step.get('exploded',{}).get(pid,[0,0,0]))))
             shapes[pid]=dict(self.model.shapes[pid],world=shape)
             objects[pid]=dict(self.model.objects[pid],bounds=shape_bounds(shape))
-        model=SimpleNamespace(shapes=shapes,objects=objects,assemblies={})
+        model=SimpleNamespace(units=self.model.units,shapes=shapes,objects=objects,assemblies={})
         view=dict(id=step['id']+'.exploded',objects=parts,direction=[1,-1,1],up=[0,0,1],dimensions=[])
         # Project once at unit scale to choose a physical illustration scale.
         drawing,projection=project_vector(model,view,1)

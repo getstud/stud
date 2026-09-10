@@ -1,6 +1,13 @@
 // Immutable worker meshes and persistent object patches for the established UI.
-// Coordinates enter in millimeters. The viewer's existing display uses inches.
-export function decodeMesh(buffer) {
+// Native project units are explicit; only GPU/camera coordinates use inches.
+export function viewerFactor(units){
+  if(units==='in')return 1;
+  if(units==='mm')return 1/25.4;
+  throw new Error('Mesh asset must declare in or mm units');
+}
+
+export function decodeMesh(buffer,units) {
+  const factor=viewerFactor(units);
   const view=new DataView(buffer);
   if(buffer.byteLength<16||new TextDecoder().decode(new Uint8Array(buffer,0,8))!=='STUDMESH')throw new Error('Invalid mesh asset header');
   const vertices=view.getUint32(8,true),triangles=view.getUint32(12,true);
@@ -10,7 +17,7 @@ export function decodeMesh(buffer) {
   for(let i=0;i<positions.length;i++){
     const value=view.getFloat32(16+i*4,true);
     if(!Number.isFinite(value))throw new Error('Mesh has a nonfinite vertex');
-    positions[i]=value/25.4;
+    positions[i]=value*factor;
   }
   for(let i=0;i<indices.length;i++){
     const value=view.getUint32(16+vertices*12+i*4,true);
@@ -43,15 +50,15 @@ export class CadScene {
 
   asset(part){
     if(this.disposed)throw new Error('The model view has closed.');
-    const {shape_key:key,mesh_url,mesh_sha256}=part.cad;
+    const {shape_key:key,mesh_url,mesh_sha256,units}=part.cad;
     if(!this.assets.has(key)){
-      const record={sha256:mesh_sha256};
+      const record={sha256:mesh_sha256,units};
       record.promise=(async()=>{
         const response=await this.fetcher(mesh_url);
         if(!response.ok)throw new Error(`Mesh asset unavailable (${response.status}): ${part.id}`);
         const buffer=await response.arrayBuffer();
         if(await sha256(buffer)!==mesh_sha256)throw new Error(`Mesh asset is corrupt: ${part.id}`);
-        const {positions,indices}=decodeMesh(buffer),T=this.THREE;
+        const {positions,indices}=decodeMesh(buffer,units),T=this.THREE;
         const geometry=new T.BufferGeometry();
         geometry.setAttribute('position',new T.BufferAttribute(positions,3));
         geometry.setIndex(new T.BufferAttribute(indices,1));geometry.computeVertexNormals();
@@ -62,7 +69,7 @@ export class CadScene {
       this.assets.set(key,record);
     }
     const cached=this.assets.get(key);
-    if(cached.sha256!==mesh_sha256)throw new Error(`Mesh identity has conflicting contents: ${part.id}`);
+    if(cached.sha256!==mesh_sha256||cached.units!==units)throw new Error(`Mesh identity has conflicting contents: ${part.id}`);
     return cached.promise;
   }
 
@@ -98,7 +105,7 @@ export class CadScene {
           if(JSON.stringify(mesh.userData.cad?.placement)!==JSON.stringify(part.cad.placement))changed.push(mesh);
         }
         const matrix=part.cad.placement.map(row=>row.slice());
-        for(let row=0;row<3;row++)matrix[row][3]/=25.4;
+        for(let row=0;row<3;row++)matrix[row][3]*=viewerFactor(part.cad.units);
         const placement=new T.Matrix4().set(...matrix.flat());
         placement.premultiply(basis);placement.decompose(mesh.position,mesh.quaternion,mesh.scale);
         mesh.userData={...part,basePosition:mesh.position.clone(),color:part.color||data.stocks[part.stock].color,previousContext:false};

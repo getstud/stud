@@ -1,6 +1,12 @@
 # CadQuery projects
 
-Current projects use `stud.json` with `engine: cadquery`, millimeters, and Python exporting `model`. The older inch-based `Project` API remains documented in [workshop.md](workshop.md) for existing projects. A current model uses native CadQuery solids for both display and measured evidence.
+Current projects use `stud.json` with `engine: cadquery`, native project units (`in` or `mm`), and Python exporting `model`. Native CadQuery solids supply display geometry and measured evidence.
+
+Choose units when creating the project: `stud init PATH` defaults to inches; `stud init PATH --units mm` creates a millimeter project. Units stay fixed across edits, checkpoints and options. Inch projects model a 1½-inch board as `1.5`, with an actual 2×4 section of `[1.5, 3.5]`. Metric projects use their actual millimeter dimensions; the same physical inch board would be exactly `[38.1, 88.9]`, not `[38, 89]`. Geometry is never automatically converted between project units. `Model(..., units='in')` declares units explicitly; omitting `units` inside a project inherits its declaration. Standalone Python models should declare their units explicitly.
+
+Coordinates, stock sizes, bores, crops, tolerances and exploded offsets all use the project units. Length/area/volume checks report `in`, `in2`, `in3` or `mm`, `mm2`, `mm3`; mismatched explicit units are errors. BREP archives, meshes and placements retain native coordinates and carry their unit identity. The viewer uses an explicit camera/GPU presentation adapter while its labels retain the project units.
+
+Imperial packets display exact sixteenth-inch fractions where possible and otherwise decimal inches to four places, with a four-inch calibration line. Metric packets use millimeters and a 100 mm line. A packet cannot switch the project's units. Physical paper margins remain explicitly named `margin_mm` because they describe paper, not model geometry.
 
 ## Runtime and request lifecycle
 
@@ -22,24 +28,24 @@ Use ordinary CadQuery sketches, extrusions, booleans and assemblies. Register co
 
 ```python
 import cadquery as cq
-from stud.cad import Model, inches
+from stud.cad import Model
 
-model = Model('Shelf frame')
-length = inches(30)
+model = Model('Shelf frame', units='in')
+length = 30
 model.assembly('shelf', 'Shelf frame')
-model.part('shelf.front', cq.Workplane('XY').box(length, 38, 89, centered=(False, False, False)),
-    parent='shelf', label='Front rail', material='lumber.38x89',
-    blank={'size_mm': [length, 38, 89], 'cut_length_mm': length,
-           'operations': [{'kind': 'square_cut', 'finished_length_mm': length}]})
+model.part('shelf.front', cq.Workplane('XY').box(length, 1.5, 3.5, centered=(False, False, False)),
+    parent='shelf', label='Front rail', material='lumber.1.5x3.5',
+    blank={'size': [length, 1.5, 3.5], 'cut_length': length,
+           'operations': [{'kind': 'square_cut', 'finished_length': length}]})
 a = model.reference('shelf.front', 'start', point=(0, 0, 0))
 b = model.reference('shelf.front', 'end', point=(length, 0, 0))
 model.requirement('shelf.front.length', 'length', [a, b], threshold=length)
 model.requirement('shelf.front.blank', 'stock_fit', ['shelf.front'])
 model.dimension('shelf.front.length', a, b, label='Rail length')
 model.drawing('shelf.front.view', dimensions=['shelf.front.length'])
-model.demand('shelf.rails', product_id='lumber.38x89', specification={'section_mm': [38, 89]},
-    object_ids=['shelf.front'], unit='mm', purchase_unit='board', stock_lengths_mm=[2438.4],
-    cuts_mm=[{'object_id': 'shelf.front', 'length_mm': length}], kerf_mm=3)
+model.demand('shelf.rails', product_id='lumber.1.5x3.5', specification={'section': [1.5, 3.5]},
+    object_ids=['shelf.front'], unit='in', purchase_unit='board', stock_lengths=[96],
+    cuts=[{'object_id': 'shelf.front', 'length': length}], kerf=.125)
 model.step('shelf.prepare', 'Cut and label the front rail.', parts=['shelf.front'], view='shelf.front.view')
 ```
 
@@ -64,7 +70,7 @@ The first completed geometry publishes immediately. A bounded writer coalesces s
 | `support` | Opposing contact projected perpendicular to the bearing direction; default world direction is down. |
 | `panel_edge_support` | Actual panel perimeter, including cutouts, remaining after subtracting opposing backing contact. |
 
-Set meaningful thresholds, units and tolerances. `support` accepts `direction=[x,y,z]` in world coordinates. `panel_edge_support` requires `direction_local=[x,y,z]` toward its backing and names the panel followed by supporting parts. Nearby or side-only contact is not vertical bearing.
+Set meaningful thresholds and tolerances in project units. Requirements derive their length, area or volume units from the project; an explicit unit must match. `support` accepts `direction=[x,y,z]` in world coordinates. `panel_edge_support` requires `direction_local=[x,y,z]` toward its backing and names the panel followed by supporting parts. Nearby or side-only contact is not vertical bearing.
 
 Findings distinguish passed, failed, unresolved, unsupported and operation failures. Coverage is explicit; no requirements or uncovered parts do not imply a pass. Geometry availability is separate from checks and quantities. Structural analysis, automatic code compliance and a general constraint solver are outside this engine's scope.
 
@@ -72,7 +78,9 @@ Deterministic native queries can reuse exact evidence from `.stud/query_cache/`.
 
 ## Reusable construction
 
-`stud.construction` supplies the workbench, rotated opening with a mirrored drilled corner sample, and a rafter bearing joint. `stud.buildings` supplies `framed_wall`, `floor_frame`, `gable_roof`, and `shed`.
+`stud.construction` supplies general stock-frame operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. Specific designs—the workbench, rotated opening, roof-joint sample, shed and residence—live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
+
+The US framing helpers require an inch project and use actual imperial stock, 16-inch framing stations and 1/8-inch sheet joints. Metric construction uses project-owned functions with native millimeter geometry.
 
 Walls generate individual plates/studs, opening framing, cut sheets, support references, stock demands and steps from one definition. Opening `x`, `sill`, `width` and `height` specify the clear rough opening. `exceptions` targets a persistent member key for an intentional bore. Missing exception targets fail instead of silently discarding the exception. Floor frames support explicit stair openings. Gable rafters retain true rectangular stock coordinates and measured birdsmouth seats; roof and gable sheets retain their physical cuts/backing.
 
@@ -82,7 +90,7 @@ These helpers exercise detailed fabrication geometry. Read the authored notes an
 
 ## Purchasing and saved prices
 
-Declare a demand's product, physical specification, purchase unit, pack size and contributing objects. Boards use concrete cuts, stock lengths and kerf. Panels use explicit stock sheets with panel offsets, sizes, cut operations and backing references. Purchased items use installed quantities and package yields. The fabrication audit reconciles physical objects, blanks, cuts, sections, panels and hardware before quantities can be complete.
+Declare a demand's product, physical specification, purchase unit, pack size and contributing objects. Every dimensional field uses project units; demands and saved quotes retain `length_unit` as part of their purchase identity. The quote endpoint defaults an omitted unit to the project declaration and rejects a different explicit unit. Boards use concrete cuts, stock lengths and kerf. Panels use explicit stock sheets with panel offsets, sizes, cut operations and backing references. Purchased items use installed quantities and package yields. The fabrication audit reconciles physical objects, blanks, cuts, sections, panels and hardware before quantities can be complete.
 
 Compatible demands pool before pack rounding. Different stock lengths become separate purchase lines. Cutting plans account for loss between cuts and before the reusable offcut. Allowances and quantity overrides live in `estimating.json`; they are separate from quote prices.
 
@@ -92,13 +100,13 @@ Historical mode displays immutable original estimates. Common-price mode applies
 
 ## Drawings and packets
 
-A drawing selects objects, direction/up vectors, dimensions, and optional section plane. `crop_mm=[left,bottom,right,top]` crops the projected right/up plane without changing native geometry; `detail_of` links the parent drawing. Dimensions are measured on the native references before their model-to-sheet transform. A dimension outside its detail crop is a layout error.
+A drawing selects objects, direction/up vectors, dimensions, and optional section plane. `crop=[left,bottom,right,top]` crops the projected right/up plane without changing native geometry; `detail_of` links the parent drawing. Dimensions are measured on the native references before their model-to-sheet transform. A dimension outside its detail crop is a layout error.
 
-Connections identify parts, instructions, hardware and unresolved evidence. Steps identify parts, connections, prerequisites, a drawing, and optional exploded offsets in world millimeters. Dangling references, cycles, missing cuts and uncovered parts remain packet findings. Drawings, stock, sheets and steps use consistent labels; the companion CSV retains every persistent object ID and mark.
+Connections identify parts, instructions, hardware and unresolved evidence. Steps identify parts, connections, prerequisites, a drawing, and optional exploded offsets in world project units. Dangling references, cycles, missing cuts and uncovered parts remain packet findings. Drawings, stock, sheets and steps use consistent labels; the companion CSV retains every persistent object ID and mark.
 
 The default compact layout combines related views and prints counted fabrication types instead of repeating instructions for every identical stud. C-labels map to every contributing object in `parts.csv` and the packet manifest; M-labels identify its material specification. Repeated board plans and sheet layouts state how many to cut. Choose `--layout expanded` or the Versions page's layout control for separate view/step pages. Both formats retain the same source and quantity evidence.
 
-`stud plans PATH --checkpoint COMMIT --build BUILD_ID --wait` generates vector PDF, CSVs, SVG views and a manifest with exact source/build/checkpoint, price basis, print settings, file hashes and sheet transforms. Omitting a build locates compatible checkpoint evidence. Exports are immutable and survive later edits. Print at 100% and check the 100 mm calibration line. Software acceptance renders all pages; a usable construction packet additionally needs a reader to follow its actual details.
+`stud plans PATH --checkpoint COMMIT --build BUILD_ID --wait` generates vector PDF, CSVs, SVG views and a manifest with exact source/build/checkpoint, price basis, print settings, file hashes and sheet transforms. Omitting a build locates compatible checkpoint evidence. Exports are immutable and survive later edits. Print at 100% and check the calibration line in the selected units. Software acceptance renders all pages; a usable construction packet additionally needs a reader to follow its actual details.
 
 ## Project ownership and recovery
 

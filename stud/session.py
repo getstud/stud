@@ -29,6 +29,14 @@ class Session:
     def __init__(self, root):
         self.root = canonical_project_root(root)
         self.manifest = manifest_at(self.root)
+        self.history = History(self.root)
+        # A newly enrolled Git folder can still be checked out on its original
+        # branch, before stud.json existed. Stud option history owns this value.
+        for option in self.history.options():
+            raw=self.history.read_file(option['head'],'stud.json')
+            saved_manifest=json.loads(raw) if raw else {}
+            if saved_manifest.get('project_id')==self.manifest['project_id'] and saved_manifest['units']!=self.manifest['units']:
+                raise StudError('unit_mismatch','Project units are fixed at creation; restore the saved units in stud.json.')
         # An agent often invokes the CLI from its detached request worktree.
         # That workspace shares the owner's Git repository and must not become
         # an independent coordinator for the same project identity.
@@ -36,7 +44,6 @@ class Session:
         self.process_lock = ProjectLock(self.local / 'coordinator.lock')
         self.mutex = threading.RLock()
         self.condition = threading.Condition(self.mutex)
-        self.history = History(self.root)
         from .relocation import repair_local_paths
         repair_local_paths(self.root, self.history)
         self.events = deque(maxlen=256)
@@ -235,7 +242,13 @@ class Session:
         with self.mutex:
             request = self._request(request_id)
             workspace = request['workspace']
-        return capture(workspace, self.local / 'sources', expected)
+        source=capture(workspace, self.local / 'sources', expected)
+        self._validate_source_units(source)
+        return source
+
+    def _validate_source_units(self,source):
+        if manifest_at(Path(source['path'])/'files')['units']!=self.manifest['units']:
+            raise StudError('unit_mismatch','Project units are fixed at creation; a source edit cannot silently change them.')
 
     def evaluate(self, request_id, expected_source=None, key=None,full_checks=False):
         with self.mutex:
@@ -249,7 +262,7 @@ class Session:
                         if expected_source and expected_source != job['source_id']:
                             raise StudError('idempotency_conflict', 'Evaluation key has a different source.')
                         return job
-        source = capture(request['workspace'], self.local / 'sources', expected_source)
+        source = self.source(request_id, expected_source)
         with self.mutex:
             request = self._editable(request_id)
             if key:
@@ -316,6 +329,7 @@ class Session:
             write_json(materialization, snapshot)
         source = read_json(materialization)
         verify_snapshot(source['path'])
+        self._validate_source_units(source)
         with self.mutex:
             build_id = identifier('build')
             directory = self.local / 'builds' / build_id
@@ -534,7 +548,7 @@ class Session:
                     self.futures[existing['id']] = self.executor.submit(self._finish_job, request_id)
                 return existing
             request = self._editable(request_id)
-        source = capture(request['workspace'], self.local / 'sources', expected_source)
+        source = self.source(request_id, expected_source)
         with self.mutex:
             request = self._request(request_id)
             if request.get('finish_job'):
