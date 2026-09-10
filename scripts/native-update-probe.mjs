@@ -51,15 +51,19 @@ export async function installSignedCandidate(configPath,env) {
    const verified=JSON.parse(await fs.readFile(path.join(root,'verified-update.json'),'utf8'));
    assert.equal(verified.signature_verified,true);assert.equal(verified.version,config.version);assert.equal(downloads,1);
    const deadline=Date.now()+300000;
-   let current;
+   let current,installerLockObservations=0;
    do {
      current=version();
+     if(current.status!==0&&/being updated/.test(current.stderr||''))installerLockObservations++;
      if(current.status===0&&current.stdout.trim()===`stud ${config.version}`)break;
      assert.ok(Date.now()<deadline,`Updated CLI did not become ready: ${current.stderr}`);
      await new Promise(resolve=>setTimeout(resolve,500));
    } while(true);
    console.log(`Real signed update installed ${config.previous_version} → ${config.version}.`);
+   const payloadHash=createHash('sha256');
+   for await(const chunk of createReadStream(config.payload))payloadHash.update(chunk);
    return {cli,previous_version:config.previous_version,version:config.version,signature_verified:true,payload_bytes:payload.size,
+     payload_sha256:payloadHash.digest('hex'),installer_lock_observations:installerLockObservations,
      signing_key_kind:config.signing_key_kind,public_key_sha256:createHash('sha256').update(config.pubkey).digest('hex')};
  } finally {
    if(child&&child.exitCode===null)child.kill();
