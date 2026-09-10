@@ -2,6 +2,12 @@ name: Native project lock
 
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/cadquery-project-workflow]
+    paths:
+      - .github/workflows/project-lock.yml
+      - stud/contracts.py
+      - tests/test_project_lock.py
 
 permissions:
   contents: read
