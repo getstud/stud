@@ -45,6 +45,8 @@ class ProjectAPI:
             return dict(status='stopping', project_id=session.manifest['project_id'],
                         message='Draft workspaces and saved results are retained.')
         # Further operations share this adapter and their same Session methods.
+        if operation in ('prepare_option','inspect_option'):
+            return getattr(session.versions,operation)(key=key,**arguments)
         methods = {'create_option': 'create_option', 'activate_option': 'activate_option', 'rename_option':'rename_option',
                    'restore': 'restore', 'compare': 'compare_versions', 'save_prompt': 'save_prompt',
                    'update_prompt': 'update_prompt', 'save_prices': 'save_prices',

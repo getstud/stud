@@ -90,3 +90,13 @@ test('metric cut labels report native millimeters from the viewer presentation',
  assert.equal(cutSpecification(metric,{section:[1.5,3.5]}).text,'609.6 mm cut');
  assert.equal(cutSpecification({...metric,cad:{units:'in',operations:[]}},{section:[1.5,3.5]}).text,'24″ cut');
 });
+
+test('comparison cache reuses geometry across N saved shapes and bounds retained assets',async()=>{
+ let transfers=0;
+ const scene=new CadScene({THREE,group:new THREE.Group(),retainedAssets:2,fetcher:async()=>{transfers++;return okFetch();}});
+ const variant=key=>{const p=part('roof');p.cad.shape_key=key;return manifest([p]);};
+ for(const key of ['gable','dormer','porch','gable','porch','dormer'])(await scene.prepare(variant(key)))();
+ assert.equal(transfers,3);assert.equal(scene.assets.size,3);
+ (await scene.prepare(variant('fourth')))();assert.equal(scene.assets.size,3);
+ scene.dispose();assert.equal(scene.assets.size,0);
+});

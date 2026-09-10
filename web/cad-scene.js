@@ -32,9 +32,10 @@ async function sha256(buffer){
 }
 
 export class CadScene {
-  constructor({THREE,group,fetcher=fetch}){
+  constructor({THREE,group,fetcher=fetch,retainedAssets=0}){
     this.THREE=THREE;this.group=group;this.fetcher=(...args)=>fetcher(...args);
     this.objects=new Map();this.assets=new Map();this.generation=0;this.buildId=null;
+    this.retainedAssets=retainedAssets;
   }
 
   invalidate(){this.generation++;}
@@ -115,7 +116,8 @@ export class CadScene {
       }
       this.buildId=data.cad.build_id;
       const used=new Set([...this.objects.values()].map(mesh=>mesh.userData.cad.shape_key));
-      for(const [key,asset] of this.assets)if(!used.has(key)&&asset.geometry){asset.geometry.dispose();asset.edges.dispose();this.assets.delete(key);}
+      let unused=[...this.assets].filter(([key,asset])=>!used.has(key)&&asset.geometry);
+      for(const [key,asset] of unused.slice(0,Math.max(0,unused.length-this.retainedAssets))){asset.geometry.dispose();asset.edges.dispose();this.assets.delete(key);}
       return {meshes:data.parts.map(part=>this.objects.get(part.id)),additions,changed,
               contextCount:[...this.objects.values()].filter(mesh=>mesh.userData.previousContext).length};
     };
