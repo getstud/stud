@@ -946,5 +946,1176 @@
     "python": "3.13.12",
     "root": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t"
   },
-  "portable_runtime_mansion_matches_prior_full_sequence": true
+  "portable_runtime_mansion_matches_prior_full_sequence": true,
+  "native_units": {
+    "cases": [
+      {
+        "name": "workbench",
+        "project": "/private/tmp/stud-native-project-performance/workbench",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/workbench/.stud/builds/build_e71ab69509e34b84839381aa2e22635b",
+            "assets": 5,
+            "build_id": "build_e71ab69509e34b84839381aa2e22635b",
+            "checkpoint": "80bb7776557fd6e89e3e1e0f631fc9f090617cef",
+            "checks": {
+              "complete": true,
+              "evaluated": 31,
+              "requested": 31,
+              "uncovered_objects": []
+            },
+            "estimate_id": "3fda9a0ebf42646684b9e1dd4d6b163deddcdf7652280e645df29fee3c857725",
+            "estimate_seconds": 0.00032774999272078276,
+            "evaluate_seconds": 1.8542540420312434,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.7618307499797083,
+            "historical_read_seconds": 0.228440250037238,
+            "label": "baseline",
+            "manifest_bytes": 41109,
+            "mesh_bytes": 14408,
+            "parts": 12,
+            "peak_memory_bytes": 476889088,
+            "plan_pages": 4,
+            "plan_pdf": "/private/tmp/stud-native-project-performance/workbench/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 1.9328587499912828,
+            "preview_bytes": 26079,
+            "preview_count": 2,
+            "query_types": {
+              "contact": {
+                "count": 12,
+                "elapsed_seconds": 0.2588751218863763
+              },
+              "length": {
+                "count": 1,
+                "elapsed_seconds": 3.1750008929520845e-05
+              },
+              "stock_fit": {
+                "cache_hits": 7,
+                "count": 12,
+                "elapsed_seconds": 0.014097626088187099
+              },
+              "support": {
+                "count": 6,
+                "elapsed_seconds": 0.05189737398177385
+              }
+            },
+            "source_capture_seconds": 0.002047875022981316,
+            "source_id": "393a192d5af0f3df3a445d23c5119f02f4ed15d7198b2fdd315c684455c5bb89",
+            "stages": {
+              "archive_seconds": 0.0031816239934414625,
+              "execution_seconds": 0.24504929198883474,
+              "fabrication_audit_seconds": 7.041601929813623e-05,
+              "preview_publication": {
+                "coalesced": 0,
+                "published": 2,
+                "snapshot_seconds": 0.0007039160118438303,
+                "write_seconds": 0.0017296659643761814
+              },
+              "solid_queries_seconds": 0.3258796670124866,
+              "tessellation_seconds": 0.10407383303390816
+            },
+            "total_seconds": 5.047583833045792,
+            "worker_seconds": 1.6665856660110876
+          }
+        ]
+      },
+      {
+        "name": "shed",
+        "project": "/private/tmp/stud-native-project-performance/shed",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/shed/.stud/builds/build_60f8314bd1114da2a8c0cc78c7dc7cbb",
+            "assets": 51,
+            "build_id": "build_60f8314bd1114da2a8c0cc78c7dc7cbb",
+            "checkpoint": "4881f84b8e88247a3ed2ee4668c59cb55db4c200",
+            "checks": {
+              "complete": true,
+              "evaluated": 377,
+              "requested": 377,
+              "uncovered_objects": []
+            },
+            "estimate_id": "22c6ef960b55252d89e75f9902527de0d385075038a18cf017618f69439cccad",
+            "estimate_seconds": 0.0025492499698884785,
+            "evaluate_seconds": 10.282769207959063,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.7607990420074202,
+            "historical_read_seconds": 0.2262235409580171,
+            "label": "baseline",
+            "manifest_bytes": 560563,
+            "mesh_bytes": 37776,
+            "parts": 181,
+            "peak_memory_bytes": 484179968,
+            "plan_pages": 13,
+            "plan_pdf": "/private/tmp/stud-native-project-performance/shed/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.3921781250392087,
+            "preview_bytes": 1121693,
+            "preview_count": 12,
+            "query_types": {
+              "collision_free": {
+                "count": 1,
+                "elapsed_seconds": 0.3901900830096565
+              },
+              "contact": {
+                "count": 50,
+                "elapsed_seconds": 1.1666114149848
+              },
+              "length": {
+                "count": 6,
+                "elapsed_seconds": 0.00018833595095202327
+              },
+              "panel_edge_support": {
+                "count": 33,
+                "elapsed_seconds": 3.5835354979499243
+              },
+              "stock_fit": {
+                "cache_hits": 130,
+                "count": 181,
+                "elapsed_seconds": 0.14689266768982634
+              },
+              "support": {
+                "count": 106,
+                "elapsed_seconds": 1.275407456792891
+              }
+            },
+            "source_capture_seconds": 0.0020482499967329204,
+            "source_id": "d3d8627beba08514280c211a83359f3c1db41695631d53723c1c70e7de09383e",
+            "stages": {
+              "archive_seconds": 0.020475998986512423,
+              "execution_seconds": 2.428380749945063,
+              "fabrication_audit_seconds": 0.000617791956756264,
+              "preview_publication": {
+                "coalesced": 2,
+                "published": 12,
+                "snapshot_seconds": 0.009006583131849766,
+                "write_seconds": 0.1381707921391353
+              },
+              "solid_queries_seconds": 6.565044292015955,
+              "tessellation_seconds": 0.9412718719104305
+            },
+            "total_seconds": 13.912709416996222,
+            "worker_seconds": 10.093434625014197
+          }
+        ]
+      },
+      {
+        "name": "framing",
+        "project": "/private/tmp/stud-native-project-performance/framing",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/framing/.stud/builds/build_be45db2cd8ec4e4092502d2e9142e866",
+            "assets": 2,
+            "build_id": "build_be45db2cd8ec4e4092502d2e9142e866",
+            "checkpoint": "cdba5542cf1929b63dbfc4ae9e71824a946a1428",
+            "checks": {
+              "complete": true,
+              "evaluated": 384,
+              "requested": 384,
+              "uncovered_objects": []
+            },
+            "estimate_id": "e5e2aa3cf283e20332f849b3a5be9a83044256fdd71162dd722e7d66084765b5",
+            "estimate_seconds": 0.007911291962955147,
+            "evaluate_seconds": 3.449915124976542,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.7420285420375876,
+            "historical_read_seconds": 0.20223012496717274,
+            "label": "baseline",
+            "manifest_bytes": 583513,
+            "mesh_bytes": 896,
+            "parts": 360,
+            "peak_memory_bytes": 483328000,
+            "plan_pages": 14,
+            "plan_pdf": "/private/tmp/stud-native-project-performance/framing/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.7994328750064597,
+            "preview_bytes": 1945974,
+            "preview_count": 13,
+            "query_types": {
+              "length": {
+                "count": 24,
+                "elapsed_seconds": 0.000339709862601012
+              },
+              "stock_fit": {
+                "cache_hits": 358,
+                "count": 360,
+                "elapsed_seconds": 0.00812942098127678
+              }
+            },
+            "source_capture_seconds": 0.0015891669900156558,
+            "source_id": "7ba3de26495ab86888ca384b9bdcfdcf8e3367d914b734956a2d0c76c89c506f",
+            "stages": {
+              "archive_seconds": 0.03392126230755821,
+              "execution_seconds": 2.0783851250307634,
+              "fabrication_audit_seconds": 0.001098582986742258,
+              "preview_publication": {
+                "coalesced": 11,
+                "published": 13,
+                "snapshot_seconds": 0.015993874869309366,
+                "write_seconds": 0.09628095891093835
+              },
+              "solid_queries_seconds": 0.009108083962928504,
+              "tessellation_seconds": 0.03566429199418053
+            },
+            "total_seconds": 7.445756291970611,
+            "worker_seconds": 3.2565275829983875
+          }
+        ]
+      },
+      {
+        "name": "mansion",
+        "project": "/private/tmp/stud-native-project-performance/mansion",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_399fe7bfaf604313b7ec164527c8e1e2",
+            "assets": 107,
+            "build_id": "build_399fe7bfaf604313b7ec164527c8e1e2",
+            "checkpoint": "9e4c8c2c1043ea6f4db5412d07fefd039d0ac706",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "estimate_id": "9110c0964f9df55dcb4a6fdf15ffb57848cdc8dfccf255aacda1bcbfb4e67c46",
+            "estimate_seconds": 0.769774500047788,
+            "evaluate_seconds": 260.43525179097196,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.0896326660295017,
+            "historical_read_seconds": 0.3952058329596184,
+            "label": "baseline",
+            "manifest_bytes": 19731829,
+            "mesh_bytes": 64904,
+            "parts": 6630,
+            "peak_memory_bytes": 951009280,
+            "plan_pages": 1,
+            "plan_pdf": "/private/tmp/stud-native-project-performance/mansion/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": {
+              "include_lists": false,
+              "views": [
+                "house.floor_overview",
+                "house.west.level1.kitchen.front.elevation",
+                "house.west.level2.kitchen.roof.bearing_detail"
+              ]
+            },
+            "plan_seconds": 6.902665540983435,
+            "preview_bytes": 227522229,
+            "preview_count": 95,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 29.87859844736522
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.006470578315202147
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 128.42335129337152
+              },
+              "stock_fit": {
+                "cache_hits": 6523,
+                "count": 6630,
+                "elapsed_seconds": 0.4174252658849582
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 24.719587583094835
+              }
+            },
+            "source_capture_seconds": 0.0021400830009952188,
+            "source_id": "827a9841d24e070a1c970be945ff9c4c557f2f7362393ea7aad81815680fff8d",
+            "stages": {
+              "archive_seconds": 0.7370508436579257,
+              "execution_seconds": 74.9973909999826,
+              "fabrication_audit_seconds": 0.12090229103341699,
+              "preview_publication": {
+                "coalesced": 1288,
+                "published": 95,
+                "snapshot_seconds": 2.3453808672493324,
+                "write_seconds": 6.770579916832503
+              },
+              "solid_queries_seconds": 183.47762120800326,
+              "tessellation_seconds": 1.9827561738784425
+            },
+            "total_seconds": 270.07453200005693,
+            "worker_seconds": 259.8302649160032
+          },
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_34c5cf2b8296466782a6def6e2c03739",
+            "assets": 107,
+            "build_id": "build_34c5cf2b8296466782a6def6e2c03739",
+            "checkpoint": "abf2836f272981203ef135034edde55f5e84d0e0",
+            "checks": {
+              "complete": true,
+              "evaluated": 11335,
+              "requested": 11335,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_0acd33d17490008095e662e2c45bc82d",
+            "comparison_seconds": 4.865820959035773,
+            "estimate_id": "477dee999fd9e9a06784d7d750f9567bab6c1a75cd6d11a6549d464596097734",
+            "estimate_seconds": 0.5226257499889471,
+            "evaluate_seconds": 104.5312683749944,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.9926911660004407,
+            "full_evaluation_comparison": {
+              "bound_roundoff_coordinates": 97,
+              "byte_identity_matches": false,
+              "contact_distance_roundoff": 25,
+              "equivalent": true,
+              "native_difference_pairs": 36
+            },
+            "historical_read_seconds": 0.3859247909858823,
+            "independent_full_evaluation_agrees": true,
+            "label": "local_opening",
+            "manifest_bytes": 19734964,
+            "mesh_bytes": 64904,
+            "parts": 6631,
+            "peak_memory_bytes": 1009319936,
+            "preview_bytes": 227000170,
+            "preview_count": 94,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.014805644459556788
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.004175371897872537
+              },
+              "panel_edge_support": {
+                "cache_hits": 833,
+                "count": 1100,
+                "elapsed_seconds": 23.053774952772073
+              },
+              "stock_fit": {
+                "cache_hits": 6623,
+                "count": 6631,
+                "elapsed_seconds": 0.10660777520388365
+              },
+              "support": {
+                "cache_hits": 1622,
+                "count": 2104,
+                "elapsed_seconds": 5.595373177086003
+              }
+            },
+            "source_capture_seconds": 0.0021719170035794377,
+            "source_id": "f6ffefe9f7236eaf57a27a0e20b05589748aa318e051cdaf871d4d4b11e776ed",
+            "stages": {
+              "archive_seconds": 0.7024313423316926,
+              "execution_seconds": 73.71201537497109,
+              "fabrication_audit_seconds": 0.1202530839946121,
+              "preview_publication": {
+                "coalesced": 1289,
+                "published": 94,
+                "snapshot_seconds": 2.331310849811416,
+                "write_seconds": 6.0397118358523585
+              },
+              "solid_queries_seconds": 28.81922395899892,
+              "tessellation_seconds": 1.991631793556735
+            },
+            "total_seconds": 381.1212480830145,
+            "worker_seconds": 103.88764620799338
+          },
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_f9bc529bd70f49f186d96166ac3d4efc",
+            "assets": 106,
+            "build_id": "build_f9bc529bd70f49f186d96166ac3d4efc",
+            "checkpoint": "e02caa543d3555bddb10ff3d82e15bf3cfceeb6c",
+            "checks": {
+              "complete": true,
+              "evaluated": 11500,
+              "requested": 11500,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_02b20b6b1b5b90f14c0934ef0781df88",
+            "comparison_seconds": 5.319490417023189,
+            "estimate_id": "83612687c715c4eae95dd44c2e6d479d610bc301e18bc2275e363eaefd379506",
+            "estimate_seconds": 0.5591474579996429,
+            "evaluate_seconds": 144.43621183297364,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.067543792014476,
+            "full_evaluation_comparison": {
+              "bound_roundoff_coordinates": 171,
+              "byte_identity_matches": false,
+              "contact_distance_roundoff": 26,
+              "equivalent": true,
+              "native_difference_pairs": 36
+            },
+            "historical_read_seconds": 0.3927187909721397,
+            "independent_full_evaluation_agrees": true,
+            "label": "shared_windows",
+            "manifest_bytes": 20138038,
+            "mesh_bytes": 64456,
+            "parts": 6796,
+            "peak_memory_bytes": 826195968,
+            "preview_bytes": 232809745,
+            "preview_count": 94,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.014107602240983397
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.005328628642018884
+              },
+              "panel_edge_support": {
+                "cache_hits": 676,
+                "count": 1100,
+                "elapsed_seconds": 63.5630737975589
+              },
+              "stock_fit": {
+                "cache_hits": 6789,
+                "count": 6796,
+                "elapsed_seconds": 0.09892466297606006
+              },
+              "support": {
+                "cache_hits": 1776,
+                "count": 2104,
+                "elapsed_seconds": 3.5199553882703185
+              }
+            },
+            "source_capture_seconds": 0.002258332970086485,
+            "source_id": "6d3383874b7d77c4d9f372b4e02ab88778d6e8659eb12835a3aae55d06778212",
+            "stages": {
+              "archive_seconds": 0.6790436399169266,
+              "execution_seconds": 75.1504126250511,
+              "fabrication_audit_seconds": 0.12241866695694625,
+              "preview_publication": {
+                "coalesced": 1344,
+                "published": 94,
+                "snapshot_seconds": 2.3615644336678088,
+                "write_seconds": 6.167736999865156
+              },
+              "solid_queries_seconds": 67.25418841600185,
+              "tessellation_seconds": 2.0073051657527685
+            },
+            "total_seconds": 427.72685599996476,
+            "worker_seconds": 143.83215712499805
+          },
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_506cbf2a697647e48fa337c1aa202d67",
+            "assets": 106,
+            "build_id": "build_506cbf2a697647e48fa337c1aa202d67",
+            "checkpoint": "527a23c82a806d0bfec2ae93c8efe0976af8ea0a",
+            "checks": {
+              "complete": true,
+              "evaluated": 11500,
+              "requested": 11500,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_541879f70b82c307dc4baf83c20d3f6a",
+            "comparison_seconds": 5.372455583012197,
+            "estimate_id": "945981336de3c64c884ef03ac856b43904f0e02a1df0e6d0bc7df88ebdbaf00a",
+            "estimate_seconds": 0.5693981670192443,
+            "evaluate_seconds": 279.6475530419848,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.1342980829649605,
+            "full_evaluation_comparison": {
+              "bound_roundoff_coordinates": 144,
+              "byte_identity_matches": false,
+              "contact_distance_roundoff": 0,
+              "equivalent": true,
+              "native_difference_pairs": 36
+            },
+            "historical_read_seconds": 0.4409558749757707,
+            "independent_full_evaluation_agrees": true,
+            "label": "whole_building_rotation",
+            "manifest_bytes": 20897889,
+            "mesh_bytes": 64456,
+            "parts": 6796,
+            "peak_memory_bytes": 931708928,
+            "preview_bytes": 292106231,
+            "preview_count": 106,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 30.719829831738025
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.006080456194467843
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 132.28013743029442
+              },
+              "stock_fit": {
+                "cache_hits": 6796,
+                "count": 6796,
+                "elapsed_seconds": 0.1319866213016212
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 25.631035793048795
+              }
+            },
+            "source_capture_seconds": 0.0022016250295564532,
+            "source_id": "5f15bb0699a158d5846f4c53ade05c051805c8a64a584500f68e46cfe01f52b8",
+            "stages": {
+              "archive_seconds": 0.7777315951534547,
+              "execution_seconds": 88.65503212501062,
+              "fabrication_audit_seconds": 0.12579254200682044,
+              "preview_publication": {
+                "coalesced": 1332,
+                "published": 106,
+                "snapshot_seconds": 2.4739407357992604,
+                "write_seconds": 8.877246166870464
+              },
+              "solid_queries_seconds": 188.85327808297006,
+              "tessellation_seconds": 1.9639869964448735
+            },
+            "total_seconds": 582.2877379580168,
+            "worker_seconds": 278.96814258303493
+          },
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_d049d9ffd7c14a16885ec2e2a0dd0cc1",
+            "assets": 107,
+            "build_id": "build_d049d9ffd7c14a16885ec2e2a0dd0cc1",
+            "checkpoint": "c414d794b33ec5f35ded1dc910a226203dcbe463",
+            "checks": {
+              "complete": true,
+              "evaluated": 10543,
+              "requested": 10543,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_dcece62214c70b74c2326f33c9b1c42f",
+            "comparison_seconds": 5.150463583006058,
+            "estimate_id": "b847150bcc20c1d1284d7f7218c6591643dfc66e90889167a4a4c5a952227151",
+            "estimate_seconds": 0.4574044589535333,
+            "evaluate_seconds": 132.924813834019,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.904683041968383,
+            "full_evaluation_comparison": {
+              "bound_roundoff_coordinates": 125,
+              "byte_identity_matches": false,
+              "contact_distance_roundoff": 0,
+              "equivalent": true,
+              "native_difference_pairs": 36
+            },
+            "historical_read_seconds": 0.39534695900510997,
+            "independent_full_evaluation_agrees": true,
+            "label": "remove_module_and_change_roof",
+            "manifest_bytes": 18383622,
+            "mesh_bytes": 64904,
+            "parts": 6169,
+            "peak_memory_bytes": 974176256,
+            "preview_bytes": 196292169,
+            "preview_count": 91,
+            "query_types": {
+              "contact": {
+                "cache_hits": 624,
+                "count": 1196,
+                "elapsed_seconds": 13.77520279987948
+              },
+              "length": {
+                "count": 196,
+                "elapsed_seconds": 0.003424622234888375
+              },
+              "panel_edge_support": {
+                "cache_hits": 702,
+                "count": 1030,
+                "elapsed_seconds": 27.21789657365298
+              },
+              "stock_fit": {
+                "cache_hits": 6125,
+                "count": 6169,
+                "elapsed_seconds": 0.21567152807256207
+              },
+              "support": {
+                "cache_hits": 184,
+                "count": 1952,
+                "elapsed_seconds": 21.137936366605572
+              }
+            },
+            "source_capture_seconds": 0.002223999996203929,
+            "source_id": "65ef488b43a166fcbfa69b9ea2526f5b19d51bd7ca8b50a95658c9834f829c76",
+            "stages": {
+              "archive_seconds": 0.6516935825929977,
+              "execution_seconds": 68.55513195798267,
+              "fabrication_audit_seconds": 0.10887091601034626,
+              "preview_publication": {
+                "coalesced": 1203,
+                "published": 91,
+                "snapshot_seconds": 2.0537050312850624,
+                "write_seconds": 5.487460248928983
+              },
+              "solid_queries_seconds": 62.456477000028826,
+              "tessellation_seconds": 1.9918562062084675
+            },
+            "total_seconds": 395.6543650829699,
+            "worker_seconds": 132.34843720903154
+          },
+          {
+            "artifact_path": "/private/tmp/stud-native-project-performance/mansion/.stud/builds/build_d7bd59fb84d3418395c40bd62f1026a9",
+            "assets": 107,
+            "build_id": "build_d7bd59fb84d3418395c40bd62f1026a9",
+            "checkpoint": "f577dac8947ca556d003604285fe024b92f99875",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_af7d82a652ecd754cf4bd4bf0ce38932",
+            "comparison_seconds": 5.150992332957685,
+            "estimate_id": "616c136b7be512918dc654fb8421f694d36820450e44d4eba410cd767681b20b",
+            "estimate_seconds": 0.5236783750005998,
+            "evaluate_seconds": 93.94342683401192,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.9799107920262031,
+            "full_evaluation_comparison": {
+              "bound_roundoff_coordinates": 122,
+              "byte_identity_matches": false,
+              "contact_distance_roundoff": 20,
+              "equivalent": true,
+              "native_difference_pairs": 36
+            },
+            "historical_read_seconds": 0.3724847090197727,
+            "independent_full_evaluation_agrees": true,
+            "label": "restore_defaults",
+            "manifest_bytes": 19731897,
+            "mesh_bytes": 64904,
+            "parts": 6630,
+            "peak_memory_bytes": 950272000,
+            "preview_bytes": 226290419,
+            "preview_count": 96,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.014446776360273361
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.0038789515383541584
+              },
+              "panel_edge_support": {
+                "cache_hits": 932,
+                "count": 1100,
+                "elapsed_seconds": 15.501612168271095
+              },
+              "stock_fit": {
+                "cache_hits": 6630,
+                "count": 6630,
+                "elapsed_seconds": 0.07853401271859184
+              },
+              "support": {
+                "cache_hits": 1996,
+                "count": 2104,
+                "elapsed_seconds": 1.2941713482141495
+              }
+            },
+            "source_capture_seconds": 0.002195500012021512,
+            "source_id": "827a9841d24e070a1c970be945ff9c4c557f2f7362393ea7aad81815680fff8d",
+            "stages": {
+              "archive_seconds": 0.7541646822355688,
+              "execution_seconds": 74.7006661670166,
+              "fabrication_audit_seconds": 0.12961783300852403,
+              "preview_publication": {
+                "coalesced": 1287,
+                "published": 96,
+                "snapshot_seconds": 2.3730948213487864,
+                "write_seconds": 6.4410104979760945
+              },
+              "solid_queries_seconds": 17.00415900000371,
+              "tessellation_seconds": 1.9741277484572493
+            },
+            "total_seconds": 375.1476632919512,
+            "worker_seconds": 93.17849800002296
+          }
+        ]
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "root": "/private/tmp/stud-native-project-performance",
+    "source_commit": "cb1ce6ec0dfa19c6f12627c4bbfeb5c5f8be4b7b",
+    "units": "in",
+    "confirmed_comparisons": {
+      "comparator_sha256": "5475596bc154621cd9b4825db01b7db0233739dd23f4347cc50f0d9f95c0a000",
+      "comparisons": [
+        {
+          "label": "local_opening",
+          "cached_build_id": "build_34c5cf2b8296466782a6def6e2c03739",
+          "full_build_id": "build_5284a928ef0247c391e4d4fa76b48dcf",
+          "source_id": "f6ffefe9f7236eaf57a27a0e20b05589748aa318e051cdaf871d4d4b11e776ed",
+          "manifest_sha256": [
+            "f571f13d0fc003933ff1419be137e2fa5aa7bda8863ea6fd78eec2f733663dc5",
+            "aed53bebac65954879043a34b51fc6e32e3f59b5ebf83cb6424b6041003249f7"
+          ],
+          "full_worker_seconds": 272.24747020797804,
+          "full_stages": {
+            "archive_seconds": 0.6917036314262077,
+            "execution_seconds": 73.3679476249963,
+            "fabrication_audit_seconds": 0.12729170796228573,
+            "preview_publication": {
+              "coalesced": 1289,
+              "published": 94,
+              "snapshot_seconds": 2.2599607536685653,
+              "write_seconds": 6.157850165327545
+            },
+            "solid_queries_seconds": 197.4278807079536,
+            "tessellation_seconds": 1.97757954307599
+          },
+          "comparison": {
+            "equivalent": true,
+            "byte_identity_matches": false,
+            "native_difference_pairs": 36,
+            "bound_roundoff_coordinates": 97,
+            "contact_distance_roundoff": 25
+          }
+        },
+        {
+          "label": "shared_windows",
+          "cached_build_id": "build_f9bc529bd70f49f186d96166ac3d4efc",
+          "full_build_id": "build_e3775e8803eb4a15a7927dceb6e9f1bf",
+          "source_id": "6d3383874b7d77c4d9f372b4e02ab88778d6e8659eb12835a3aae55d06778212",
+          "manifest_sha256": [
+            "edc9c12da9997e779ce5d4e1b0d504e8d8a79ed62ab55066e9bad8fa8351adac",
+            "e6c881791f667174a1c8de3870d68b2dbf927de59617221fa97a6a7bed9bb32d"
+          ],
+          "full_worker_seconds": 278.17262604204006,
+          "full_stages": {
+            "archive_seconds": 0.7442852281383239,
+            "execution_seconds": 76.37030912499176,
+            "fabrication_audit_seconds": 0.12185749999480322,
+            "preview_publication": {
+              "coalesced": 1343,
+              "published": 95,
+              "snapshot_seconds": 2.439250373223331,
+              "write_seconds": 6.352775203937199
+            },
+            "solid_queries_seconds": 200.4549632500275,
+            "tessellation_seconds": 1.9417860459070653
+          },
+          "comparison": {
+            "equivalent": true,
+            "byte_identity_matches": false,
+            "native_difference_pairs": 36,
+            "bound_roundoff_coordinates": 171,
+            "contact_distance_roundoff": 26
+          }
+        },
+        {
+          "label": "whole_building_rotation",
+          "cached_build_id": "build_506cbf2a697647e48fa337c1aa202d67",
+          "full_build_id": "build_d3078041744c4087b6f04d1ebd5e6e93",
+          "source_id": "5f15bb0699a158d5846f4c53ade05c051805c8a64a584500f68e46cfe01f52b8",
+          "manifest_sha256": [
+            "02caad4326165bb3073fb5a1e2bf599e3f2a915b409b4b853ff8e943a31cb914",
+            "26cce24429a01ec2e82eda1e7f104a309c14709ebf5c4cb09fc6add7dc50f850"
+          ],
+          "full_worker_seconds": 297.3759755829815,
+          "full_stages": {
+            "archive_seconds": 0.7458477701875381,
+            "execution_seconds": 89.60344154102495,
+            "fabrication_audit_seconds": 0.12356229097349569,
+            "preview_publication": {
+              "coalesced": 1331,
+              "published": 107,
+              "snapshot_seconds": 2.475667152670212,
+              "write_seconds": 9.028927255945746
+            },
+            "solid_queries_seconds": 206.38897037500283,
+            "tessellation_seconds": 2.031029619218316
+          },
+          "comparison": {
+            "equivalent": true,
+            "byte_identity_matches": false,
+            "native_difference_pairs": 36,
+            "bound_roundoff_coordinates": 144,
+            "contact_distance_roundoff": 0
+          }
+        },
+        {
+          "label": "remove_module_and_change_roof",
+          "cached_build_id": "build_d049d9ffd7c14a16885ec2e2a0dd0cc1",
+          "full_build_id": "build_70bad000958f4ae6a3717992a92152d3",
+          "source_id": "65ef488b43a166fcbfa69b9ea2526f5b19d51bd7ca8b50a95658c9834f829c76",
+          "manifest_sha256": [
+            "0a32e14e52bb903e3797e7b7743c4f3d22f0bc7c59d04af0b63b56d3568d581a",
+            "f72e603c0d426c0157b35f5344a6eaa2e6b72c2b93630db00f6ff76b31c19b69"
+          ],
+          "full_worker_seconds": 257.76380116696237,
+          "full_stages": {
+            "archive_seconds": 0.6627126961247995,
+            "execution_seconds": 69.11690516700037,
+            "fabrication_audit_seconds": 0.10640279098879546,
+            "preview_publication": {
+              "coalesced": 1204,
+              "published": 90,
+              "snapshot_seconds": 2.0683524179039523,
+              "write_seconds": 5.752320794155821
+            },
+            "solid_queries_seconds": 187.2659812499769,
+            "tessellation_seconds": 1.9743998328922316
+          },
+          "comparison": {
+            "equivalent": true,
+            "byte_identity_matches": false,
+            "native_difference_pairs": 36,
+            "bound_roundoff_coordinates": 125,
+            "contact_distance_roundoff": 0
+          }
+        },
+        {
+          "label": "restore_defaults",
+          "cached_build_id": "build_d7bd59fb84d3418395c40bd62f1026a9",
+          "full_build_id": "build_8d4312c1506f4c6b974037f84ce9ee43",
+          "source_id": "827a9841d24e070a1c970be945ff9c4c557f2f7362393ea7aad81815680fff8d",
+          "manifest_sha256": [
+            "78f63b7caf0f88586ed7146990971a410cf97ce1a17e00ca59a901930db9426d",
+            "e4b7c7f618873d3a50fe03a93cf0acc63f272f57bb99fc4d924f7fea7ccb2661"
+          ],
+          "full_worker_seconds": 276.159576541977,
+          "full_stages": {
+            "archive_seconds": 0.7162345679244027,
+            "execution_seconds": 74.34853650000878,
+            "fabrication_audit_seconds": 0.11577083304291591,
+            "preview_publication": {
+              "coalesced": 1287,
+              "published": 96,
+              "snapshot_seconds": 2.331779722473584,
+              "write_seconds": 5.937786163936835
+            },
+            "solid_queries_seconds": 200.45509075000882,
+            "tessellation_seconds": 1.980842833116185
+          },
+          "comparison": {
+            "equivalent": true,
+            "byte_identity_matches": false,
+            "native_difference_pairs": 36,
+            "bound_roundoff_coordinates": 122,
+            "contact_distance_roundoff": 20
+          }
+        }
+      ]
+    },
+    "scope": "Four native-inch baselines and five edits, each compared against independent full checks under the same frozen runtime. Later Model.units assignment protection is validated separately on 460c468."
+  },
+  "historical_measurement_scope": "initial, optimized and portable_runtime predate the corrected native-inch example geometry; retained as historical diagnostic evidence.",
+  "final_native_runtime": {
+    "cases": [
+      {
+        "name": "workbench",
+        "project": "/private/tmp/stud-final-native-performance/workbench",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-final-native-performance/workbench/.stud/builds/build_95acf695a4e2496a81903abe4e41d761",
+            "assets": 5,
+            "build_id": "build_95acf695a4e2496a81903abe4e41d761",
+            "checkpoint": "540846bb47c3df5b96791951272e95c0d9052045",
+            "checks": {
+              "complete": true,
+              "evaluated": 31,
+              "requested": 31,
+              "uncovered_objects": []
+            },
+            "estimate_id": "5f60bfcf22c24404ffb62b6278c4effdef53224a1ea5dd963b417175b141e6ea",
+            "estimate_seconds": 0.0003273749607615173,
+            "evaluate_seconds": 1.7781507920008153,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.7189112500054762,
+            "historical_read_seconds": 0.2016827499610372,
+            "label": "baseline",
+            "manifest_bytes": 41106,
+            "mesh_bytes": 14408,
+            "parts": 12,
+            "peak_memory_bytes": 476905472,
+            "plan_pages": 4,
+            "plan_pdf": "/private/tmp/stud-final-native-performance/workbench/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 1.8068709999788553,
+            "preview_bytes": 26079,
+            "preview_count": 2,
+            "query_types": {
+              "contact": {
+                "count": 12,
+                "elapsed_seconds": 0.256381125014741
+              },
+              "length": {
+                "count": 1,
+                "elapsed_seconds": 2.6332971174269915e-05
+              },
+              "stock_fit": {
+                "cache_hits": 7,
+                "count": 12,
+                "elapsed_seconds": 0.012259627052117139
+              },
+              "support": {
+                "count": 6,
+                "elapsed_seconds": 0.05202120897592977
+              }
+            },
+            "source_capture_seconds": 0.0020584589801728725,
+            "source_id": "3d9d593a73ff4248efffd98d7bd9d9d7aec52db42f569b522ff2221b2d470a3e",
+            "stages": {
+              "archive_seconds": 0.0011677080183289945,
+              "execution_seconds": 0.18952458299463615,
+              "fabrication_audit_seconds": 6.829097401350737e-05,
+              "preview_publication": {
+                "coalesced": 0,
+                "published": 2,
+                "snapshot_seconds": 0.0006249590660445392,
+                "write_seconds": 0.0013964989921078086
+              },
+              "solid_queries_seconds": 0.321642333001364,
+              "tessellation_seconds": 0.09255608398234472
+            },
+            "total_seconds": 4.742801458982285,
+            "worker_seconds": 1.6125042499625124
+          }
+        ]
+      },
+      {
+        "name": "shed",
+        "project": "/private/tmp/stud-final-native-performance/shed",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-final-native-performance/shed/.stud/builds/build_e695f21ea4164ba1b62015a74ecbb4ea",
+            "assets": 53,
+            "build_id": "build_e695f21ea4164ba1b62015a74ecbb4ea",
+            "checkpoint": "448f193fff5138d91016c632d3d7de5c44a6675c",
+            "checks": {
+              "complete": true,
+              "evaluated": 377,
+              "requested": 377,
+              "uncovered_objects": []
+            },
+            "estimate_id": "2e76ec14f00d9589056ca37128409a5df0a0fb77923c05fd9b17800754360007",
+            "estimate_seconds": 0.002486708981450647,
+            "evaluate_seconds": 10.035009709012229,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.6865023329737596,
+            "historical_read_seconds": 0.20137525000609457,
+            "label": "baseline",
+            "manifest_bytes": 561801,
+            "mesh_bytes": 38912,
+            "parts": 181,
+            "peak_memory_bytes": 484786176,
+            "plan_pages": 13,
+            "plan_pdf": "/private/tmp/stud-final-native-performance/shed/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.3223385000019334,
+            "preview_bytes": 1126018,
+            "preview_count": 12,
+            "query_types": {
+              "collision_free": {
+                "count": 1,
+                "elapsed_seconds": 0.3971850830130279
+              },
+              "contact": {
+                "count": 50,
+                "elapsed_seconds": 1.1487977086217143
+              },
+              "length": {
+                "count": 6,
+                "elapsed_seconds": 0.00013258407125249505
+              },
+              "panel_edge_support": {
+                "count": 33,
+                "elapsed_seconds": 3.4622634170227684
+              },
+              "stock_fit": {
+                "cache_hits": 128,
+                "count": 181,
+                "elapsed_seconds": 0.13985295727616176
+              },
+              "support": {
+                "count": 106,
+                "elapsed_seconds": 1.1913579090614803
+              }
+            },
+            "source_capture_seconds": 0.002084125007968396,
+            "source_id": "01878cec6f7c39eebe6287b863d5b50ef3fa384a4f905041b792eb92a90ebfd1",
+            "stages": {
+              "archive_seconds": 0.018491293769329786,
+              "execution_seconds": 2.4244004170177504,
+              "fabrication_audit_seconds": 0.0006288329605013132,
+              "preview_publication": {
+                "coalesced": 2,
+                "published": 12,
+                "snapshot_seconds": 0.008730039990041405,
+                "write_seconds": 0.1233939589583315
+              },
+              "solid_queries_seconds": 6.341708124964498,
+              "tessellation_seconds": 0.976800003030803
+            },
+            "total_seconds": 13.469374875014182,
+            "worker_seconds": 9.862659250036813
+          }
+        ]
+      },
+      {
+        "name": "framing",
+        "project": "/private/tmp/stud-final-native-performance/framing",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-final-native-performance/framing/.stud/builds/build_59faa40ab139431ba303b83f2a2ed333",
+            "assets": 2,
+            "build_id": "build_59faa40ab139431ba303b83f2a2ed333",
+            "checkpoint": "b1516db816557792b66621b319b8fcafb610d328",
+            "checks": {
+              "complete": true,
+              "evaluated": 384,
+              "requested": 384,
+              "uncovered_objects": []
+            },
+            "estimate_id": "36aef3f08cc92c815806f74c4d2918ff06a807755efc484632bd8a4ea171bd33",
+            "estimate_seconds": 0.007862833037506789,
+            "evaluate_seconds": 3.288061542029027,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.6700137089937925,
+            "historical_read_seconds": 0.18544320802902803,
+            "label": "baseline",
+            "manifest_bytes": 583511,
+            "mesh_bytes": 896,
+            "parts": 360,
+            "peak_memory_bytes": 484048896,
+            "plan_pages": 14,
+            "plan_pdf": "/private/tmp/stud-final-native-performance/framing/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.6761342090321705,
+            "preview_bytes": 1970396,
+            "preview_count": 13,
+            "query_types": {
+              "length": {
+                "count": 24,
+                "elapsed_seconds": 0.0003605399397201836
+              },
+              "stock_fit": {
+                "cache_hits": 358,
+                "count": 360,
+                "elapsed_seconds": 0.00828887865645811
+              }
+            },
+            "source_capture_seconds": 0.0017447500140406191,
+            "source_id": "3cf13e9fb9c192f75f6b00538ae962db32830e961b28f874cd0a8b80630636c9",
+            "stages": {
+              "archive_seconds": 0.03086053585866466,
+              "execution_seconds": 1.999248209001962,
+              "fabrication_audit_seconds": 0.0010882499627768993,
+              "preview_publication": {
+                "coalesced": 11,
+                "published": 13,
+                "snapshot_seconds": 0.015234791848342866,
+                "write_seconds": 0.07364137592958286
+              },
+              "solid_queries_seconds": 0.0091892090276815,
+              "tessellation_seconds": 0.034457540954463184
+            },
+            "total_seconds": 7.0467683330061845,
+            "worker_seconds": 3.1111244169878773
+          }
+        ]
+      },
+      {
+        "name": "mansion",
+        "project": "/private/tmp/stud-final-native-performance/mansion",
+        "runs": [
+          {
+            "artifact_path": "/private/tmp/stud-final-native-performance/mansion/.stud/builds/build_5d5346796587441e938fca9d035b0769",
+            "assets": 107,
+            "build_id": "build_5d5346796587441e938fca9d035b0769",
+            "checkpoint": "e59429bace110aadc4e481bf78117379738bd18f",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "estimate_id": "110f84f6b033b1bea3fed377e2420db81e6794e242f43b5e859c734c38c52bc0",
+            "estimate_seconds": 0.7804060410126112,
+            "evaluate_seconds": 260.23789683298673,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.139417583006434,
+            "historical_read_seconds": 0.38962954201269895,
+            "label": "baseline",
+            "manifest_bytes": 19731869,
+            "mesh_bytes": 64904,
+            "parts": 6630,
+            "peak_memory_bytes": 945438720,
+            "plan_pages": 1,
+            "plan_pdf": "/private/tmp/stud-final-native-performance/mansion/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": {
+              "include_lists": false,
+              "views": [
+                "house.floor_overview",
+                "house.west.level1.kitchen.front.elevation",
+                "house.west.level2.kitchen.roof.bearing_detail"
+              ]
+            },
+            "plan_seconds": 7.000489083002321,
+            "preview_bytes": 220297252,
+            "preview_count": 93,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 30.371654031216167
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.006061379506718367
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 130.71207637008047
+              },
+              "stock_fit": {
+                "cache_hits": 6523,
+                "count": 6630,
+                "elapsed_seconds": 0.41998245572904125
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 25.108147316786926
+              }
+            },
+            "source_capture_seconds": 0.0021652079885825515,
+            "source_id": "2210392fb39a166ca1883eb26097ae84916724692c1383891c4a68526ac22d40",
+            "stages": {
+              "archive_seconds": 0.7454001235892065,
+              "execution_seconds": 71.62028970796382,
+              "fabrication_audit_seconds": 0.12139629200100899,
+              "preview_publication": {
+                "coalesced": 1290,
+                "published": 93,
+                "snapshot_seconds": 2.2348899161443114,
+                "write_seconds": 6.1434778335969895
+              },
+              "solid_queries_seconds": 186.65259687503567,
+              "tessellation_seconds": 1.9575960463262163
+            },
+            "total_seconds": 270.00113508297363,
+            "worker_seconds": 259.61049875000026
+          }
+        ]
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "root": "/private/tmp/stud-final-native-performance",
+    "source_commit": "460c46817a2f362632a32f46512edb2666061b39",
+    "units": "in",
+    "scope": "Fresh four-workload baselines after making Model.units read-only. The only runtime change from the five-edit native_units sequence is the reviewed Model.units assignment guard; native geometry, query, cache and publication algorithms are unchanged."
+  }
 }

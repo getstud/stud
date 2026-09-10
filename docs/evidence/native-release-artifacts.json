@@ -1,0 +1,44 @@
+{
+  "source_commit": "460c46817a2f362632a32f46512edb2666061b39",
+  "candidate_workflow_run": 34487673963,
+  "windows_recheck_workflow_run": 34493377698,
+  "harness_commit": "c0384b06ef70b120b634d9d01994ef989b8e896b",
+  "version": "1.0.0-preview.8",
+  "release_published": false,
+  "artifacts": [
+    {
+      "created_at": "2026-09-10T15:20:49Z",
+      "digest": "sha256:83854a8c1bdb44d88b0cb1b56128e093660cbe9c89556306b0647a448c487860",
+      "expired": false,
+      "id": 10159378714,
+      "name": "stud-darwin-x64",
+      "size_in_bytes": 1230660373,
+      "url": "https://github.com/getstud/stud/actions/runs/34487673963/artifacts/10159378714",
+      "platform": "darwin-x64",
+      "update_evidence": "updates/460c468-darwin-x64.json"
+    },
+    {
+      "created_at": "2026-09-10T14:53:20Z",
+      "digest": "sha256:036bcb5b461f63bafe0158ee70afbacf6c8393a5302f0d39bf1d491d0d233cef",
+      "expired": false,
+      "id": 10158128641,
+      "name": "stud-win32-x64",
+      "size_in_bytes": 433086218,
+      "url": "https://github.com/getstud/stud/actions/runs/34487673963/artifacts/10158128641",
+      "platform": "win32-x64",
+      "update_evidence": "updates/460c468-win32-x64.json"
+    },
+    {
+      "created_at": "2026-09-10T14:45:18Z",
+      "digest": "sha256:1590ff74fb88069febfc770b4dc926d2d807e675e6387d096d85b0b0c3cfe5a2",
+      "expired": false,
+      "id": 10157762272,
+      "name": "stud-darwin-arm64",
+      "size_in_bytes": 1164340362,
+      "url": "https://github.com/getstud/stud/actions/runs/34487673963/artifacts/10157762272",
+      "platform": "darwin-arm64",
+      "update_evidence": "updates/460c468-darwin-arm64.json"
+    }
+  ],
+  "note": "GitHub-reported digests identify the artifact ZIPs, not the individual signed update payloads. Both macOS jobs passed in the candidate workflow. Its Windows update harness failed because its temporary APPDATA did not match the NSIS lock namespace; the unchanged Windows installer passed the corrected focused recheck. All three final update evidence records confirm the production public key and all six preservation checks."
+}
