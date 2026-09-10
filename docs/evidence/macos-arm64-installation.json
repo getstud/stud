@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0-preview.8",
+  "signing": "local ad-hoc app; production signing remains CI acceptance",
+  "installer": "stud_1.0.0-preview.8_aarch64.dmg",
+  "installer_sha256": "757cdf9e76c8a09ca4cf6573fef3aa618f524279316df24fa3b84beba7a56157",
+  "installed_cli_sha256": "ca5674b8fc93d6370ddf3bdeb194aefbc8e45b21f24d82f262e764002b5093a6",
+  "installed_from_dmg": true,
+  "smoke_passed": true,
+  "preserved": [
+    "native geometry",
+    "request checkpoint and retry",
+    "quotes",
+    "prompts",
+    "PDF",
+    "full-folder reopening",
+    "catalog",
+    "legacy workflow",
+    "update locks"
+  ]
+}

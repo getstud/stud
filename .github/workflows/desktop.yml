@@ -2,6 +2,11 @@ name: Desktop installers
 
 on:
   workflow_dispatch:
+    inputs:
+      signed_candidate:
+        description: Build production-signed candidate artifacts and test updates without publishing a release
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 
@@ -93,12 +98,15 @@ jobs:
         run: |
           node scripts/release-channel.mjs
           node scripts/release-config.mjs
+      - name: Configure signed candidate artifacts
+        if: inputs.signed_candidate && !startsWith(github.ref, 'refs/tags/')
+        run: node scripts/release-config.mjs
       - name: Stage runtime and CLI
         env:
-          STUD_RELEASE_REPOSITORY: ${{ startsWith(github.ref, 'refs/tags/') && github.repository || '' }}
+          STUD_RELEASE_REPOSITORY: ${{ (startsWith(github.ref, 'refs/tags/') || inputs.signed_candidate) && github.repository || '' }}
         run: node scripts/build-desktop.mjs --stage-only --target ${{ matrix.platform }}
       - name: Sign bundled Python runtime
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        if: runner.os == 'macOS' && (startsWith(github.ref, 'refs/tags/') || inputs.signed_candidate)
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -107,8 +115,18 @@ jobs:
       - name: Verify updater signatures and transport policy
         run: cargo test --release --manifest-path src-tauri/Cargo.toml --target ${{ matrix.triple }} --bin stud-desktop
       - name: Build local-test installers
-        if: '!startsWith(github.ref, ''refs/tags/'')'
+        if: '!startsWith(github.ref, ''refs/tags/'') && !inputs.signed_candidate'
         run: node node_modules/@tauri-apps/cli/tauri.js build --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }}
+      - name: Build signed candidate installers
+        if: inputs.signed_candidate && !startsWith(github.ref, 'refs/tags/')
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: node node_modules/@tauri-apps/cli/tauri.js build --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }} --config src-tauri/release.conf.json
       - name: Build signed release draft
         if: startsWith(github.ref, 'refs/tags/')
         uses: tauri-apps/tauri-action@v0
@@ -129,7 +147,7 @@ jobs:
           includeUpdaterJson: true
           args: --target ${{ matrix.triple }} --bundles ${{ matrix.bundles }} --config src-tauri/release.conf.json
       - name: Verify macOS signature and notarization
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        if: runner.os == 'macOS' && (startsWith(github.ref, 'refs/tags/') || inputs.signed_candidate)
         run: |
           codesign --verify --deep --strict 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
           xcrun stapler validate 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
@@ -159,6 +177,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Installed CLI smoke test failed' }
           $process = Start-Process -FilePath (Join-Path $installDir 'uninstall.exe') -ArgumentList '/S' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstaller failed' }
+      - name: Verify signed update from previous release and preserve native projects
+        if: startsWith(github.ref, 'refs/tags/') || inputs.signed_candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci-native-update.mjs ${{ matrix.triple }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -167,6 +190,7 @@ jobs:
             src-tauri/target/${{ matrix.triple }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.triple }}/release/bundle/macos/*.tar.gz*
             src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe*
+            docs/evidence/updates/*.json
 
   ready:
     needs: [release, build]

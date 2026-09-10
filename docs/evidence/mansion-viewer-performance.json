@@ -1,16 +1,16 @@
 {
-  "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion",
-  "url": "http://127.0.0.1:58088",
+  "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/mansion",
+  "url": "http://127.0.0.1:58514",
   "chrome": "152.0.7977.83",
   "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
-  "ready_ms": 6610.453292,
+  "ready_ms": 6621.600375,
   "initial": {
     "scene": {
-      "build_id": "build_760c6aed5fcb40018b6b96b1cf46d4ef",
+      "build_id": "build_3b3e26c20020406c978c1473cfb8b7bc",
       "parts": 6630,
-      "asset_prepare_ms": 3535,
-      "scene_update_ms": 146.60000002384186,
-      "total_ms": 3681.600000023842
+      "asset_prepare_ms": 3673.900000035763,
+      "scene_update_ms": 167.0999999642372,
+      "total_ms": 3841
     },
     "assets": {
       "cached": 114,
@@ -20,703 +20,703 @@
     "resources": [
       {
         "url": "/api/model",
-        "duration_ms": 2651.5,
+        "duration_ms": 2470,
         "transfer_bytes": 15259670,
         "decoded_bytes": 15259370
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/5a253d7e63540fd91b68e8cba6bc56c1d6377651599e4bb5b94df4110fcfa1d0.mesh",
-        "duration_ms": 2597.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/3b18a984b3e052f45cc64643eeaceea096d7716b4f246a064646dc832ec016fc.mesh",
+        "duration_ms": 587.4000000357628,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/7610fca2f3a073caf569067ec7559b5c7568c8b266f319059b37022a7a61ad22.mesh",
-        "duration_ms": 3021.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/e1eb98dd2c5c4e14e58995d7f889cbc38c986426faaa1d0e0cf19f3ad6548e0b.mesh",
+        "duration_ms": 601,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/89874f120285d067d53797053adf24c148baf137fe69aaa7d2e8e86fd849af8b.mesh",
-        "duration_ms": 3024.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d2ee3c17c6ab8a5d66c61242b9414d9caae386d672fc53d0fd4e60b36088aa8d.mesh",
+        "duration_ms": 615.8999999761581,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/07300a471db5134009acc212161928be59c08bf962d44aee44498f5d98dcac27.mesh",
-        "duration_ms": 3025.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d7aae7a67d9fec02d6b61fa7de05304e662494d3ce0065eb5dbf09cb2686e0c6.mesh",
+        "duration_ms": 621,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/8faebb4bdf13293b3edd48f2ba4a53332f1b32ab140a421137ed77954c4a3370.mesh",
-        "duration_ms": 3026.5,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f2e2aa23384dfebd63afc6c24812be0bc94c47d37532087fe76715bbac43401e.mesh",
+        "duration_ms": 625.6000000238419,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/57c1a19f2e2c4ccd5c7dc2621fa194f15a2230e6d4b08e1291d8f1a76245578c.mesh",
-        "duration_ms": 3027.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/cd03f55b9b9780b4ba14b2b314c8673bfa3f3c5e6e7c754354cc25a109ce07e8.mesh",
+        "duration_ms": 632.2000000476837,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/199f8dcc55837d8d39787b6772e9102e9fc7c962d3bfa83e3fcd7acfaa0b46c5.mesh",
-        "duration_ms": 3028.400000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/40141c989b9c418e6cfc81724b5d2f3bacf9ea5816c52a07761a5fc09a5ae63d.mesh",
+        "duration_ms": 642.6999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9716222807bed3b7823fa13c1166b39e7bf5577e86ba860bad42529dd1e9b738.mesh",
-        "duration_ms": 3029.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/231239be4f5152bdfbf4d379b47dff0ddbf4cf962cb28d6f5ac6ba290988a81c.mesh",
+        "duration_ms": 651.3000000119209,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/10c0017ea827bc4871fa8afc5d400c6e862a79457f2a6f46b6f1a42967dc7629.mesh",
-        "duration_ms": 3442.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/55f51ba3c972697d3e46b4e359523cff4c3ca3c0801fb31cec451edfb04b5e85.mesh",
+        "duration_ms": 653.8999999761581,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/6d66a40be11f530ad8e48b0819488c76edd6e9446904b1513d81983c87b6d5a0.mesh",
-        "duration_ms": 3442.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/89bbbdc92c5b38c9d306847525fe035a7c95eff1c9b7978af7827b263ac7e781.mesh",
+        "duration_ms": 656,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c0cc7efeaeccf5cc43078b71c8c56f0e314de49de6a0671f622588cd7d2aaa97.mesh",
-        "duration_ms": 3444.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/ad40a4eed66530dd05d4bd1241f1e55bcd914ddb4b30b55b91e87674f2e7e107.mesh",
+        "duration_ms": 659.2999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0052cd526f9d47f80564ff0bdf2a2ec5fb4a3ba56d43dfbe95c6f16ee9309df0.mesh",
-        "duration_ms": 3444.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/405a92794bf28c62873e03b47949b078e6bba1dcdc159710a51a21dd004da589.mesh",
+        "duration_ms": 660.2999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/fd4975a7b041057b15299f85fc9ad503c2fa88323756f43a82df02969bd1b890.mesh",
-        "duration_ms": 3446.7000000476837,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/be7dafc519d46b7da9a932b24c30ec2e99c9de55bd5b239dda4246b2b5e5aa82.mesh",
+        "duration_ms": 662.0999999642372,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9edac8ad76058d150d39daafa75f940e5d11dbcec46cf8d0bae1aa2ebf7a4d07.mesh",
-        "duration_ms": 3447.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/661327805c1d9b6454fdf4f319506531c6ed2a8bcaa0d8eec1846b46ed49ca06.mesh",
+        "duration_ms": 662.6999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/433876d7de7608c7c0b1735d9fbb2692bff94ebcb7f7fb65ea6411c8f0aea19e.mesh",
-        "duration_ms": 3448.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2f2702d28db5da407329e91d4241bdb45efc50031094589e09e720c373e4c954.mesh",
+        "duration_ms": 664.8999999761581,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/02e0bf12b1d97cf7a28fcc9e3e22332862497d336a592ff8e6da9b3ddd3b5a49.mesh",
-        "duration_ms": 3449.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/7ce3bbc9b8adf34c97ef5c4ca9822327dea4e8485e79dfa0c1c7dd8ceb2545d4.mesh",
+        "duration_ms": 665.6999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b1477b915737dcd3a2f43de7ed11ea28c14471ba38338a120c36fe5d4244458f.mesh",
-        "duration_ms": 3450.900000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/24a543bc37a492467538cdaeb934fdcfd812898a1abf2dbe041bdf06fb93a4fc.mesh",
+        "duration_ms": 667.6999999880791,
         "transfer_bytes": 12916,
         "decoded_bytes": 12616
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/ded4acc517428331bbd6258d6955676b2765558185b370402ecdbe0cde56dc9a.mesh",
-        "duration_ms": 3451.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/efd4708bb7d442439a40d2e803e5a68e53e6c49ce861db26a6dfc9be8edb45e7.mesh",
+        "duration_ms": 674.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b3cfda14b844f340d6c07dec6c7dbfe26eafb994e8a72c81b52607091051397b.mesh",
-        "duration_ms": 3454.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/5fbd1516fc9419e7a5f4aee8a38ecfd7f0aa86c391e30f99ebca1aea334a3d4c.mesh",
+        "duration_ms": 679.3999999761581,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0ae4b3f219343cb4b849be74bc38b1cfc0830bf6ac7e42a33a702ba89ebcda7b.mesh",
-        "duration_ms": 3454.5,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/08166f511ada87d3a95da9a664e6e6dd31b1ee1c71b86a8e29c47b224ab8fef3.mesh",
+        "duration_ms": 680.5999999642372,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/69a03ca92ff541391b67553c8147dc2ee44c8dac6a93b8e682bee396bce2ae27.mesh",
-        "duration_ms": 3459.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c3ddcd68b8055820b33825fe465a2839fd8c5a428fb14bda695bd09d85ce81d4.mesh",
+        "duration_ms": 690.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/70e4589a710d11e9279d7c61e690ea6318c0c61cd7aaa51b50db91a5ec5ff16b.mesh",
-        "duration_ms": 3460.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d91b7bb4eae0bc5a916a04489a07999133c72e76141623ecbde7ff9c6613f4ff.mesh",
+        "duration_ms": 692.1999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b3dae8210e8004aef458868acec33003c7ef85d2dcbdb92a4486001ce297697d.mesh",
-        "duration_ms": 3460.2999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/686981b090840055ec20aed5b610b19dc535a884dadc526a6519f3c352975a9b.mesh",
+        "duration_ms": 700.0999999642372,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/f1abf8e9f2aa535fa5e74b9e263e9e8145604efa72d158deee406c46c5eb6e80.mesh",
-        "duration_ms": 3462.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/78c2da7a62bcb801a50d66a1a6ebeca9b80e612c998d616fe8a5027849fc9de3.mesh",
+        "duration_ms": 710.6999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/2427e6005dd9e1a81b64a45f3a41bea5f1ed43b9f1a1e248a5a746a471371511.mesh",
-        "duration_ms": 3462.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/56044f6a4cdc6d5297b0861a67fb7d86d695988778c84082273af453fc5f42cd.mesh",
+        "duration_ms": 711.5999999642372,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/d6c888d1f6e7c39dfc9f2ff19763a1b5ea3a5e8e0dc34f05b3b8af9cdbdbd178.mesh",
-        "duration_ms": 3462.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/a6ae475e2f28181ccf355889c3191554495f66248d40b44b05e067642b7f53a4.mesh",
+        "duration_ms": 727.3999999761581,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/31359ba78525122ffff76a83fee9d600ea91b73510fb2aa16bf7560b89dab73e.mesh",
-        "duration_ms": 3464.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d7c86d789434fdfcfeed7055ed6dabebc5177e5fc2491b1f5a5b0c60786f85d6.mesh",
+        "duration_ms": 756.3000000119209,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/8e3772398d938f70a8639d204538924a926abb7ce2e00a22049cdd37bbd2a688.mesh",
-        "duration_ms": 3464.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d46c42b4cdf9fcf8667233af081a04c4662f296d29fb68c3aef2777c5046a756.mesh",
+        "duration_ms": 758.4000000357628,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/836f54953706c8e17d83c87a17a962600d22654f190ea83c98b58b49ef7a7dc5.mesh",
-        "duration_ms": 3465.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/7b4edab6e7bb9bb0ea2321a217822d80fe146a61cf6ff45280606d2c9f7aa0f0.mesh",
+        "duration_ms": 763.7000000476837,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/675f002dd9d26f8f374b3e2d83067ca06ea8191dfdfceb43b4a5d28735e4e00c.mesh",
-        "duration_ms": 3466.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2c821e2e1e59db2bad5be2e47e622a3416fb1bd0e98e845516a854cb5d6fb5fe.mesh",
+        "duration_ms": 772.3000000119209,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/6198788861a78b77bcf5e2a4906fa9a9ddf8bb9dc4284596c018c12d9279d1ea.mesh",
-        "duration_ms": 3467.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c3fd3ba412ac0107bfab35aef5a9c267f23f52331060c64156b69f15c09833e0.mesh",
+        "duration_ms": 776.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/acf62e575f550e6fc1deb7b0e8e67932302a27ff87329c6d7666c3fc3495d7a2.mesh",
-        "duration_ms": 3467.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/9605c7117e41649d5d16e8e07721c27272b8dec303a50ba7b68cf4f69c839f42.mesh",
+        "duration_ms": 980.6999999880791,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/ce40273d011e57f5885dc747ee939dcc3e2dbd88edbfe94f2a6a8b257ffa1a0b.mesh",
-        "duration_ms": 3468.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/8332f854864cbe3f4af147ca9628021e6c4ddf738a84fbb044cd3ff94c05d273.mesh",
+        "duration_ms": 1002.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c22e7c34a75c518d6654d54ca461e18cc09f1c3757978d67359a96b3287db542.mesh",
-        "duration_ms": 3469.099999964237,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/603dc3d6435e1236ac078847c088f3c3e10d0b6c138c9121af0ff5984e4b5681.mesh",
+        "duration_ms": 1281.7999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/e7e89dabb58528cddc21382b3732907e49f9b345f27da1ceca1e688c88b63af2.mesh",
-        "duration_ms": 3469.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/0fff8ac4bc993411247593b2996ebb076c11bb8e99ec591338f433a2468b84aa.mesh",
+        "duration_ms": 1552,
         "transfer_bytes": 1228,
         "decoded_bytes": 928
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b74a814f504f0f124a513fcfa6fc391c08090f27a4db77f2f85eb034c9cc234b.mesh",
-        "duration_ms": 3470.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/03db94f9808b706e149c566c8bb22e5c3df5dcbb81e0fef627c98fbc3326c440.mesh",
+        "duration_ms": 1783.5,
         "transfer_bytes": 1228,
         "decoded_bytes": 928
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/648aafd9e984a549156b6042c78d4300ed1b7078d83855a869056deecfdd67a0.mesh",
-        "duration_ms": 3471.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/93387bc92f503cc58b60486c6fac20e6783e5ca292b04fb5c1f4f50cd8f8d02c.mesh",
+        "duration_ms": 1919,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/242963cbfca134d75c8421b77518224506bc2ff1626f64945d7d89fb50fe5c0b.mesh",
-        "duration_ms": 3472,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/aa311457f09b06fa9fb99e46c40bb62a8028bd1552b7d54dde4084e7d8c3e523.mesh",
+        "duration_ms": 2084.800000011921,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/cae50c97579c2e904e582b3d1485ccd587a0049db17b553a7b28105f52dacfbb.mesh",
-        "duration_ms": 3472.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f0738fdbe58d819c6436dca58e7ef0e3ed252d334a61eeb1454c8eb0c0182016.mesh",
+        "duration_ms": 2231.600000023842,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0243493d2c08fe4a5af3a8429ec28aa7292fbe9b7abb4255d8bf847217cac73b.mesh",
-        "duration_ms": 3473.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f89e1ae85c427c2b85616db8e62bd39777f8471a9d73f8ce68d5bcf3932b5987.mesh",
+        "duration_ms": 2338.900000035763,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/a57453f4876b2a1ce7cc289e888b9eb5fd1c29378ebdc941b9c86c45501d8d17.mesh",
-        "duration_ms": 3474.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/9f7cde8b4fd79237746deb10b56e2ed3fbccc76b71df1e8e8b428817c2a0165a.mesh",
+        "duration_ms": 2634.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/eaf32b3f4c8d5eb93c9aecb25abf4038aae6139cdf4d47083351a638121f2268.mesh",
-        "duration_ms": 3474,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/8dc87dff0bd62d41a4c722bc2c5550399daee136552561ea66a946fe35e181b1.mesh",
+        "duration_ms": 3123.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/55f18febd99782b6641cac8a8e297a0c0233cdcc09be2117a73a6d6f4755ce82.mesh",
-        "duration_ms": 3475.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/0bb4240c96cb259ba22e314d127f1a0b5b9f3773cb1991a3141802c4cf617d69.mesh",
+        "duration_ms": 3341.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/31326e39f4e3a95cac2c3cd7de4b21e99df4085b3674c85d7e5b0505acbe3145.mesh",
-        "duration_ms": 3477.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2da7e13b070417b4cf94b6888c5a69c2c367796ff279f26f6c735d390574db06.mesh",
+        "duration_ms": 3385.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/aeee35b826c637c2ca031e2b5259e323e3d88ca850e7751c144da785a5ea8cd8.mesh",
-        "duration_ms": 3477.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/790944f5b6a8b5e5edc63327448b74be07a9e41165e11a624d53608bfd368669.mesh",
+        "duration_ms": 3386.100000023842,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/7bb275cccee08ef688e1298c3e343f79164b9f5d6b78137e029a179c7b483752.mesh",
-        "duration_ms": 3479,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c724b7a970fa8da23b3ade30e41636819b8343dd21fc05f0b7f92d9d72d78850.mesh",
+        "duration_ms": 3386.100000023842,
         "transfer_bytes": 1228,
         "decoded_bytes": 928
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/d0a3fc5e58e98c8e9f0111214efa23f7138de79a17663b228730af47280840c3.mesh",
-        "duration_ms": 3479.5,
-        "transfer_bytes": 748,
-        "decoded_bytes": 448
-      },
-      {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/5f887b918e3afdaa1b9832d80f765bcdd15386e8334c00bc5fa8e8e7b3b9bafe.mesh",
-        "duration_ms": 3480.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/b12c5e526e5cc052441e7318046da1886cf74a3168d5bd16b955971594e903a9.mesh",
+        "duration_ms": 3387.600000023842,
         "transfer_bytes": 1228,
         "decoded_bytes": 928
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/6bc4128fa82ead5f2bfabad2d68ca58439929882d349f392e1860f76e9298587.mesh",
-        "duration_ms": 3481.7999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/dae3b879c6c3beb58069d08371050652385c9054d32919e75ea9e692e0cf46cd.mesh",
+        "duration_ms": 3390,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/ee7cac7b0486547404d66a0623d1c8134fab1931edf5dd7a7d3a0aecef5bcc8e.mesh",
-        "duration_ms": 3482.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/6c6e1b989ff84aed2c3d7fe8d753cd5f8c23800094a8935aed7d7ff7b03b6d5d.mesh",
+        "duration_ms": 3390,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/41fb24832747e726cfa93d8928a94e0c75f98c3c3ad87f62339a4503a6e06091.mesh",
-        "duration_ms": 3484.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/3db3c2cfaf10d4df3a4ca607bf58fc99f61be2c4bdce5daa303fa6c2d71d444c.mesh",
+        "duration_ms": 3391,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/18439043ccc5775cc0035881bfb51a9e58a340bd5e8c9f01e9c020ee1046fa70.mesh",
-        "duration_ms": 3484.599999964237,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/3d1f7aa5b6f2d90467515a806e71667fccfc34aaa4802048cb99d701f6a77374.mesh",
+        "duration_ms": 3392.899999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/cde360f3592ea2456ee59222667566dea1c82013f0137b4927718b95fba8ecee.mesh",
-        "duration_ms": 3486,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/29d57c70c816d422977f8e94268f44ed53f18e3798e8ec4b800be7b7678e9d94.mesh",
+        "duration_ms": 3394.099999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/18dcef73bbe46deff6ba1821b97b1a72129c312093a803eeeadc0ef2d9e09f4f.mesh",
-        "duration_ms": 3486.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/20d63a03b7cc8cbe5e10880c3d921c6c8d152fb9b708773054395434b21f9532.mesh",
+        "duration_ms": 3394.699999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/067ef049f93a5fb37da2ad4f4750fb831976f60543712fce591313f1e182c5ac.mesh",
-        "duration_ms": 3488.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/1f86cc005eaa7f0f55b978573a40f220d90e7e4dac0bd2399a8aefd16eb85f6f.mesh",
+        "duration_ms": 3396.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/eec2f923f3faa392068c7aa900b676580ef3f9a63b36373418d2dabed4edf395.mesh",
-        "duration_ms": 3488.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f6055fe6bcb6cc0d011ffcbc335a812e5f7200fabd92a254aa21204272491cbc.mesh",
+        "duration_ms": 3397.599999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/cd368d0961c8847999b2a16d46cc339a98747c998f7e906d9fade1c77b38bc1e.mesh",
-        "duration_ms": 3489.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/951ca05146383aab288af421a04ae8e2fccc2a26a1ecb1f8971842550ea6ab41.mesh",
+        "duration_ms": 3399.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/78b2d1132d79fc9e1cefb4fa80983d9988423c1c8a3849d68a94ff596efefd0e.mesh",
-        "duration_ms": 3490.2000000476837,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d2315d60a8956f00f4a9fad2143a70063f013385acb4cb834479b2f686cac536.mesh",
+        "duration_ms": 3400,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/f3eaee8ce05aaca9a18ed84fdef58a47b649664032ae9c9ed6604725251cf1aa.mesh",
-        "duration_ms": 3490.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/ef192d9e23d65ab757dd2e3884cafedfdf30a836692a3fdec3ef6cac7bf87f42.mesh",
+        "duration_ms": 3400.5,
+        "transfer_bytes": 748,
+        "decoded_bytes": 448
+      },
+      {
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/dd7202350d9601383ee82286dc1164b6528a851fb0a5d1ac0140ecc9c6cc432b.mesh",
+        "duration_ms": 3401.600000023842,
         "transfer_bytes": 868,
         "decoded_bytes": 568
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/38460af327256b26c3c60141a90c12f6009d8da6196c560b0458d61a9cdc68f4.mesh",
-        "duration_ms": 3491.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/dcc96b1d93dc2fc2a58d8cdeceb44c4bed088bcde0c6b40a5ce5df4d04ba00d2.mesh",
+        "duration_ms": 3403.100000023842,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c0ec63fcdeb7aab8b6c0e9195c07f1f93ee3948904de6cc05b050c694bd8e7cd.mesh",
-        "duration_ms": 3492.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/5474d1a92f5def6f2e93ea1bdb4baee15d570716a786fd71e9fe6d0457a9c363.mesh",
+        "duration_ms": 3404.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/19f9ad61926b1750314cfbe915b8f7f9965f939106d43d85117e3f8f822a2f8e.mesh",
-        "duration_ms": 3493.099999964237,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f4af40e9533cf6f7edc9029b066778d092dbbfefd782630ec3b3e6e3cf699cfa.mesh",
+        "duration_ms": 3405,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/f6818a4ba530d1fd5fc0fa49c1dae3b29f0fd8e75308ac15470a20d3cdfd3f6e.mesh",
-        "duration_ms": 3494.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/cdf118becb2e795aaed3dea35308aad76c3ce3a86e75c6f1e76cafe67985cb30.mesh",
+        "duration_ms": 3405.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/d2fff750428d95c8d67200af36a7732a0985d3ff3e721e3d5153498188f82b44.mesh",
-        "duration_ms": 3495.2999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/d94565626471b3ebf287b6fc80cf84254272ad630d9566200e1262fe6159997c.mesh",
+        "duration_ms": 3407.699999988079,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/40ecbd544019e04372928230787c8ae5ba2ff5bf63ecc41d262414c444a0d90d.mesh",
-        "duration_ms": 3494.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2e5156fcc2dd271ce154c63ad5e63dab4c5cc660f304b870442cdbf31da72d6a.mesh",
+        "duration_ms": 3408.599999964237,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/42b562e690cbeee8a33f5020e2ad756163726405279bdb52560f6923a0438a5a.mesh",
-        "duration_ms": 3497.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/00c6245d0932149b258f995303dd2953dd4af97228ecdac9e576c8f579610dfd.mesh",
+        "duration_ms": 3408.899999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/99c9224859461b36b4948ea9a9757256b5b5537bbb4ed7a1117504def5c36278.mesh",
-        "duration_ms": 3497.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/a94a79ed21ed2451bd000d2c932bbfc4fba63dfc4d9d9dc43be5f84dd3e6b612.mesh",
+        "duration_ms": 3410,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/f4f21c7bf9fdb1b2f45ec7e6a690e1a93e41f6770635a94e4b62f65969f51ef2.mesh",
-        "duration_ms": 3497.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/e536e6761cbcf977bcab6f524d31fedb43d5e15a2a0e3877581b5d401de220b3.mesh",
+        "duration_ms": 3411.800000011921,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/aae8b7668802bc06a0ed285d2be76b90bd9b392bc2016c499b3758a71e4cda49.mesh",
-        "duration_ms": 3499.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/56b5ec966a5a9258a9e9cd8adfb33c08afffd3356da76bf3cfd3db784d025631.mesh",
+        "duration_ms": 3413.400000035763,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9cb38aa7fb80e61236ad515b1551a4fa33d13cdd3afeba4be1aa2f1c4b375721.mesh",
-        "duration_ms": 3499.900000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/e82a65f24dadf6f4a62f4328dba152f3961eac6873b1a05dbe1a4295a68a952d.mesh",
+        "duration_ms": 3413.400000035763,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c3811867058002329e204d5ac5934efef816914cd2a81931a32593da83940bbf.mesh",
-        "duration_ms": 3500.599999964237,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/cd9e37f9e27aa73eb5aea71307cf55ecf1f13a6d5e0426143425360a3bb7fe27.mesh",
+        "duration_ms": 3420.300000011921,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/f66b918d5717f2220fd06a6759fd6305bf9849c227fc29443860c8126de5f32c.mesh",
-        "duration_ms": 3506.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/6f4556d974bf82784725d8282bc2a3a61e5d58a3582caf41e5c6e2b06ebae8bf.mesh",
+        "duration_ms": 3424,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/51562944f5b2a5d8572ff3cc994a93622c947dc9ba74285ec28c7b6eca325ed9.mesh",
-        "duration_ms": 3507.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2a787e5a7e4cb6fe920ea88a1239e8c9df9468e564e825549f83430389b2b930.mesh",
+        "duration_ms": 3424.899999976158,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/47cb6528c0a008be634f68899c25f6d9412b290f1112872420091043ce2260d0.mesh",
-        "duration_ms": 3507.5,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/356afa643e7a95657951759fa5441217e7cbf383446d6f45bb83b883ae7ecac8.mesh",
+        "duration_ms": 3425,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9c5c3b4dd776a90caff8d5073afc8ee31c714f5a80376f02df19e82b3b7752b4.mesh",
-        "duration_ms": 3509.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c9f29e798c89907e2c7acefb08818933a21a11cde38fa98539c5e4d115f446d9.mesh",
+        "duration_ms": 3426.100000023842,
+        "transfer_bytes": 748,
+        "decoded_bytes": 448
+      },
+      {
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/4d700dd237d6e885b8b2ca59b01ddcaaec24715bd2b4a1aafc409a4e23bb2999.mesh",
+        "duration_ms": 3428.600000023842,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/8267103a5e3bf3b029faa2fe8c8ece85932fc4abe34182ce4a58d71b1295f5a4.mesh",
-        "duration_ms": 3509.2000000476837,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/894ee60d9a1438f248fb0d2f9848e3687ece7dc9b31217aad6fa5951bb9a38fa.mesh",
+        "duration_ms": 3428.7000000476837,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b8e63db558fbda6343da9b6a1bb61dbac906398c85fc8e12605736c078f6beb9.mesh",
-        "duration_ms": 3509.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f3befe128dabefe114aa5feec24efa82de85b91965a29152c9c7359d52af865d.mesh",
+        "duration_ms": 3428.900000035763,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/eee55fea0834e9bac72236321ca3a593a59e4e5c3275c20853e1844519c8269a.mesh",
-        "duration_ms": 3511.400000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/a8c82ba344797382601555dee2c3984f00a26369de2e1aac57b3330c67e884a7.mesh",
+        "duration_ms": 3430.400000035763,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9a8cda5d8d15a9397d7c2868fd3f751fcde9fa23b2eab39817101066988b22db.mesh",
-        "duration_ms": 3511.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/7b8083ff992d4c1542c548dea06a861d6d32ae2cbfd26b100917f51af7b44d0c.mesh",
+        "duration_ms": 3433.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0250a23003bb75bbc644dfd7d6d88902656fee4b83a346d9d7325e859307aa12.mesh",
-        "duration_ms": 3512,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/47213104eac36cee8f3165931025d1f611d9845d66c620d4cd3ae052e2d0103c.mesh",
+        "duration_ms": 3433.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/5f29796c42942cad910c905f367fa5f85e29b2635264aed547245e9df60ea290.mesh",
-        "duration_ms": 3513.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/13d17a77960acc10414cdbff01428176616505bc9459a061bd578a5e3e918ed2.mesh",
+        "duration_ms": 3434.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/8edd8b8c2d036352f0581644ca9b0f5d2cf7cab4030dc91e4c1b3a98bbc37dea.mesh",
-        "duration_ms": 3513.7999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/58baa10a6d3f459c067aad7ec42db97571280d6b209d1410f4fec366b8e286cf.mesh",
+        "duration_ms": 3434.699999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/385d2c22d5c473fce9b5a2ab43978434d317caa5349d3edcc0df0bd1a20cf620.mesh",
-        "duration_ms": 3514.2999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/16abeef3030f414beab82788a69e5bb7431c28b197981534298d932794679395.mesh",
+        "duration_ms": 3437.599999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/a92cb16a91d0555f6e6941c972880c9104be446714b28ee2181fb6ae0d540961.mesh",
-        "duration_ms": 3515.2999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c3967026b828f542e928e2e02624a701f87fa0d60080d120fc822fe254cd965c.mesh",
+        "duration_ms": 3438.099999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/4a9f835803f32c50269b0f684d4d339692b52db099bbac0358e1f7be69624ab9.mesh",
-        "duration_ms": 3515.7999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/96dec3ac1fe21a5326fb95dee6255741909fb1a4d2ecc12bb65f70e360ea3d8d.mesh",
+        "duration_ms": 3439,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/e304963f536c399a12854919cca7d1b1571296c02468b1b2f6ffed12a8030fef.mesh",
-        "duration_ms": 3516.2999999523163,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/2dc5fde5a177384e8c06e84002ccf3a759ede767481ef284d7aa21c076948d41.mesh",
+        "duration_ms": 3439.099999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9cf447b73bd15545cd4f3b48c37411e7023b6a3e590a64c01093e5973f159113.mesh",
-        "duration_ms": 3517.199999988079,
-        "transfer_bytes": 748,
-        "decoded_bytes": 448
-      },
-      {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0299f6987ee838925f90bfb4859b6f74676ee98e502838cac82bcb51939bf37c.mesh",
-        "duration_ms": 3518.5,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/be9d811dc74fc2ceacd5b6033f2f4d0635dd550056bf1ec2d127ee087526317c.mesh",
+        "duration_ms": 3442.2999999523163,
         "transfer_bytes": 628,
         "decoded_bytes": 328
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b0588c8f7415029ba3b7da4ba36ceadb1fa426d929d7b41db1f437f6d4be95a1.mesh",
-        "duration_ms": 3518.5,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/10d4df61fa9d6497814fdb3f070d173d68db01c080fa1772a60e6dba74a174e9.mesh",
+        "duration_ms": 3442.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/87ad8a7162e5f79854104e7562ba50850aff6d0627ec8872da0dce19383c4884.mesh",
-        "duration_ms": 3519.199999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/946801472f3d2e6095e0fa2d49a41627314e3a64f02e883eefa20d5fc6f92c74.mesh",
+        "duration_ms": 3443.7999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/5c260cb488ab187871435e625472375f860a8761d24527f0e32e02ed42b9d340.mesh",
-        "duration_ms": 3520,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/22868ac1950846e11cc67dff9394a05d7c9bb68d750f79a99e66e542cf3ac4f1.mesh",
+        "duration_ms": 3444.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b230cc3fa2b3fedc995879901e0820b3737cacafdc24d8d2408897f6afe6ac0c.mesh",
-        "duration_ms": 3521.400000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/5fdc88e60b5fc1e40c998f9f6ad984e281cc261e21cb8c96f16cfcd05c3a805b.mesh",
+        "duration_ms": 3447.100000023842,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/5df17a778056eff987452eeb450f97ab16351d26934bb19e0d25357e64e5e805.mesh",
-        "duration_ms": 3522,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/e82f02a86047c70864de497449d48e23c3dfc201ad5cd3689171418ca7de16cb.mesh",
+        "duration_ms": 3448.5,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/80586dbc1510e92d3fff46699a23201162a65888045a46fc87e1697e7e8cbe90.mesh",
-        "duration_ms": 3521,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/912ecc507dc565214315ec8b86c03c52dd2b0d6e63af4ac2f97c2d38c99a671e.mesh",
+        "duration_ms": 3450,
         "transfer_bytes": 628,
         "decoded_bytes": 328
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/6d1d8d732bf862a50311f9341fa56e11a9635555b25a88123100fb4d3805037b.mesh",
-        "duration_ms": 3521.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/bceaa87941ee22cafbec3b9429fd2513f2fc561acfcb2904b45d2578fb9c6fca.mesh",
+        "duration_ms": 3448,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/660ecd15496653de736c73b4bae2123340f367702ca4ccff4eb98fb39d778c73.mesh",
-        "duration_ms": 3523.099999964237,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f231a85574e2671aeaae1386b6ab62976fc0addca5d79a0c6a815bacdc974f77.mesh",
+        "duration_ms": 3450.699999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/e182014be2bdbde58d4e85a3711c53ba2e5fa60e2a1d4acf598e459f892f8793.mesh",
-        "duration_ms": 3523.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/c06fb6f4a5f2c795c4854b8eea6d1fa1b2377b3a3d637a0851e9b9df17f27895.mesh",
+        "duration_ms": 3649.699999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9817944d2faf8e1b63caa22572ce747bb80d01e120b2c355485d9be8aae6806e.mesh",
-        "duration_ms": 3523.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f089ccb4f398bdc12f902b14ffb6a1c533e8497e6d441b9b5c4a82b28772febd.mesh",
+        "duration_ms": 3649.899999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c68c29dae019496fc640f450c8107f140fb70a2f1ccd04d7a0f9229144477034.mesh",
-        "duration_ms": 3524.2000000476837,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/7a7fee3446112256b33591cdbd90a0d269d4375fcce67cce38e6818c6d88a58a.mesh",
+        "duration_ms": 3650.300000011921,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/530a6ed1e373fcb9eadf39d87847f7034eeb06c1faa21f22ab4541469d0f2f0b.mesh",
-        "duration_ms": 3524.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/235de4249ee48160f63cd785596517d7ecdb4f0db0ba596e9cc252f7c66d857d.mesh",
+        "duration_ms": 3656.800000011921,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/9423a518ba8bbb7d40cc72efc220e7fe9f9d57cfef4b7cb6b4f76eae7a744b01.mesh",
-        "duration_ms": 3525.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/6afa1400cd556c3d27d7a016db600e2870b9acc95da6178311382792a2a94996.mesh",
+        "duration_ms": 3659.199999988079,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/194cdc2fbd08d191c5de840c8cc66ad9d331a4fe4b601a85d6995fa0c70f9d01.mesh",
-        "duration_ms": 3526,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f0b7cb9cb376e68912d8ac2297bb097c862fb046638590533beff18025487ba8.mesh",
+        "duration_ms": 3659.399999976158,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/166ccdfbe98839bea08ff698d3fadbc69d58e4ec1fa0a9239d7c69fc9b489798.mesh",
-        "duration_ms": 3526.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/bd8b586990549baad3d806b8b1c5ddc1e577524547ddddf01499c854c9b9f8d6.mesh",
+        "duration_ms": 3659.7999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/2eb32e141745d1639c1c5648fbb4de1a8d8514e22949749616d386e1dbf94b79.mesh",
-        "duration_ms": 3527.300000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/1d54a5e771e451839633d1bf73db371a02af144c5337d5e5a3c4f07ee069a230.mesh",
+        "duration_ms": 3660.7999999523163,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b8917b9a2b3a473af965a34186b1211bbd6e402ec495fd68d4c62d7f531089dd.mesh",
-        "duration_ms": 3528.600000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/9675151aa830468ff56f8c638006ad236b098b351893d7354a99997a5490857c.mesh",
+        "duration_ms": 3662.099999964237,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0dbaa6768243cdef078e2b4a121d462ad2ef5c6c755896448bec0f72d321b22e.mesh",
-        "duration_ms": 3527.399999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/24cebd209c78efb95a3396e13cfc1d0ea167052332d501b07e689c908ad42b0e.mesh",
+        "duration_ms": 3662.199999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/660fecd4b783bcd552db30a88616499fc2a306e9f814901f559935299b2ba393.mesh",
-        "duration_ms": 3527.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/50d8775fd1a10dc9ea30f3d4a27eea95251d604368af215de08c4f0b0ef94b95.mesh",
+        "duration_ms": 3663.699999988079,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/7863d7341e0111cf76b2592cf5d45b88919fcc2ae34fb6822aa0b9488ef0b841.mesh",
-        "duration_ms": 3528.899999976158,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/1c274ef7d2a603e4bd9aabc316a0c7486eaa4be1c82334ec2fae6c60249c30d4.mesh",
+        "duration_ms": 3662.900000035763,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/1f072be3571d97eb6e1f9ca387e9b3849bfa8cd158c0cd6ab1e3a535b88cf346.mesh",
-        "duration_ms": 3529,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/f6180b70c8e58411f450b76d37c447a941bdad5341fc7d09679bbf89cdb7ae12.mesh",
+        "duration_ms": 3666,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/c768340d0e03fdfa9eeb4c539272789f55d0c43a58b832f469fbb064f9694b62.mesh",
-        "duration_ms": 3530,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/795108c3460cb1fee135a122c4e3d2901c2061170d86a68925a4a230207c1f9f.mesh",
+        "duration_ms": 3666.300000011921,
         "transfer_bytes": 748,
         "decoded_bytes": 448
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/b84e90dd731e34ea845d77f78b47ae3bf486187f5031e9e2a636b515c246bf5e.mesh",
-        "duration_ms": 3530.699999988079,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/537d3416ccd7afe1bc1f1e61899fbad8ff9c1246718d565f9fd46f5a4557e58b.mesh",
+        "duration_ms": 3666.699999988079,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/0ba3f24ab0d74900aed601da6df6b15026e1d5db228cd36a1199af3729b15d1b.mesh",
-        "duration_ms": 3530.800000011921,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/265f10fc6be95d28f6219bbc2722a505b8d43511a649ad97db0b7b499af2e13e.mesh",
+        "duration_ms": 3667.5,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/3e33aab004265efdeb0350d24a5bec420a7501fcd57906a09499bb6ac2f17160.mesh",
-        "duration_ms": 3530.900000035763,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/7b9bd2e43da2458d437b1efd34ab1fc7de29603ab086eea75a4b09bf9a7c4f38.mesh",
+        "duration_ms": 3669.300000011921,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       },
       {
-        "url": "/api/v1/builds/build_760c6aed5fcb40018b6b96b1cf46d4ef/assets/7ebb325e1858ac61d0ac648a1e24ce0bc0912ecd90305a4545fdb195cd518d75.mesh",
-        "duration_ms": 3531.100000023842,
+        "url": "/api/v1/builds/build_3b3e26c20020406c978c1473cfb8b7bc/assets/0c3dd3aae0f51b662d19db6593954cff11e686ea58c716e277136750e79667a0.mesh",
+        "duration_ms": 3669.300000011921,
         "transfer_bytes": 988,
         "decoded_bytes": 688
       }
     ],
     "heap": {
-      "used_bytes": 159141310,
-      "total_bytes": 212920194
+      "used_bytes": 159457364,
+      "total_bytes": 212645880
     }
   },
   "patches": {
-    "full_scene_ms": 240.10000002384186,
-    "cached_scene_ms": 13.099999964237213,
+    "full_scene_ms": 233.5,
+    "cached_scene_ms": 16.5,
     "initial_asset_requests": 114,
     "repeat_asset_requests": 0,
     "objects_preserved": true,
@@ -725,9 +725,9 @@
   },
   "idle_model_validation_requests": 0,
   "frames": {
-    "count": 173,
-    "median_ms": 16.700000000000728,
-    "p95_ms": 33.400000000000546
+    "count": 165,
+    "median_ms": 16.799999999999272,
+    "p95_ms": 33.399999999999636
   },
   "errors": []
 }

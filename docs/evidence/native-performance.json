@@ -639,5 +639,312 @@
     "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
     "python": "3.13.12",
     "root": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw"
-  }
+  },
+  "portable_runtime": {
+    "cases": [
+      {
+        "name": "workbench",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/workbench",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/workbench/.stud/builds/build_011fcf6cf1ec4bacbf07dbe3260e0a11",
+            "assets": 5,
+            "build_id": "build_011fcf6cf1ec4bacbf07dbe3260e0a11",
+            "checkpoint": "53bc3e4fe9cee6d92611204788d57848b7e45510",
+            "checks": {
+              "complete": true,
+              "evaluated": 31,
+              "requested": 31,
+              "uncovered_objects": []
+            },
+            "estimate_id": "d10af6fabd6e33723c0bbbc3327671b28a33f07439276e74d22ff2ec1d15505d",
+            "estimate_seconds": 0.0003314170171506703,
+            "evaluate_seconds": 1.77389770897571,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.5006395840318874,
+            "historical_read_seconds": 0.13494958297815174,
+            "label": "baseline",
+            "manifest_bytes": 44159,
+            "mesh_bytes": 14408,
+            "parts": 12,
+            "peak_memory_bytes": 477364224,
+            "plan_pages": 4,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/workbench/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 1.7553430839907378,
+            "preview_bytes": 29239,
+            "preview_count": 2,
+            "query_types": {
+              "contact": {
+                "count": 12,
+                "elapsed_seconds": 0.26427545701153576
+              },
+              "length": {
+                "count": 1,
+                "elapsed_seconds": 2.4082954041659832e-05
+              },
+              "stock_fit": {
+                "cache_hits": 7,
+                "count": 12,
+                "elapsed_seconds": 0.01254387409426272
+              },
+              "support": {
+                "count": 6,
+                "elapsed_seconds": 0.0558609189465642
+              }
+            },
+            "source_capture_seconds": 0.007589749991893768,
+            "source_id": "d665ab0bbdcc05ece750ee6b479d74d4e2c6194c241536e388487d1e4fa17d96",
+            "stages": {
+              "archive_seconds": 0.0012886679032817483,
+              "execution_seconds": 0.18728625000221655,
+              "fabrication_audit_seconds": 6.17500045336783e-05,
+              "preview_publication": {
+                "coalesced": 0,
+                "published": 2,
+                "snapshot_seconds": 0.0006271660095080733,
+                "write_seconds": 0.0014580829883925617
+              },
+              "solid_queries_seconds": 0.3334979579667561,
+              "tessellation_seconds": 0.09088154102209955
+            },
+            "total_seconds": 4.373881250037812,
+            "worker_seconds": 1.6064543750253506
+          }
+        ]
+      },
+      {
+        "name": "shed",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/shed",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/shed/.stud/builds/build_30eb8c9ae5584dd2b1550e1478dbf126",
+            "assets": 62,
+            "build_id": "build_30eb8c9ae5584dd2b1550e1478dbf126",
+            "checkpoint": "d7c6337868c400e7795b9a1e4a7e84ac251ceedb",
+            "checks": {
+              "complete": true,
+              "evaluated": 377,
+              "requested": 377,
+              "uncovered_objects": []
+            },
+            "estimate_id": "42aa16b21a86f3a83e4a15e60144d82d7dfc2e03e004a54ba5af19d6a72f02d0",
+            "estimate_seconds": 0.002613167045637965,
+            "evaluate_seconds": 10.540795333043206,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.5936479999800213,
+            "historical_read_seconds": 0.1685093329870142,
+            "label": "baseline",
+            "manifest_bytes": 600383,
+            "mesh_bytes": 43904,
+            "parts": 181,
+            "peak_memory_bytes": 485621760,
+            "plan_pages": 14,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/shed/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.295199959015008,
+            "preview_bytes": 1211921,
+            "preview_count": 12,
+            "query_types": {
+              "collision_free": {
+                "count": 1,
+                "elapsed_seconds": 0.4293019169708714
+              },
+              "contact": {
+                "count": 50,
+                "elapsed_seconds": 1.1385213350877166
+              },
+              "length": {
+                "count": 6,
+                "elapsed_seconds": 0.00013925094390287995
+              },
+              "panel_edge_support": {
+                "count": 33,
+                "elapsed_seconds": 3.507939831877593
+              },
+              "stock_fit": {
+                "cache_hits": 119,
+                "count": 181,
+                "elapsed_seconds": 0.16864054749021307
+              },
+              "support": {
+                "count": 106,
+                "elapsed_seconds": 1.2078533690073527
+              }
+            },
+            "source_capture_seconds": 0.0018411670462228358,
+            "source_id": "a3a1a03bf74d5650349aaaa172a17ccb2f348036c29caf398171ff28974bd264",
+            "stages": {
+              "archive_seconds": 0.022291545406915247,
+              "execution_seconds": 2.7620335000101477,
+              "fabrication_audit_seconds": 0.0006158750038594007,
+              "preview_publication": {
+                "coalesced": 2,
+                "published": 12,
+                "snapshot_seconds": 0.009298331977333874,
+                "write_seconds": 0.15420970798004419
+              },
+              "solid_queries_seconds": 6.454626708989963,
+              "tessellation_seconds": 1.1946704549482092
+            },
+            "total_seconds": 13.80024199996842,
+            "worker_seconds": 10.366858957975637
+          }
+        ]
+      },
+      {
+        "name": "framing",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/framing",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/framing/.stud/builds/build_4fb2a14269004e3f8a305ea6002dcde2",
+            "assets": 2,
+            "build_id": "build_4fb2a14269004e3f8a305ea6002dcde2",
+            "checkpoint": "45dd0f8848b2f647dc1719008821e502e8d5570a",
+            "checks": {
+              "complete": true,
+              "evaluated": 384,
+              "requested": 384,
+              "uncovered_objects": []
+            },
+            "estimate_id": "0525b08261b77cf44aca3924d877f1c58ccf3de5344a3d2ab455d9031a681896",
+            "estimate_seconds": 0.009556500008329749,
+            "evaluate_seconds": 3.369172374950722,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.5591939580044709,
+            "historical_read_seconds": 0.14764195797033608,
+            "label": "baseline",
+            "manifest_bytes": 612142,
+            "mesh_bytes": 896,
+            "parts": 360,
+            "peak_memory_bytes": 484507648,
+            "plan_pages": 14,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/framing/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.655093499983195,
+            "preview_bytes": 2103448,
+            "preview_count": 13,
+            "query_types": {
+              "length": {
+                "count": 24,
+                "elapsed_seconds": 0.0003454587422311306
+              },
+              "stock_fit": {
+                "cache_hits": 358,
+                "count": 360,
+                "elapsed_seconds": 0.008549286634661257
+              }
+            },
+            "source_capture_seconds": 0.0019445839570835233,
+            "source_id": "851a3a03c9421d1576d454a54e0db6a70bf4f6cc928b438e69a0fdcc6beb3617",
+            "stages": {
+              "archive_seconds": 0.030778869579080492,
+              "execution_seconds": 2.044681292027235,
+              "fabrication_audit_seconds": 0.0010972919990308583,
+              "preview_publication": {
+                "coalesced": 11,
+                "published": 13,
+                "snapshot_seconds": 0.015284082968719304,
+                "write_seconds": 0.0706914989859797
+              },
+              "solid_queries_seconds": 0.009480125037953258,
+              "tessellation_seconds": 0.03485854103928432
+            },
+            "total_seconds": 6.9196552080102265,
+            "worker_seconds": 3.1900927500100806
+          }
+        ]
+      },
+      {
+        "name": "mansion",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/mansion",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/mansion/.stud/builds/build_3b3e26c20020406c978c1473cfb8b7bc",
+            "assets": 114,
+            "build_id": "build_3b3e26c20020406c978c1473cfb8b7bc",
+            "checkpoint": "59b55b8f8987674b5fca5ef3c6d36bc1725ef947",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "estimate_id": "fb477321ed79eb3afcbf812137186eb949748e95f2b4b2ef24f8a4b4ca6ac714",
+            "estimate_seconds": 0.5781496249837801,
+            "evaluate_seconds": 255.3736674579559,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.8092302919831127,
+            "historical_read_seconds": 0.3696775829885155,
+            "label": "baseline",
+            "manifest_bytes": 20904363,
+            "mesh_bytes": 68640,
+            "parts": 6630,
+            "peak_memory_bytes": 906559488,
+            "plan_pages": 1,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t/mansion/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": {
+              "include_lists": false,
+              "views": [
+                "house.floor_overview",
+                "house.west.level1.kitchen.front.elevation",
+                "house.west.level2.kitchen.roof.bearing_detail"
+              ]
+            },
+            "plan_seconds": 9.590745457971934,
+            "preview_bytes": 238376097,
+            "preview_count": 94,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 29.46819921990391
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.0043684919946826994
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 126.56359532097122
+              },
+              "stock_fit": {
+                "cache_hits": 6516,
+                "count": 6630,
+                "elapsed_seconds": 0.39533250097883865
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 24.371188131626695
+              }
+            },
+            "source_capture_seconds": 0.0022913749562576413,
+            "source_id": "f9e09dbc2d1935a3f3e8c55f3d7bd7f1946f6509798c9c240a9fad30b3e86794",
+            "stages": {
+              "archive_seconds": 0.7080221221549436,
+              "execution_seconds": 72.56146712502232,
+              "fabrication_audit_seconds": 0.12150591699173674,
+              "preview_publication": {
+                "coalesced": 1289,
+                "published": 94,
+                "snapshot_seconds": 2.256230092199985,
+                "write_seconds": 6.383244669181295
+              },
+              "solid_queries_seconds": 180.83470779203344,
+              "tessellation_seconds": 2.115474296733737
+            },
+            "total_seconds": 267.33722958300496,
+            "worker_seconds": 254.7494977079914
+          }
+        ]
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "root": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-fu4cuu7t"
+  },
+  "portable_runtime_mansion_matches_prior_full_sequence": true
 }

@@ -5,11 +5,11 @@ import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 
-const cli = path.resolve(process.argv[2] || (process.platform === 'darwin'
+let cli = path.resolve(process.argv[2] || (process.platform === 'darwin'
   ? 'src-tauri/target/aarch64-apple-darwin/release/bundle/macos/stud.app/Contents/MacOS/stud'
   : 'src-tauri/target/x86_64-pc-windows-msvc/release/stud.exe'));
-const resources = process.platform === 'darwin' ? path.resolve(path.dirname(cli), '../Resources') : path.dirname(cli);
-const python = path.join(resources, process.platform === 'win32' ? 'runtime/python.exe' : 'runtime/bin/python3');
+let resources = process.platform === 'darwin' ? path.resolve(path.dirname(cli), '../Resources') : path.dirname(cli);
+let python = path.join(resources, process.platform === 'win32' ? 'runtime/python.exe' : 'runtime/bin/python3');
 const temporary = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'stud-installed-')));
 const project = path.join(temporary, 'Project with spaces & café');
 const env = { ...process.env, HOME: temporary, APPDATA: temporary,
@@ -41,9 +41,10 @@ async function firstLine(child) {
 async function bundleFiles() {
   return (await fs.readdir(resources, { recursive: true })).sort();
 }
-const beforeFiles = await bundleFiles();
+let beforeFiles = await bundleFiles();
 let server;
 let blocker;
+let updateEvidence;
 try {
   for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
     'skills/stud-design/references/stud-integration.md', 'engine/README.md',
@@ -113,6 +114,25 @@ try {
   const conflict = spawnSync(python, ['-B', '-E', '-s', '-c', lockScript.replace('time.sleep(60)', ''), lockPath], { env, encoding: 'utf8' });
   assert.notEqual(conflict.status, 0, 'Viewer must hold the shared update lock');
   await stop(server); server = null;
+  if (process.env.STUD_SIGNED_UPDATE_CONFIG) {
+    assert.deepEqual(await bundleFiles(),beforeFiles,'Project setup must not write into the candidate app');
+    const {installSignedCandidate}=await import('./native-update-probe.mjs');
+    const originalHead=saved.checkpoint;
+    await fs.writeFile(path.join(project,'user-notes.txt'),'Keep this unrelated project file.\n');
+    const result=await installSignedCandidate(process.env.STUD_SIGNED_UPDATE_CONFIG,env);
+    cli=result.cli;
+    resources=process.platform==='darwin'?path.resolve(path.dirname(cli),'../Resources'):path.dirname(cli);
+    python=path.join(resources,process.platform==='win32'?'runtime/python.exe':'runtime/bin/python3');
+    beforeFiles=await bundleFiles();
+    assert.equal(JSON.parse(command('status',project)).option.head,originalHead);
+    command('stop',project);
+    const deadline=Date.now()+15000;
+    while(await fs.access(path.join(project,'.stud/endpoint.json')).then(()=>true,()=>false)) {
+      assert.ok(Date.now()<deadline);await new Promise(resolve=>setTimeout(resolve,50));
+    }
+    assert.equal(await fs.readFile(path.join(project,'user-notes.txt'),'utf8'),'Keep this unrelated project file.\n');
+    updateEvidence={...result,project_id:state.project_id,checkpoint:originalHead};
+  }
   const copy = path.join(temporary, 'Reopened copy');
   await fs.cp(project, copy, { recursive: true });
   server = spawn(cli, ['serve', copy, '--port', '0', '--no-open'], { cwd: temporary, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -148,6 +168,8 @@ try {
   await stop(blocker, false); blocker = null;
   assert.match(command('--version'), /^stud /);
   assert.deepEqual(await bundleFiles(), beforeFiles, 'CLI commands must not write caches into the installed app');
+  if(updateEvidence) await fs.writeFile(process.env.STUD_UPDATE_EVIDENCE||path.join(temporary,'update-evidence.json'),
+    JSON.stringify({...updateEvidence,preserved:{project:true,checkpoint:true,prompt:true,prices:true,pdf:true,unrelated_file:true},smoke_passed:true},null,2)+'\n');
   console.log('Installed-app smoke test passed: pinned CAD/PDF/Git runtime, native geometry, request save/retry, quotes, prompts, vector plans, full-folder reopen, catalog, legacy project and update locking.');
 } finally {
   if (server) await stop(server);
