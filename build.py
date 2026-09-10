@@ -1,4 +1,4 @@
-"""Compile once: python3 build.py. No third-party Python dependencies."""
+"""Build a project using its declared engine and shared session interface."""
 import csv, hashlib, io, json, os, tempfile
 from pathlib import Path
 from runpy import run_path
@@ -44,6 +44,16 @@ def parts_csv(data):
 
 def build(project_dir=None):
     root = Path(project_dir or Path.cwd()).resolve()
+    if (root / 'stud.json').is_file():
+        from stud.client import Client
+        client = Client(root)
+        active = client.get('/api/v1/status')['request']
+        job = client.command('evaluate', {'request_id': active['id']}) if active and Path(active['workspace']).resolve() == root else client.command('evaluate_checkpoint', {'display': True})
+        result = client.wait(job['id'])
+        print(json.dumps(result))
+        if result['status'] != 'complete':
+            raise SystemExit(1)
+        return client.get('/api/v1/builds/' + job['id'] + '/manifest.json')
     data=compile_project(root)
     out=root/'output/model';out.mkdir(parents=True,exist_ok=True)
     from validate import validate

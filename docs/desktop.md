@@ -1,8 +1,9 @@
 # stud desktop
 
-stud is distributed as a Tauri v2 application that includes the Python runtime,
-modeling engine, browser viewer, and native `stud` command. Node and a system
-Python installation are not required on the user's computer.
+stud's Tauri v2 build includes Python, CadQuery, the vector PDF runtime, Git,
+the browser viewer and the native `stud` command. Node and system Python/Git
+installations are not required on the user's computer. Verified platform and
+release results are recorded in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 The app includes the `stud-design` Codex skill at `skills/stud-design` in its
 resources (`stud.app/Contents/Resources` on macOS; the installation directory on
@@ -72,11 +73,12 @@ npm ci
 npm run desktop:build
 ```
 
-The build script downloads a pinned, SHA-256-verified Python standalone archive
-from Astral's official release, compiles the small Rust CLI, and stages an explicit
-list of engine files and viewer dependencies. Local projects, tests, development
-tools, and caches are not shipped. Third-party notices shipped with Python and
-Three.js remain in the bundle.
+The preparation script downloads SHA-256-verified Python and Git archives, installs
+the platform-compatible CAD/PDF packages with `--require-hashes` from
+`requirements.lock`, runs a native solid/PDF import trial, and records their hashes
+and versions. The build then compiles the Rust CLI and stages engine/docs/examples
+and viewer dependencies. Local projects, tests and caches are not shipped. Upstream
+license files remain with the bundled runtimes; see [dependency notices](../desktop/THIRD_PARTY_NOTICES.md).
 
 Supported targets:
 

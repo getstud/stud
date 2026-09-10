@@ -1,105 +1,57 @@
 ---
 name: stud-design
-description: Create, revise, and check physical designs in Stud, the Python-based 3D workshop. Use for furniture, storage, workbenches, enclosures, and structures modeled as named parts with material takeoffs. Covers assembly generation, geometric validation, and viewer review.
+description: Create, revise, and check physical designs in Stud using CadQuery, versioned project requests, material purchases, and drawing packets. Use for furniture and construction projects, including existing Stud designs.
 ---
 
 # Stud design
 
-Use the installed Stud app for design projects, keeping design edits in the project’s files and annotations. Design the requested object and its construction assemblies: geometry, connection requirements, and material quantities come from the same dimensions. For buildings, keep scope on the structure and construction finishes; add furnishings or interior decoration only when explicitly requested. Express intended activities as space and clearance requirements. Explicit furniture-fabrication requests remain supported. Use this workflow for the scope requested: a finish edit needs a targeted rebuild and review; a new design needs its interfaces established before detailed geometry.
+Use the installed Stud app for physical design projects. Keep the installation separate from the user's project. For development of Stud itself, implement reusable behavior and exercise it with labeled fixtures; missing site or product choices do not block tool development.
 
-## Establish the working context
+## Establish the project and its format
 
-Identify whether the request concerns a construction project or development of Stud itself. For tool, skill, builder or validation work, implement reusable behavior and exercise it with explicitly labeled test inputs. Missing real-world site or product selections belong to the construction agent's intake workflow; they do not block tool development. Use the project-design workflow below when the user is actually commissioning or revising a physical design.
+Locate `stud`, verify `stud --version` and `stud doctor`, and identify the target folder. Use `stud projects --json` when the location is unknown. Read [Stud integration](references/stud-integration.md) for the request commands and installed documentation.
 
-Locate the installed `stud` command (or source checkout) and target project separately. Verify the installation with `stud --version` and `stud --help`. A project has `design.py` exporting `project`; the installation supplies the CLI, model API, viewer, and validation engine. If Stud is unavailable, identify the missing dependency instead of constructing a substitute viewer.
+A current project has `stud.json` with `engine: cadquery` and ordinary Python exporting `model = Model(...)`. Older projects exporting `project` through the legacy parts API retain their existing workflow. Inspect the manifest before choosing the API or coordinate units; do not reinterpret legacy coordinates or records as native CadQuery data.
 
-For project setup, commands, modeling documentation, or unfamiliar validation behavior, read [Stud integration](references/stud-integration.md). Consult the installed modeling documentation as needed; a Stud source checkout is not required.
+Read the existing source, saved assumptions, current status and prompts before revising it. Keep stable object IDs and deliberate local exceptions. Execute designs only from trusted sources.
 
-For an existing project, inspect its generators, assumptions, comments, validation report, and model revision before editing. Preserve unrelated model choices, stable IDs, annotations, and quotes. Treat executable designs as trusted local code only when their source is established.
+## Open the viewer and begin the request
 
-## Open the viewer before building
+For a new design, initialize its project and open `stud serve` before writing geometry. For an existing design, reuse its viewer. With the Codex browser, use `--no-open` and open the printed URL in a visible tab. Keep that viewer available throughout the work.
 
-For a new design, initialize its project, start `stud serve`, and confirm the viewer is open before writing the design geometry. For an existing design, open or reuse its viewer before making changes. When using Codex's in-app browser, start the server with `--no-open` and open its printed URL in a visible browser tab. Keep that tab and server running throughout the work.
+For every design-changing request:
 
-Build the design in coherent assembly stages, saving a valid model and checking that the viewer receives each revision before adding the next stage. The viewer animates new parts in model order after each successful rebuild. Add supports and framing before panels and finishes so the user can watch the design develop. Preserve stable part IDs across revisions; failed builds retain the last good preview. Keep validation requirements accurate at every stage and label incomplete relationships as provisional.
+1. Inspect `stud status`. Read the active option ID and head; reuse an existing active request only when it belongs to this work.
+2. Call `stud begin` with the expected head, intent, and a stable client key. Edit only the returned isolated workspace.
+3. Save runnable source in coherent construction stages. File watching evaluates those stages; explicit `source` and `evaluate` commands provide exact source/build identities. Read job state and match it to the displayed build.
+4. After the requested revision is ready, capture the final source ID and call `stud finish` with that ID, a summary, and any addressed prompt IDs. Wait for the job and report its checkpoint and outcome. Reuse the same request/key on retries.
 
-Let the live viewer present each build stage: the camera gently recenters and fits the growing model automatically. Do not call WebMCP `show` while building; it explicitly reframes the view and interrupts automatic camera tracking. Verify revisions through the visible revision indicator or read-only model API instead. User camera interaction disables automatic tracking until reload; respect that choice and leave the camera alone. Reduced-motion preferences suppress automatic movement.
+Watching files does not finalize conversation requests. A checkpoint may honestly record failed checks or generation. Cancellation retains the unfinished workspace; it does not discard source. Late writes belong to the canceled workspace and must not be copied over another option.
 
-## Turn intent into parameters and interfaces
+Let the existing addition animation and camera tracking present coherent stages. User camera interaction takes precedence. Reserve `show` for deliberate review, and supply the displayed build ID. A waiting focus job needs a real viewer acknowledgement before claiming the camera moved.
 
-Keep architectural choices in the project specification and builder arguments. Examples demonstrate coordinated details; use the user’s preferences and your judgment to adapt their form, proportions, finishes and assembly grouping. Reuse the geometric requirements that make the chosen detail work.
+## Author the design and its evidence
 
-Keep a single authoritative specification in the project: requested dimensions, datum definitions, material sizes, openings, finishes, and provisional choices. State whether a dimension is outside framing, finished size, clear space, nominal stock, or actual stock. Normalize geometric calculations to inches; world X/Y/Z means width/depth/elevation.
+Use ordinary CadQuery operations, then register completed shapes with `stud.cad.Model`. The native interface uses **millimeters**, with X/Y horizontal and Z up; `inches()` converts imperial inputs. Assembly locations are rigid local placements. Keep meaningful persistent IDs across parameter edits; shape hashes and face indices are not semantic identities.
 
-Carry forward accepted decisions. Use stated assumptions for reversible aesthetic or layout choices; request missing information when it materially determines fit, function, or required design evidence. Ask only for information relevant to the current scope. Use Codex `request_user_input` when available and callable in the current mode, or Claude `AskUserQuestion`. Otherwise use an available asynchronous question tool or concise chat fallback. Batch related questions, preserve answers, and wait for required choices while progressing independent work.
+Read the installed `docs/cadquery.md` before first use of registration, native requirements, estimating demands, or drawings. Reuse `stud.construction.workbench`, `rotated_opening`, `roof_joint`, and the `stud.buildings` framing helpers when their documented scope fits. For other geometry, write a focused Python function. CadQuery is the geometry language; Stud does not require every operation to use a custom primitive.
 
-For new framed buildings or changes to site conditions, foundations, member sizing, enclosure, ceiling intent, overhead clearance or roof ties, read [Framed buildings](references/framed-buildings.md) before generating geometry. Follow its site-input workflow when location affects the design. Ask for wall framing (such as 2×4 or 2×6) and roof style unless the user or existing project already specifies them. Carry wall framing into wall depth, openings, and material quantities, honoring an explicitly chosen alternative wall system. Establish roof form before placing roof-dependent walls; do not silently substitute another form.
+Keep one specification for outside/finished dimensions, actual stock, clear openings, datums, and accepted choices. Derive mating surfaces and their dependent members from that specification. Model each physical part once, including notches and bores. Record its original stock frame, blank size, operations, and material demand separately from its finished shape.
 
-Define dependent surfaces before placing parts. Examples:
+For a new building or a change affecting site, member sizing, foundations, roof form, enclosure or ties, read [Framed buildings](references/framed-buildings.md). Apply its intake to the requested construction scope and preserve existing answers. Examples are fabrication studies; their native geometry checks do not supply site loads or structural approval.
 
-- Cabinet: outside envelope → carcass thickness → clear opening → drawer/door allowance.
-- Workbench: finished height → top thickness → support height → foot adjustment.
-- Framed structure: foundation → floor datum → wall top → roof plane → edge/soffit finish.
+Build support assemblies before covering them. Use `model.batch()` for coherent groups and explicit `replace=True` for a replacement. Regenerate named references after replacement; unresolved references must remain visible. Use one opening definition for displaced framing and sheet cuts. Preserve deliberate per-instance exceptions in the owning parameters.
 
-Give every shared surface one calculation. Derive mating members from that surface rather than copying coordinates. Finish thickness and clearances participate in the same calculations; make the measurement reference explicit when finishes change the outside size.
+Declare measurable intent: lengths, clearance, collisions, stock fit, bearing direction and area, and continuous support behind actual panel edges. A contact is not a fastening specification. Declare connections, hardware, and unresolved evidence. A pass count alone does not establish complete coverage.
 
-**Ready to generate:** the requested form and its critical mating surfaces are defined, with material unknowns labeled rather than silently fixed.
+Record actual stock lengths/kerf and explicit sheet layouts. Give every physical part a purchasing basis; distinguish purchased packs from installed quantities. Preserve quote supplier, source, date, currency and purchase unit. Missing prices remain missing. Price-only changes use the records interface and do not rebuild geometry.
 
-## Generate assemblies with their requirements
+## Review, compare and deliver
 
-Recommend a bottom-up sequence for new structures: foundation and supports → beams, rims, joists and required blocking → subfloor → wall framing, openings, corner backing and lapped caps → roof framing, bearing and overhang supports → enclosure, units, trim and soffits → requested interior construction finishes. Plan opening and finish interfaces first; adapt assembly stages to the construction method. For other objects, follow their support and interface dependencies. A shell preview is appropriate for exploring proportions; label its thicknesses and quantities as provisional until detailed.
+Inspect affected geometry and native findings in the same build. Partial current geometry and a previous complete model have different identities; do not claim a previous result proves the current edit. Match measurements and review prompts to source/build/checkpoint context. Retain original captures and unresolved/deleted targets; resolve a prompt only after addressing its request.
 
-Model wood-framed walls as individual studs, plates, and opening framing, with sheathing and finishes as separate parts. A single solid wall is only a provisional envelope for an explicitly requested massing or shell preview; replace it with individual framing members when developing the wall design.
+Use Versions to inspect original saved estimates, compare geometry under historical or common prices, create alternatives, and restore an older design as a new request. Inspection and comparison do not retarget the active editing workspace. Finish or cancel an active writer before activating another option.
 
-Use existing Stud builders before implementing another. `floor_frame`, `wall_frame`, `wall_enclosure`, `gable_roof`, `door_unit` and `window_unit`, when available, generate construction members and requirements; see the installation's `docs/construction.md`. `WallFrame` and `framed_opening` handle wall transforms and opening framing. For a new recurring assembly, use a focused builder returning stable part IDs or roles, interface geometry, and the requirements it owns.
+Generate plans for an explicit checkpoint. Check dimensions, stock frames/cuts, sheet arrangements, step prerequisites and part/connection references together. For deliverable PDFs, render and inspect every page for clipping, scale, legibility and usable details. A revision creates another immutable packet; retain the old one.
 
-Use semantic IDs such as `cabinet.left.side` or `bench.top.panel.01`; preserve them when the same physical part changes. Orient repeated assemblies in local coordinates, then transform consistently into world coordinates. Stud boxes rotate about their centers.
-
-Register real stock cross-sections and available lengths. Keep a notched or tapered member as one physical part with its original blank dimensions and cut length. Choose only geometry supported by both the renderer and validator; report unsupported geometry explicitly. When the installed app cannot represent a needed shape, report the limitation and any approximation used in the design.
-
-Generate openings once and share their volumes with framing, panels, trim, and hardware. Resolve host framing before adding an opening builder, and include subsequently created host finishes in its clearance scope. Exclude intentional occupants, such as a door leaf, from that scope; check their fit separately.
-
-## Add environment context
-
-For trees, terrain, or decorative objects outside the construction design, read the installed `engine/docs/environment.md` (or checkout `docs/environment.md`). Use `project.context_asset` with a project-local Three.js factory under `assets/`. Keep requested dimensions in its parameters and use inches with Z up. Environment assets are visual context; declare any necessary construction clearance separately. Verify the asset loads in the viewer's Environment section and inspect its placement with Fit scene.
-
-## Validate relationships while building
-
-Enable the installed version's automatic solid-collision and stock-fit checks for new designs. When revising a legacy project, inspect its coverage before opting in; expose newly discovered gaps without discarding existing rules.
-
-Each assembly declares the relationships its function requires:
-
-| Requirement | Check to use when supported |
-|---|---|
-| Interference between actual solids | `solid_collision` |
-| Mating faces with measurable support/contact | `minimum_contact` |
-| Faces at a shared elevation or offset | `face_alignment` |
-| Usable opening volume | `opening_clearance` |
-| Panel edges supported by members | `panel_support` |
-| Obtainable lumber or sheet blanks | `stock_fit` |
-
-Derive geometric thresholds from the intended interface. Alignment does not establish contact, and contact does not establish fastening or strength. Review coverage by relevant category; a part checked for stock can still have no support check. For moving parts, evaluate necessary clearance states rather than treating one closed pose as a motion check.
-
-Keep intentional joint exceptions specific to a part pair with a reason. A known incomplete draft requirement remains visible as a warning with its reason; unavailable evidence remains unverified. Never weaken a check merely to obtain a successful build.
-
-**Ready to cover an assembly:** its required members and interface checks exist, and critical relationships pass or the requested concept identifies the specific unresolved evidence. Automatic collision and stock checks cannot detect an omitted construction detail; a general construction disclaimer does not replace supported geometry or assembly requirements. Surfaces and finishes must not conceal unresolved geometry from the review.
-
-## Keep the revision loop short
-
-Edit the project’s owning parameter or assembly helper → build → read findings → correct the cause → inspect the affected assembly in the viewer.
-
-Batch related part changes into one coherent edit. Use numerical validation for dimensions, clearances, and support; use the browser for form, orientation, accessibility of parts, and visual interpretation of connections. Reuse one running viewer. Inspect isolated critical joints before reviewing the complete exterior. Match the displayed revision to the successful build: a failed edit can leave the last good preview visible.
-
-After the build sequence is complete, use the viewer’s WebMCP `show` site tool when a deliberate review view is needed for changed parts or critical joints. Open the project’s viewer in the connected browser, discover its site tools, and follow [WebMCP viewer review](references/stud-integration.md#webmcp-viewer-review) for targeting and revision checks. If the browser does not expose WebMCP, use the viewer controls.
-
-Make corrections in the project’s owning parameters and assembly helpers so a clean build directly produces the intended model. If an app or viewer limitation blocks review, describe the limitation and the affected design evidence.
-
-For a small edit, run checks affected by its dependencies plus existing automatic checks. Broaden investigation when a failure or an interface change warrants it. For an audit, review requirement coverage and omissions as well as failures; a pass count alone cannot establish completeness.
-
-## Close the requested scope
-
-Confirm the final revision builds, affected interfaces have meaningful checks, and the viewer shows that revision. Preserve warning and unverified findings in the handoff.
-
-Before presenting quantities for purchasing, examine lumber blanks/kerf, sheet fit and layout, finish coverage and waste, hardware allowances, and unpriced items. Stud's sheet area estimates do not establish a cutting layout; a zero unpriced subtotal is not an estimate. Keep a physical part's purchase quantity separate from its decorative representation.
-
-Report what changed, what was verified, and the material unresolved choices. Distinguish concept, checked geometry, and fabrication/construction readiness. Geometry checks do not certify loads, material capacity, connections, or compliance; obtain applicable evidence when that is within the task's scope. Supply a detailed review artifact only when the scope or findings justify one.
+Close the scope when the final request has a classified outcome and checkpoint, the viewer identifies that revision, and the required quantities, findings and deliverables agree. Report specific unresolved construction or pricing evidence alongside what was verified. Keep a concept's remaining work distinguishable from a packet ready for fabrication.

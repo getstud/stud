@@ -42,7 +42,8 @@ jobs:
     if: ${{ !cancelled() && (needs.release.result == 'success' || (github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
     strategy:
       fail-fast: false
-      max-parallel: 1  # tauri-action merges latest.json by read/replace; serialize writers.
+      # Tagged jobs share a release manifest; branch verification has no shared writer.
+      max-parallel: ${{ startsWith(github.ref, 'refs/tags/') && 1 || 3 }}
       matrix:
         include:
           - runner: macos-14
@@ -87,6 +88,10 @@ jobs:
             src-tauri -> target
             desktop/launcher -> target
       - run: npm ci
+      - name: Install pinned CAD and PDF test runtime
+        run: |
+          python -m pip install --require-hashes -r requirements.lock
+          python -m pip install pypdf==6.0.0
       - run: npm test
       - name: Verify tag and configure signed updates
         if: startsWith(github.ref, 'refs/tags/')
@@ -124,9 +129,20 @@ jobs:
         run: |
           codesign --verify --deep --strict 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
           xcrun stapler validate 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app'
-      - name: Smoke test installed macOS app
+      - name: Install DMG and smoke test macOS app
         if: runner.os == 'macOS'
-        run: node scripts/smoke-desktop.mjs 'src-tauri/target/${{ matrix.triple }}/release/bundle/macos/stud.app/Contents/MacOS/stud'
+        shell: bash
+        run: |
+          image=$(find 'src-tauri/target/${{ matrix.triple }}/release/bundle/dmg' -name '*.dmg' -print -quit)
+          mount="$RUNNER_TEMP/stud-install-media"
+          installed="$RUNNER_TEMP/stud-installed"
+          mkdir -p "$mount" "$installed"
+          hdiutil attach "$image" -nobrowse -readonly -mountpoint "$mount"
+          trap 'hdiutil detach "$mount" || true' EXIT
+          ditto "$mount/stud.app" "$installed/stud.app"
+          hdiutil detach "$mount"
+          trap - EXIT
+          node scripts/smoke-desktop.mjs "$installed/stud.app/Contents/MacOS/stud"
       - name: Install and smoke test Windows package
         if: runner.os == 'Windows'
         shell: pwsh

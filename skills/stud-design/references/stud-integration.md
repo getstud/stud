@@ -1,71 +1,60 @@
 # Stud integration
 
-Use this reference when creating a design project, operating the build/viewer loop, or configuring design checks. Use the installed `stud` command and its bundled modeling documentation.
+Use this reference for the installed CLI, project lifecycle and precise version targeting. Run `stud --help` and the relevant command's `--help` for its current flags.
 
-## Locate and operate
+## Installation and format
 
-Verify `stud --version` and `stud --help`. Use `stud projects --json` to find remembered projects when the target folder is unknown. Keep design projects outside the app installation. If the command is unavailable, enable it through Stud’s desktop setup before continuing.
+Run `stud --version` and `stud doctor`. Desktop resources include Python, CadQuery, PDF dependencies, Git, and the engine/docs/examples. In a source checkout, install the pinned requirements into Python 3.13 and set `STUD_PYTHON` to that interpreter.
 
-Reusable builders are documented in the installed `engine/docs/assemblies.md` and `engine/docs/construction.md`. API sources and documentation are in the app’s `Contents/Resources/engine/` on macOS or the installation directory on Windows. A Stud source checkout is not required.
+The current format is identified by `stud.json`. `design.py` exports `model` from `stud.cad.Model`. Legacy projects without that manifest use the older API exporting `project`, with inches and `annotations/`; keep their existing API. Read `docs/workshop.md` only for legacy authoring, and `docs/cadquery.md` for the current format. These files are bundled under `engine/docs/` in desktop resources.
 
-Commands below use placeholders for verified absolute project paths:
+## One request, one editing workspace
+
+Use verified paths and IDs returned by commands in place of these placeholders:
 
 ```sh
-stud init /path/to/new-project --name "Project name"
-stud serve /path/to/project --port 8766
-# After the viewer is open, edit and build the design in stages.
-stud build /path/to/project
-stud validate /path/to/project --json
-stud validate /path/to/project --strict
+stud init /path/to/project --name "Garage workbench" --example workbench
+stud serve /path/to/project --no-open
+stud status /path/to/project
+stud begin /path/to/project --expected-head HEAD_FROM_STATUS --intent "Widen the bench" --key request-unique-key
+# Edit design.py inside the returned workspace.
+stud source /path/to/project --request REQUEST_ID
+stud evaluate /path/to/project --request REQUEST_ID --source SOURCE_ID --wait
+stud finish /path/to/project --request REQUEST_ID --source SOURCE_ID --summary "Wider bench" --wait
 ```
 
-Initialization requires a new destination; editing an existing design uses its current project directory. Choose an unused port and reuse the server for subsequent edits. Run these commands against the design project folder; the installed command supplies the runtime.
+A repeated key returns the existing operation. Capture source again after an edit; a source ID covers the entry point, declared Python helpers and inputs, not quotes. `finish` freezes matching source and records and saves exactly one changed checkpoint. Read its job outcome; a saved generation failure is not a successful model.
 
-`design.py` must export the variable `project`. Helpers alongside it, or under `src/`, are supported by the automatic rebuild watcher. Preserve `annotations/comments.json` and `annotations/prices.json` with the project.
+`stud job --id JOB_ID --wait` follows an operation. `stud cancel --request REQUEST_ID` stops acceptance of its builds and preserves the workspace. `stud stop` closes the project's detached coordinator. A status read never executes geometry.
 
-## Observe the right revision
+## Viewer and feedback
 
-- `/api/model`: current successfully compiled model and revision.
-- `/api/validation`: latest findings, coverage and possible build error.
-- `/api/comments`: saved model feedback; use stable referenced part IDs.
-- `/api/pricing`: quantities, quotes and unpriced lines.
-- `/api/parts.csv`, `/api/materials.csv`, `/api/costs.csv`: generated exports.
-- `output/model/validation.json`: local report, also written when validation fails.
+Open the URL printed by `serve` in the chosen browser and reuse the tab. Current APIs live under `/api/v1/`: `status`, `model`, `events`, `prompts`, `prices`, `checkpoints`, and `options`. All project actions go through the loopback coordinator; browser writes require the same origin and JSON content type, and the CLI uses that same JSON command endpoint.
 
-An invalid build retains the last good model/CSV exports. Compare the report revision with the displayed model before interpreting highlights or claiming a correction is live.
+`stud prompts` reads feedback without submitting it to an agent. Prompts retain IDs, original targets, source/build anchors and screenshots. Use `finish --addressed-prompt PROMPT_ID` to associate completed work. A deleted object or reference stays unresolved and retains its original capture.
 
-Project Python changes normally rebuild automatically while `stud serve` is running. Use the available browser-control tool to interact with the existing tab; API reads can inspect data without browser navigation.
+For deliberate focus, write a JSON input using actual IDs:
 
-## WebMCP viewer review
+```json
+{"expected_build":"BUILD_ID","objects":["bench.top"]}
+```
 
-Reserve `show` for deliberate review after the build sequence is complete. During staged building, let automatic camera tracking present each revision and verify it through the visible revision indicator or `/api/model`; do not call `show`. Respect user camera takeover, which disables tracking until reload.
+Then run `stud show /path/to/project --input focus.json --wait`. A result waiting for a viewer is not an acknowledgement. Regions in this native command are millimeters. The legacy WebMCP presentation adapter continues to use its own documented inch coordinates; do not pass native millimeters directly to it.
 
-For review, use the existing viewer tab and discover its exposed tools. Stud exposes one WebMCP site tool, `show`; it needs no separate MCP server. Use the browser’s site-tool interface to invoke it.
+For a native measurement:
 
-- `{}` frames the complete design in perspective.
-- `{"part_ids":["frame.stud.01"],"view":"front"}` frames and outlines specific parts. Use IDs from the current model, replacing this example ID.
-- `{"region":{"min":[0,0,0],"max":[24,24,96]},"view":"perspective"}` frames and outlines a joint or area.
+```json
+{"build_id":"BUILD_ID","source_id":"SOURCE_ID","targets":["beam:start","beam:end"]}
+```
 
-Supply either `part_ids` (1–100 unique IDs) or `region`, or neither for the whole design. Region coordinates are inches in world X/Y/Z; each maximum must exceed its minimum. Views are `perspective`, `front`, `side`, and `top`. Add `expected_revision` using the successfully built model’s revision when reviewing a specific edit.
+Run `stud measure /path/to/project --input measurement.json --wait`. Named references resolve against the archived native shape. Picked measurements include the object and point in millimeters and report snapping/tolerance evidence. Stale/missing targets produce explicit errors.
 
-`show` reveals all assemblies, exits exploded and transparent display, and clears previous highlights while retaining surrounding geometry. A single targeted part is also selected in the inspector. Use targeted views to explain connections and changes; use `show` with no target or **Fit model** to return to the full design.
+## Alternatives and packets
 
-Check `ok` and the returned `model_revision`. A successful call confirms the displayed model, not geometric correctness or user approval. On `ok: false`, inspect the structured error: correct stale IDs, reconcile a revision conflict with the latest build, or resolve a build error before retrying. A failed rebuild can leave the previous valid model visible.
+`stud checkpoints` and `stud options` list stable identities. `stud inspect --checkpoint COMMIT --wait` changes the read-only displayed version; `stud live` returns to the current design. Neither changes an active writer.
 
-If WebMCP is unavailable, use the viewer’s normal controls and verify the displayed revision. `show` controls presentation; edit geometry in the project files and read findings, comments, or prices through the project reports or local API described above.
+`stud compare --left COMMIT --right COMMIT --mode historical --wait` uses each original saved estimate. `--mode common_price` uses one explicit saved quote basis and each design's own quantities/assumptions. Old estimates are not recalculated to masquerade as originals.
 
-## Modeling documentation
+Create an option with `option-create --base COMMIT --name NAME`. Activate with `option-activate --option OPTION_ID --expected-head HEAD` once any writer is finished/canceled. `restore --checkpoint COMMIT --option OPTION_ID --expected-head HEAD` begins a new request from old design inputs; evaluate and finish it normally. Quotes and review history remain project-wide.
 
-The installed app bundles design documentation under `engine/docs/` in its resources (`/Applications/Stud.app/Contents/Resources` for a typical macOS installation; the installation directory on Windows). Read only the guide needed for the current design step:
-
-- `workshop.md`: creating parts, materials, dimensions, comments, pricing, and exports.
-- `assemblies.md`: using the wall and opening assembly helpers.
-- `validation.md`: configuring requirements, tolerances, scopes, exceptions, and interpreting coverage.
-
-Use the modeling sections of these guides with the installed CLI workflow above. Use documentation matching the installed version. If required documentation or a capability is unavailable, state the gap and continue with supported design operations where possible.
-
-## Design caveats
-
-- Opening helpers require host-wall preparation: remove displaced field studs and cut the bottom plate for doors. Consult the bundled `assemblies.md` when adding an opening.
-- Collision exceptions remain warnings; an independent automatic collision check still evaluates the same parts. Consult the bundled `validation.md` when configuring intentional joints.
-- If supported checks cannot establish a required relationship, report it as unverified. Keep supplemental project calculations distinct from Stud’s validation results. Consult `validation.md` for shape limitations and supported rules.
+`stud plans --checkpoint COMMIT --build BUILD_ID --paper letter --wait` returns an immutable PDF, parts/material CSVs and manifest. Omit `--build` to let the coordinator locate compatible checkpoint geometry. An unavailable original runtime is an explicit reproduction limitation. Print at 100% and check the calibration line; for software acceptance, render every PDF page.

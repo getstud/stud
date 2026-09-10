@@ -23,7 +23,7 @@ export async function machOFiles(directory) {
   return result;
 }
 
-export async function signRuntime(directory = 'src-tauri/resources/runtime') {
+export async function signRuntime(directory = 'src-tauri/resources') {
   if (process.platform !== 'darwin') throw new Error('Runtime signing requires macOS');
   const identity = process.env.APPLE_SIGNING_IDENTITY;
   if (!identity || identity === '-') throw new Error('APPLE_SIGNING_IDENTITY must name a Developer ID certificate');
@@ -67,7 +67,7 @@ export async function signRuntime(directory = 'src-tauri/resources/runtime') {
       run('codesign', ['--force', '--options', 'runtime', '--timestamp', '--sign', identity, ...(keychain ? ['--keychain', keychain] : []), file]);
       run('codesign', ['--verify', '--strict', file]);
     }
-    console.log(`Signed and verified ${files.length} bundled Python executables and native libraries.`);
+    console.log(`Signed and verified ${files.length} bundled Python, CAD, PDF and Git executables and native libraries.`);
   } finally {
     if (searchList) spawnSync('security', ['list-keychains', '-d', 'user', '-s', ...searchList], { stdio: 'ignore' });
     if (keychain) spawnSync('security', ['delete-keychain', keychain], { stdio: 'ignore' });

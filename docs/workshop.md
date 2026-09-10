@@ -1,5 +1,7 @@
 # Workshop guide
 
+This document describes the legacy inch-based `Project` API for existing projects. New projects use CadQuery and explicit request workspaces: follow [CadQuery projects](cadquery.md). `stud init` now creates the current format; do not paste legacy `Project` source into its manifest without an explicit conversion.
+
 A local, agent-first design workshop. Define named parts in Python, inspect them in 3D, check geometry, export material takeoffs, and keep comments and supplier quotes alongside each project.
 
 ## Desktop app

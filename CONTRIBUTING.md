@@ -25,11 +25,16 @@ Viewer JavaScript and CSS changes need a browser refresh; server changes need a 
 
 ### Run from source
 
-Install Python 3.10+ and Node.js/npm. The Python engine uses the standard library; npm installs the viewer and development dependencies.
+Install Python 3.13, Git and Node.js/npm. The CAD/PDF runtime is pinned in `requirements.lock`.
 
 ```sh
 git clone https://github.com/getstud/stud.git
 cd stud
+python3.13 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.lock
+.venv/bin/python -m pip install pypdf==6.0.0
+export PATH="$PWD/.venv/bin:$PATH"
+export STUD_PYTHON="$PWD/.venv/bin/python"
 npm ci
 npm run stud -- init ../my-workshop --name "My workshop"
 npm run stud -- serve ../my-workshop
@@ -40,6 +45,8 @@ Open [localhost:8765](http://127.0.0.1:8765) in your browser or Codex's in-app b
 `init` creates a starter model and requires a directory that does not already exist. Designs live separately from the stud checkout.
 
 ### Modeling API
+
+Current projects use ordinary CadQuery with the registration interface in [cadquery.md](docs/cadquery.md). Changes run in explicit request workspaces and finish as checkpoints. The example below documents the preserved legacy API; it is not source for a new CadQuery manifest.
 
 Designs are stored as Python so agents and contributors can inspect and edit them. A project's `design.py` exposes a `project` object:
 

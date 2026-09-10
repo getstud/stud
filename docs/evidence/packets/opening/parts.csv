@@ -1,0 +1,5 @@
+checkpoint,build_id,part_id,mark,label,blank_mm,operations,cut_label,material
+94b17114795a76cc9e35342552d70aaab3d79cca,build_9c7274f05e794b3ea58d5fd4afbc7e8f,opening.left_jamb,P-D2F94965,opening.left_jamb,"[38, 89, 2100]","[{'finished_length_mm': 2100, 'kind': 'square_cut'}]",C01,lumber.38x89
+94b17114795a76cc9e35342552d70aaab3d79cca,build_9c7274f05e794b3ea58d5fd4afbc7e8f,opening.right_jamb,P-F61350AB,opening.right_jamb,"[38, 89, 2100]","[{'finished_length_mm': 2100, 'kind': 'square_cut'}]",C01,lumber.38x89
+94b17114795a76cc9e35342552d70aaab3d79cca,build_9c7274f05e794b3ea58d5fd4afbc7e8f,opening.header,P-95610023,opening.header,"[976, 89, 140]","[{'finished_length_mm': 976, 'kind': 'square_cut'}]",C02,lumber.89x140
+94b17114795a76cc9e35342552d70aaab3d79cca,build_9c7274f05e794b3ea58d5fd4afbc7e8f,opening.corner_detail,P-9504AB0E,opening.corner_detail,"[70, 70, 6]","[{'kind': 'profile_cut', 'profile_mm': [[70, 0], [0, 0], [0, 25], [45, 70], [70, 70]]}, {'axis': 'Z', 'center_mm': [55, 15], 'diameter_mm': 8, 'kind': 'bore', 'through': True}]",C03,steel.plate.70x70x6
