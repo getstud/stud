@@ -1,6 +1,6 @@
 ---
 name: stud-design
-description: Create, revise, and check physical designs in Stud using CadQuery, versioned project requests, material purchases, and drawing packets. Use for furniture and construction projects, including existing Stud designs.
+description: Create, revise, and check physical designs in Stud using CadQuery, versioned project requests, material purchases, and drawing packets. Use for furniture and construction projects, viewer navigation and guided presentations, estimates, saved versions, and plan delivery.
 ---
 
 # Stud design
@@ -28,7 +28,7 @@ For every design-changing request:
 
 Watching files does not finalize conversation requests. A checkpoint may honestly record failed checks or generation. Cancellation retains the unfinished workspace; it does not discard source. Late writes belong to the canceled workspace and must not be copied over another option.
 
-Let the existing addition animation and camera tracking present coherent stages. User camera interaction takes precedence. Reserve `show` for deliberate review, and supply the displayed build ID. A waiting focus job needs a real viewer acknowledgement before claiming the camera moved.
+Let the existing addition animation and camera tracking present coherent stages. User camera interaction takes precedence. Reserve deliberate camera control for review after a build stage. Native CLI `show` takes the displayed build ID; browser WebMCP uses `expected_revision` from `viewer_context`. A waiting native focus job needs a real viewer acknowledgement before claiming the camera moved.
 
 ## Author the design and its evidence
 
@@ -47,6 +47,8 @@ Declare measurable intent: lengths, clearance, collisions, stock fit, bearing di
 Record actual stock lengths/kerf and explicit sheet layouts. Give every physical part a purchasing basis; distinguish purchased packs from installed quantities. Preserve quote supplier, source, date, currency and purchase unit. Missing prices remain missing. Price-only changes use the records interface and do not rebuild geometry.
 
 ## Review, compare and deliver
+
+For viewer navigation, part inspection, cost questions, saved-version review, plan delivery, or a guided presentation, read [WebMCP viewer control](references/stud-integration.md#webmcp-viewer-control). Discover the tools in the existing viewer tab and use their current schemas. Start from `viewer_context` to resolve the displayed revision and exact part IDs. Use individual controls for immediate requests and `sequence` for a prepared walkthrough; let the user start playback when ready. User navigation or camera takeover interrupts the presentation.
 
 Inspect affected geometry and native findings in the same build. Partial current geometry and a previous complete model have different identities; do not claim a previous result proves the current edit. Match measurements and review prompts to source/build/checkpoint context. Retain original captures and unresolved/deleted targets; resolve a prompt only after addressing its request.
 

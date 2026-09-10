@@ -76,25 +76,29 @@ export class OptionComparison {
   }
   return this.cache.get(option.head);
  }
- async switchOption(reference,{expected_head}={}){
+ cancel(){this.sequence++;this.pending=null;this.onChange(this.state());}
+ async switchOption(reference,{expected_head,signal}={}){
+  signal?.throwIfAborted();
   if(!this.saved)await this.refresh();
-  const option=resolveOption(this.options,reference);
+  signal?.throwIfAborted();const option=resolveOption(this.options,reference);
   if(expected_head&&expected_head!==option.head)throw fail('CHANGED_HEAD','The option changed; read its current checkpoint before comparing.');
   this.beforeSwitch();const sequence=++this.sequence;this.pending=option.id;this.onChange(this.state());
+  const abort=()=>{if(sequence===this.sequence)this.cancel();};signal?.addEventListener('abort',abort,{once:true});
   try{
    const prepared=await this.prepared(option);
    // Serialize only the display commit. Slow preparation cannot steal the view
    // back from a newer tab; later selections never queue behind unused builds.
    const apply=this.commit.catch(()=>{}).then(async()=>{
-    if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
+    signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
     const response=await this.run('inspect_option',{option_id:option.id,expected_head:option.head,comparison_id:prepared.job.id});
+    signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
     if(response?.editing){
      this.saved.active_option=response.editing.option_id;this.saved.option=this.options.find(o=>o.id===response.editing.option_id);
      this.saved.request=response.editing.request_id?{id:response.editing.request_id,intent:response.editing.intent}:null;
     }
-    if(this.displayPrepared)await this.displayPrepared({...prepared.model,cad:{...prepared.model.cad,presentation:'history',option_id:option.id}},response);
+    if(this.displayPrepared)await this.displayPrepared({...prepared.model,cad:{...prepared.model.cad,presentation:'history',option_id:option.id}},response,{signal});
     else await this.refreshModel();
-    if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
+    signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
     const displayed=this.readViewer().model?.cad;
     if(displayed?.option_id!==option.id||displayed?.checkpoint!==option.head||displayed?.build_id!==prepared.model.cad.build_id)throw fail('DISPLAY_INTERRUPTED','The requested option is not displayed yet. Select the tab again.');
     this.pending=null;
@@ -106,39 +110,42 @@ export class OptionComparison {
    await this.commit.catch(()=>{});
    if(error.code==='changed_head')await this.refresh();
    throw error;
-  }finally{if(sequence===this.sequence){this.pending=null;this.onChange(this.state());}}
+  }finally{signal?.removeEventListener('abort',abort);if(sequence===this.sequence){this.pending=null;this.onChange(this.state());}}
  }
- async returnLive(){
+ async returnLive({signal}={}){
+  signal?.throwIfAborted();
   this.beforeSwitch();const sequence=++this.sequence;this.pending='live';this.onChange(this.state());
+  const abort=()=>{if(sequence===this.sequence)this.cancel();};signal?.addEventListener('abort',abort,{once:true});
   const apply=this.commit.catch(()=>{}).then(async()=>{
-   if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
-   await this.run('return_live',{});await this.refreshModel();
-   if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
+   signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
+   await this.run('return_live',{});signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');await this.refreshModel();
+   signal?.throwIfAborted();if(sequence!==this.sequence)throw fail('SUPERSEDED','A newer tab selection replaced this one.');
    if(this.readViewer().model?.cad?.presentation!=='live')throw fail('DISPLAY_INTERRUPTED','The live editing view is not displayed yet. Try returning to it again.');
    this.pending=null;return this.state();
   });this.commit=apply;
-  try{return await apply;}finally{if(sequence===this.sequence){this.pending=null;this.onChange(this.state());}}
+  try{return await apply;}finally{signal?.removeEventListener('abort',abort);if(sequence===this.sequence){this.pending=null;this.onChange(this.state());}}
  }
- async compare(reference){
+ async compare(reference,{signal}={}){
+  signal?.throwIfAborted();
   await this.refresh();const before=this.readViewer().model,baseline=this.state().displayed;
   if(!before)throw fail('MODEL_UNAVAILABLE','Load a design before comparing.');
-  const state=await this.switchOption(reference),after=this.readViewer().model;
+  const state=await this.switchOption(reference,{signal}),after=this.readViewer().model;
   return {baseline,comparison:state.displayed,units:'in',changes:visualDifferences(before,after),state,
    guidance:'The baseline is the actual previously displayed model, including any draft. Inspect the canvas at this retained viewpoint and explain relevant visible differences; do not infer unseen details. The editing target is unchanged.'};
  }
 }
 export function createComparisonTools(controller){
- const tool=(name,description,properties,execute,required=[])=>({name,description,inputSchema:{type:'object',properties,required,additionalProperties:false},annotations:{readOnlyHint:name==='list_options'},execute:async(input={})=>{
+ const tool=(name,description,properties,execute,required=[])=>({name,description,inputSchema:{type:'object',properties,required,additionalProperties:false},annotations:{readOnlyHint:name==='list_options'},execute:async(input={},options={})=>{
   try{
    if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!Object.hasOwn(properties,key))||required.some(key=>typeof input[key]!=='string'||!input[key].trim())||('expected_head' in input&&(typeof input.expected_head!=='string'||!input.expected_head)))throw fail('INVALID_INPUT','Provide only the documented comparison arguments.');
-   return {ok:true,...await execute(input)};
+   return {ok:true,...await execute(input,options)};
   }catch(error){return {ok:false,error:{code:error.code||'COMPARISON_FAILED',message:error.message,...(error.candidates?{candidates:error.candidates}:{})}};}
  }});
  const option={type:'string',minLength:1,description:'Exact option ID or an unambiguous name. Read list_options to resolve natural references; clarify ambiguous names with the user.'};
  return [
   tool('list_options','Read stud option names, branch heads, checkpoint summaries, the displayed design, active editing target, selected part and exact camera. Use these to resolve references such as “the dormered version”.',{},async()=>({state:await controller.refresh()})),
-  tool('switch_option','Switch the visible stud comparison tab to a saved option. Retains the exact viewpoint, projection and scale. Does not change the editing target or design. Return only after the model is displayed.',{option,expected_head:{type:'string',minLength:1}},input=>controller.switchOption(input.option,input).then(state=>({state})),['option']),
-  tool('compare_options','Compare the actual displayed design (including a draft) with a named option and switch to its tab at the exact same viewpoint. Returns changed parts and both displayed identities for a visual explanation. Use switch_option to flip back; clarify ambiguous names. Leaves editing target unchanged.',{option},input=>controller.compare(input.option),['option']),
-  tool('return_to_editing_view','Return the viewer to the live editing design at the same viewpoint, without activating another option.',{},()=>controller.returnLive().then(state=>({state}))),
+  tool('switch_option','Switch the visible stud comparison tab to a saved option. Retains the exact viewpoint, projection and scale. Does not change the editing target or design. Return only after the model is displayed.',{option,expected_head:{type:'string',minLength:1}},(input,{signal})=>controller.switchOption(input.option,{...input,signal}).then(state=>({state})),['option']),
+  tool('compare_options','Compare the actual displayed design (including a draft) with a named option and switch to its tab at the exact same viewpoint. Returns changed parts and both displayed identities for a visual explanation. Use switch_option to flip back; clarify ambiguous names. Leaves editing target unchanged.',{option},(input,options)=>controller.compare(input.option,options),['option']),
+  tool('return_to_editing_view','Return the viewer to the live editing design at the same viewpoint, without activating another option.',{},(_,options)=>controller.returnLive(options).then(state=>({state}))),
  ];
 }

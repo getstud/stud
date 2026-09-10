@@ -97,7 +97,7 @@ test('showing a newly built assembly preserves its reveal and frames resting par
     'displayShow',
   ].join('\n'), {THREE, $, buildAnimation: animation, performance: {now: () => 100},
     meshes: [part], model: {name: 'Test', dimensions: []}, revision: 'r2', currentView: 'perspective',
-    visibility: new Map(), selected: null, dimGroup: {}, labelRoot: {}, showFrame: null, assemblyReview: null,
+    hiddenParts: new Set(),visibility: new Map(), selected: null, dimGroup: {}, labelRoot: {}, showFrame: null, assemblyReview: null,
     endAssemblyReview() {}, drawingDimensions: {},
     showWorkspace() {}, clearShow() {}, clearValidationHighlights() {}, select() {}, renderList() {},
     setView: (view, frame) => {framed = frame;}, modelRegion: () => ({}),

@@ -1,28 +1,9 @@
+import {request,command,waitJob,restoreCheckpoint} from '/project-operations.js';
 import {ComparisonScene} from '/comparison-scene.js';
 
 const el=(tag,text,attrs={})=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;for(const [key,value] of Object.entries(attrs))node.setAttribute(key,value);return node;};
 const short=value=>value?.slice(0,12)||'Unavailable';
 const amount=(value,currency='USD')=>value===null||value===undefined?'Incomplete':new Intl.NumberFormat(undefined,{style:'currency',currency}).format(Number(value));
-async function request(url,payload){
- const options={cache:'no-store',signal:AbortSignal.timeout(30000)};
- if(payload)Object.assign(options,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
- let response;
- try{response=await fetch(url,options);}catch(error){
-  if(!payload)throw error;
-  // A lost response retries the same logical mutation, with the same key.
-  response=await fetch(url,{...options,signal:AbortSignal.timeout(30000)});
- }
- const data=await response.json();if(!response.ok)throw new Error(data.error?.message||`Request failed (${response.status}).`);return data;
-}
-const command=(operation,args={})=>request('/api/v1/command',{operation,key:crypto.randomUUID(),arguments:args});
-async function waitJob(job,onProgress){
- while(job.id&&['queued','running'].includes(job.status)){
-  onProgress(`${job.kind?.replaceAll('_',' ')||'Job'}: ${job.stage||job.status}`);
-  await new Promise(resolve=>setTimeout(resolve,350));job=await request(`/api/v1/jobs/${encodeURIComponent(job.id)}`);
- }
- if(['failed','interrupted','canceled','superseded'].includes(job.status))throw new Error(job.error?.message||job.diagnostics?.message||`Job ${job.status}; saved evidence is retained.`);
- return job;
-}
 
 export function installVersions({showWorkspace,refreshModel}){
  if(document.getElementById('design-versions'))return;
@@ -61,7 +42,7 @@ export function installVersions({showWorkspace,refreshModel}){
    inspect.dataset.checkpoint=checkpoint.checkpoint;restore.dataset.restore=checkpoint.checkpoint;
    action(inspect,async()=>{status('Opening saved design…');await waitJob(await command('inspect_checkpoint',{checkpoint:checkpoint.checkpoint}),status);await refreshModel();showWorkspace();status(`Inspecting ${short(checkpoint.checkpoint)}. The editing request is unchanged.`);});
    restore.disabled=Boolean(state.request)||state.pending_records.length>0;restore.title=restore.disabled?'Finish the current editing request before restoring a checkpoint.':'';
-   action(restore,async()=>{status('Preparing restored source…');const request=await command('restore',{checkpoint:checkpoint.checkpoint,option_id:state.active_option,expected_head:state.option.head});const source=await command('source',{request_id:request.id});const result=await waitJob(await command('finish',{request_id:request.id,expected_source:source.source_id,summary:`Restore design from ${short(checkpoint.checkpoint)}`}),status);await command('return_live');await refreshModel();status(`Restored design saved as ${short(result.checkpoint||result.result?.checkpoint)}.`);});
+   action(restore,async()=>{status('Preparing restored source…');const result=await restoreCheckpoint({checkpoint:checkpoint.checkpoint,option_id:state.active_option,expected_head:state.option.head},status);await refreshModel();status(`Restored design saved as ${short(result.checkpoint||result.result?.checkpoint)}.`);});
    controls.append(inspect,restore);row.append(title,el('td',checkpoint.outcome.replaceAll('_',' ')),el('td',checkpoint.options.map(id=>names.get(id)||id).join(', ')),controls);$('version-checkpoints').append(row);
   }
   $('version-activate').disabled=Boolean(state.request)||state.pending_records.length>0;
@@ -75,7 +56,10 @@ export function installVersions({showWorkspace,refreshModel}){
  action($('version-create'),async()=>{const option=await command('create_option',{name:$('version-new-name').value,base_checkpoint:$('version-base').value});status(`Created ${option.label}. Activate it when ready to edit.`);$('version-new-name').value='';});
  action($('version-compare'),async()=>{
   const job=await waitJob(await command('compare',{left:$('version-left').value,right:$('version-right').value,mode:$('version-price-mode').value}),status);
-  comparison=job.result;scene?.dispose();scene=new ComparisonScene($('comparison-views'),selectPart);await scene.load(comparison);
+  await displayComparison(job.result);
+ });
+ async function displayComparison(result){
+  comparison=result;$('version-left').value=result.left_checkpoint;$('version-right').value=result.right_checkpoint;$('version-price-mode').value=result.estimates.mode||'historical';scene?.dispose();scene=new ComparisonScene($('comparison-views'),selectPart);await scene.load(comparison);
   const estimate=comparison.estimates,changed=comparison.objects.filter(row=>row.status!=='unchanged');
   $('comparison-summary').textContent=`${changed.length} changed parts. ${estimate.mode==='common_price'?'Both estimates use the same saved quotes.':'Original saved estimates.'} A: ${amount(estimate.left_total,estimate.left_currency)} · B: ${amount(estimate.right_total,estimate.right_currency)}${estimate.assumptions_changed?' Design quantity assumptions also differ.':''}`;
   $('comparison-legend').hidden=!comparison.views.some(Boolean);$('comparison-selected').textContent='';$('comparison-details').replaceChildren();
@@ -84,8 +68,8 @@ export function installVersions({showWorkspace,refreshModel}){
   const lines=(estimate.lines||[]).filter(row=>row.status!=='unchanged');
   $('comparison-details').append(details(`Estimate changes (${lines.length})`,table(['Material','Change','A quantity / price','B quantity / price','Purchase basis'],lines.map(row=>[row.product_id,row.changes.join(', ')||row.status,`${row.left?.quantity??'—'} / ${amount(row.left?.unit_price,estimate.left_currency)}`,`${row.right?.quantity??'—'} / ${amount(row.right?.unit_price,estimate.right_currency)}`,row.right?.basis||row.left?.basis]))));
   for(const [field,label] of [['requirements','Requirements'],['findings','Measured findings'],['materials','Material demands']]){const rows=comparison[field].filter(row=>row.status!=='unchanged');$('comparison-details').append(details(`${label} (${rows.length} changes)`,table(['Reference','Change','A','B'],rows.map(row=>[row.id,row.status,describe(row.left),describe(row.right)]))));}
-  status('Comparison is ready. The current editing request is unchanged.');
- });
+  status('Comparison is ready. The current editing request is unchanged.');$('comparison-views').scrollIntoView({block:'center',behavior:'instant'});
+ }
  function describe(record){if(!record)return 'Absent';if(record.measured!==undefined)return `${record.status}: ${record.measured??'unresolved'} ${record.units||''}`;if(record.threshold!==undefined)return `${record.kind}: ${record.threshold} ${record.units}`;return `${record.product_id}: ${record.object_ids?.length||0} referenced parts${record.quantity!==null?`, ${record.quantity} items`:''}`;}
  function selectPart(id){const row=comparison.objects.find(row=>row.id===id);const size=(blank,index)=>blank.size.map(v=>`${Number(v.toFixed(4))} ${comparison.units[index]}`).join(' × ');$('comparison-selected').textContent=`${row.right?.label||row.left?.label||id}\n${id}\n${row.changes.join(', ')}${row.left?.blank?.size?`\nA blank: ${size(row.left.blank,0)}`:''}${row.right?.blank?.size?`\nB blank: ${size(row.right.blank,1)}`:''}`;}
  action($('version-plans'),async()=>{await waitJob(await command('plans',{checkpoint:$('version-plan-checkpoint').value,print_spec:{paper:$('version-paper').value,layout:$('version-plan-layout').value}}),status);status('The fixed-checkpoint packet is saved below.');});
@@ -94,5 +78,11 @@ export function installVersions({showWorkspace,refreshModel}){
  window.addEventListener('beforeunload',()=>scene?.dispose(),{once:true});
  void refresh().catch(error=>{$('version-error').textContent=error.message;});
  window.dispatchEvent(new HashChangeEvent('hashchange'));
- return {refresh};
+ return {refresh,displayComparison,
+  presentPacket:job=>{$('version-plan-checkpoint').value=job.arguments.checkpoint;$('version-paper').value=job.arguments.print_spec.paper;$('version-plan-layout').value=job.arguments.print_spec.layout;},
+  comparisonContext:()=>comparison?{left_checkpoint:comparison.left_checkpoint,right_checkpoint:comparison.right_checkpoint,units:comparison.units,selected_part_id:scene?.selected||null,cameras:scene?.sides.map(side=>({side:side.index,position:side.camera.position.toArray(),target:side.controls.target.toArray(),quaternion:side.camera.quaternion.toArray(),zoom:side.camera.zoom,units:'viewer inches: X right, Y up, Z toward front'}))}:null,
+  selectComparison:id=>{if(!comparison?.objects.some(row=>row.id===id))throw new Error('Comparison part not found.');scene.select(id);$('comparison-views').scrollIntoView({block:'center',behavior:'instant'});return {part:comparison.objects.find(row=>row.id===id)};},
+  moveComparison:input=>{if(!scene?.sides.length)throw new Error('Open a comparison first.');scene.setCamera(input);$('comparison-views').scrollIntoView({block:'center',behavior:'instant'});return {};},
+  get comparisonSelection(){return scene?.selected||null}
+ };
 }

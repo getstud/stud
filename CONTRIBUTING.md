@@ -23,6 +23,8 @@ The test suite covers the Python engine and JavaScript behavior and uses tempora
 
 Viewer JavaScript and CSS changes need a browser refresh; server changes need a restart. The legacy `clubhouse` Python import remains compatible with `stud`.
 
+Viewer features include their conversation interface: define representative voice requests, expose the same operations through WebMCP, and verify both the returned context and visible behavior through the registered tools. Reuse the shared control activity wrapper so its glow lasts through rendering and asynchronous jobs. See the [existing parity inventory and contracts](docs/voice-viewer.md); feature owners preserve that parity as their UI evolves.
+
 ### Run from source
 
 Install Python 3.13, Git and Node.js/npm. The CAD/PDF runtime is pinned in `requirements.lock`.

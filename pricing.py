@@ -32,7 +32,11 @@ class PriceStore:
         if not line: raise ValueError('Material or stock length no longer exists.')
         with self.lock:
             data=self.read();entry=data['prices'].setdefault(key,{})
+            if payload.get('expected_revision') and payload['expected_revision']!=model['revision']:raise ValueError('The displayed design changed before this price was saved.')
             if payload.get('action')=='clear_manual': entry.pop('manual',None)
+            elif payload.get('action')=='clear_quantity':
+                kind=next((kind for kind in ('manual','source','estimate') if entry.get(kind)),None)
+                if kind:entry[kind]['quantity']=None
             else:
                 kind=payload.get('kind','manual')
                 if kind not in ('manual','source','estimate'): raise ValueError('Invalid price kind')

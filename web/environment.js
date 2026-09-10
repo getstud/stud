@@ -79,6 +79,8 @@ export function createEnvironment({THREE, scene, onChange = () => {}, importer =
       applyVisibility(); onChange();
       return Promise.all(pending);
     },
+    get enabled() { return enabled; },
+    visibilityFor(id) { return visibility.get(id) ?? entries.get(id)?.asset.visible ?? true; },
     setEnabled(value) { enabled = value; applyVisibility(); onChange(); },
     setVisible(id, value) { visibility.set(id, value); applyVisibility(); onChange(); },
     isVisible: visible,

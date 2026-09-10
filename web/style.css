@@ -262,8 +262,8 @@ body { height: 100dvh; display: flex; flex-direction: column; }
 .project-meta { padding: 8px 10px 16px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
 .project-meta #projectname { font: 500 14px/1.4 'Avenir Next', Avenir, sans-serif; letter-spacing: 0; margin: 0 0 8px; }
 
-#workspace { flex: 1 1 0; min-height: 0; overflow: hidden; }
-#workspace .stage { height: 100%; min-height: 0; }
+#workspace { display: block; flex: 1 1 0; min-height: 0; overflow: hidden; }
+#workspace .stage { grid-column: 1; grid-row: 1; height: 100%; min-width: 0; min-height: 0; }
 #reports { display: block; flex: 1 1 0; min-height: 0; width: 100%; overflow: auto; overscroll-behavior: contain; }
 #reports .materials { max-width: 1440px; margin: 0 auto; }
 #viewmenu .popover { max-height: calc(100dvh - 200px); overflow-y: auto; }
@@ -435,12 +435,15 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 .camera-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .camera-controls .viewbuttons { height: var(--control-height); padding: 3px; border-radius: var(--control-radius); flex-wrap: nowrap; }
 .camera-controls .viewbuttons button { padding: 0 11px; height: 32px; border-radius: 5px; font-size: 12px; }
-#workspace #inspectorpanel { right: 72px; bottom: auto; max-height: calc(100dvh - 160px); width: min(300px, calc(100vw - 92px)); border-radius: 16px; padding: 20px; background: color-mix(in srgb, var(--ink) 6%, var(--paper)); box-shadow: 0 12px 36px #0003; scrollbar-width: thin; }
+#workspace #inspectorpanel { position: absolute; left: auto; right: 12px; top: 76px; bottom: auto; width: min(270px, calc(100% - 16px)); max-width: none; min-height: 0; max-height: calc(100% - 16px); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 28px #0003; scrollbar-width: thin; }
+#inspectortitle { cursor: grab; touch-action: none; user-select: none; min-height: 24px; padding-top: 4px; margin-right: 28px; }
+#inspectortitle:active { cursor: grabbing; }
+#inspectortitle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 #inspector { min-height: 0; }
-#inspector .partname { margin: 18px 0 6px; font: 600 18px/1.3 'Avenir Next', sans-serif; text-transform: capitalize; }
-#inspector .partmaterial { margin: 0 0 16px; font-size: 12px; }
-#inspector .size { font-size: 15px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.parttechnical { margin-top: 18px; }
+#inspector .partname { margin: 8px 0 4px; font: 600 16px/1.3 'Avenir Next', sans-serif; text-transform: capitalize; }
+#inspector .partmaterial { margin: 0 0 8px; font-size: 12px; }
+#inspector .size { font-size: 15px; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.parttechnical { margin-top: 4px; }
 .parttechnical summary { padding: 8px 0; cursor: pointer; color: var(--muted); }
 #inspector .partid { font-size: 11px; margin: 12px 0; }
 #inspector .badge { border-radius: 5px; }
@@ -481,8 +484,7 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
  .camera-controls { gap: 6px; }
  .camera-controls .viewbuttons button { padding: 0 8px; font-size: 11px; }
  #reports .materials { padding: 22px 16px; }
- #workspace #modelpanel, #workspace #inspectorpanel { top: 126px; bottom: 20px; }
- #workspace #inspectorpanel { bottom: auto; max-height: calc(100dvh - 204px); }
+ #workspace #modelpanel { top: 126px; bottom: 20px; }
 }
 @media(prefers-reduced-motion: no-preference) {
  .canvashead button, .assembly-eye, .assembly-isolate, .partitem { transition: background-color 120ms, color 120ms; }
@@ -527,6 +529,50 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 #commentstatus { position: absolute; bottom: 56px; left: 12px; max-width: calc(100% - 24px); padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); z-index: 7; }
 #view-comment-image { text-decoration: underline; font-size: 12px; padding: 8px 0; }
 
+/* Inner workspace frame follows actual WebMCP work, including async completion. */
+#viewer-control-frame{position:fixed;inset:0;z-index:70;pointer-events:none;border-radius:0;opacity:0;overflow:hidden;box-shadow:inset 0 0 0 1px transparent}
+#viewer-control-frame.active{opacity:.32;animation:stud-control-glow 12s linear infinite}
+/* Offset the three soft waves around the perimeter, with staggered swells. */
+@keyframes stud-control-glow{
+ 0%,100%{box-shadow:inset 9px 0 24px -7px #529ff5,inset 0 7px 19px -6px #bc79ee,inset -8px -6px 22px -7px #64dccb}
+ 12.5%{box-shadow:inset 7px 7px 28px -6px #529ff5,inset -5px 5px 22px -7px #bc79ee,inset -2px -9px 18px -6px #64dccb}
+ 25%{box-shadow:inset 0 9px 24px -7px #529ff5,inset -7px 0 26px -6px #bc79ee,inset 6px -8px 22px -7px #64dccb}
+ 37.5%{box-shadow:inset -7px 7px 20px -6px #529ff5,inset -5px -5px 22px -7px #bc79ee,inset 9px -2px 27px -6px #64dccb}
+ 50%{box-shadow:inset -9px 0 24px -7px #529ff5,inset 0 -7px 19px -6px #bc79ee,inset 8px 6px 22px -7px #64dccb}
+ 62.5%{box-shadow:inset -7px -7px 28px -6px #529ff5,inset 5px -5px 22px -7px #bc79ee,inset 2px 9px 18px -6px #64dccb}
+ 75%{box-shadow:inset 0 -9px 24px -7px #529ff5,inset 7px 0 26px -6px #bc79ee,inset -6px 8px 22px -7px #64dccb}
+ 87.5%{box-shadow:inset 7px -7px 20px -6px #529ff5,inset 5px 5px 22px -7px #bc79ee,inset -9px 2px 27px -6px #64dccb}
+}
+#viewer-control-status.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media(prefers-reduced-motion:reduce){#viewer-control-frame.active{animation:none;box-shadow:inset 0 0 16px -3px #817fdf}}
+
+/* Keep the layout stable while conversation temporarily owns the controls. */
+body.viewer-controlled #option-comparison,
+body.viewer-controlled #workspace > aside,
+body.viewer-controlled .canvashead,
+body.viewer-controlled .canvasfoot,
+body.viewer-controlled #validation-toggle,
+body.viewer-controlled #warning-list,
+body.viewer-controlled #warning-detail,
+body.viewer-controlled #warning-annotations,
+body.viewer-controlled #drawing-context,
+body.viewer-controlled #comment-markers,
+body.viewer-controlled #commentstatus { visibility: hidden; }
+#viewer-control-stop { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 71; min-height: 44px; padding: 10px 26px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); box-shadow: 0 2px 10px #0002; font-size: 14px; font-weight: 600; }
+#viewer-control-stop:hover { background: color-mix(in srgb, var(--paper), var(--ink) 8%); color: var(--ink); }
+
+/* The local player remains available while the rest of the viewer chrome rests. */
+#sequence-player { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:72; width:max-content; max-width:calc(100vw - 24px); padding:6px; border:1px solid var(--line); border-radius:14px; background:color-mix(in srgb, var(--paper) 94%, transparent); color:var(--ink); box-shadow:0 4px 20px #0002; backdrop-filter:blur(16px); }
+#sequence-player .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+#sequence-player > div { display:flex; align-items:center; gap:2px; }
+#sequence-player button { display:grid; place-items:center; width:38px; height:38px; min-height:38px; padding:0; border:0; border-radius:9px; color:inherit; background:transparent; }
+#sequence-player button[hidden] { display:none; }
+#sequence-player button:hover { background:color-mix(in srgb, var(--ink) 8%, transparent); color:var(--ink); }
+#sequence-player button:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+#sequence-player button:disabled { opacity:.3; cursor:default; }
+#sequence-player button[data-action="play"], #sequence-player button[data-action="pause"] { background:color-mix(in srgb, var(--ink) 5%, transparent); }
+#sequence-player .sequence-error { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:280px; max-width:calc(100vw - 32px); margin:0; padding:10px 14px; border-radius:10px; background:var(--paper); font-size:12px; line-height:1.4; }
+body.sequence-playing #viewer-control-stop { visibility:hidden; }
 /* A centered version picker keeps saved alternatives close to the canvas. */
 #option-comparison{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:6;max-width:calc(100% - 32px)}
 #optiontoggle{display:flex;align-items:center;justify-content:center;gap:10px;height:38px;max-width:240px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--overlay);color:var(--ink);box-shadow:0 2px 10px #00000008;font-size:12px}

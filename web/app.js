@@ -4,7 +4,9 @@ import * as THREE from 'three';
 import {outlineGeometry,bandedGeometry,layeredGeometry} from '/profile-geometry.js';
 import {createEnvironment} from '/environment.js';
 import {OrbitControls} from '/vendor/OrbitControls.js';
-import {createShowTool, registerShowTool} from '/show.js';
+import {createShowTool} from '/show.js';
+import {createViewerTools,createViewerToolRunner,createControlActivity,registerViewerTools,installCameraInputGuard} from '/viewer-tools.js';
+import {createViewerOperations} from '/viewer-operations.js';
 import {installAreaCapture, snapshotViewer} from '/area-capture.js';
 import {preserveCamera} from '/camera-transition.js';
 import {FlyControls} from '/fly-controls.js';
@@ -51,7 +53,8 @@ let assemblyReview=null,drawingLabels=[];
 const partMeasurements=new WeakMap();
 const drawingDimensions=new THREE.Group();scene.add(drawingDimensions);
 const environment = createEnvironment({THREE, scene, onChange: renderEnvironment});
-const visibility=new Map();
+const visibility=new Map(),hiddenParts=new Set();
+let versionsController=null;
 function renderEnvironment() {
  if (!model) return;
  $('environmentsection').hidden = environment.entries.size === 0;
@@ -133,6 +136,7 @@ function setView(name=currentView, frame=bounds(), preserve=false){
  else focusDistance=camera.position.distanceTo(center);
  if(name==='firstperson')controls=new FlyControls(camera,renderer.domElement);
  else {controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=name==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();}
+ controls.enabled=!document.body?.classList.contains('viewer-controlled');
  document.querySelectorAll('[data-mode]').forEach(b=>{const active=b.dataset.mode===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  $('navigationhint').textContent=name==='firstperson'?'WASD / arrows fly · Drag to look · Q/E down/up · Shift faster · Esc release':name==='perspective'?'Drag to orbit · Click a part to inspect':'Drag to pan · Scroll to zoom · Click a part to inspect';
  $('viewlabel').textContent=`${name==='firstperson'?'FLY':name==='perspective'?'PERSPECTIVE':name.toUpperCase()+' · ORTHOGRAPHIC'} · ${model?.display_units==='mm'?'MILLIMETERS':'INCHES'}`;
@@ -148,7 +152,7 @@ function displayShow(input){
  showWorkspace();endAssemblyReview();
  const targets=(input.part_ids||[]).map(id=>meshes.find(m=>m.userData.id===id));
  clearShow();clearValidationHighlights();
- visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);
+ visibility.clear();hiddenParts.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);
  $('explode').checked=false;$('search').value='';buildAnimation.rebase(()=>applyDisplay(),performance.now());
  select(targets.length===1?targets[0]:null);
  const frame=new THREE.Box3();
@@ -160,7 +164,7 @@ function displayShow(input){
  if(targets.length||input.region){
   const outline=new THREE.Box3Helper(frame.clone(),0xb05e22);
   outline.material.depthTest=false;outline.material.transparent=true;outline.material.opacity=.85;
-  outline.renderOrder=10;showGroup.add(outline);
+  outline.renderOrder=10;showGroup.add(outline);outline.userData.partIds=targets.map(m=>m.userData.id);
  }
  showFrame=frame.clone();setView(input.view||'perspective',showFrame);
  viewport.scrollIntoView({block:'center',behavior:'instant'});
@@ -305,12 +309,12 @@ function install(data,options={}){
 let cadTiming=null;
 async function installCad(data,{animate=true}={}){
  const started=performance.now();
- const prepared=await cadScene.prepare(data);if(!prepared)return;
+ const prepared=await cadScene.prepare(data);if(!prepared)return false;
  const assetsPrepared=performance.now();
  const wasLive=Boolean(model),oldSelected=selected?.userData.id;
  const comparisonSwap=data.cad.presentation==='history'||model?.cad?.presentation==='history';
  if(comparisonSwap)buildCamera.stop();
- const patched=buildAnimation.rebase(prepared,performance.now());if(!patched)return;
+ const patched=buildAnimation.rebase(prepared,performance.now());if(!patched)return false;
  clearShow();clearValidationHighlights();
  model=data;revision=data.revision;meshes=patched.meshes;
  for(const mesh of meshes)partMeasurements.delete(mesh);
@@ -347,7 +351,7 @@ function applyDisplay(){
  buildAnimation.finish();
  const explode=$('explode').checked;
  const names=[...new Set(meshes.map(m=>m.userData.assembly))];
- for(const m of meshes){m.visible=visibility.get(m.userData.assembly)!==false;m.position.copy(m.userData.basePosition);if(explode)m.position.y+=names.indexOf(m.userData.assembly)*17;
+ for(const m of meshes){m.visible=visibility.get(m.userData.assembly)!==false&&!hiddenParts.has(m.userData.id);m.position.copy(m.userData.basePosition);if(explode)m.position.y+=names.indexOf(m.userData.assembly)*17;
   if(assemblyReview&&assemblyReview.level!==null&&partMeasurement(m).level!==assemblyReview.level)m.visible=false;
   const opacity=m.userData.opacity??1;m.material.transparent=opacity<1;m.material.opacity=opacity;m.material.depthWrite=opacity===1;
   for(const edge of m.children)if(edge.isLineSegments){edge.material.opacity=assemblyReview?1:.24;edge.material.color.set(assemblyReview?getComputedStyle(document.documentElement).getPropertyValue('--ink').trim():'#554b3f');}
@@ -368,7 +372,7 @@ function select(mesh){
  renderPartComments();
  if(!selected){$('inspector').innerHTML='<h2>Every piece,<br>accounted for.</h2><p>Select a part to inspect its dimensions.</p>';renderList();return;}
  selected.material.emissive.set('#68400f');const p=selected.userData,s=model.stocks[p.stock],fabrication=partMeasurement(selected);
- $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><span class="badge">${escape(p.status.toUpperCase())}</span><details class="parttechnical"><summary>Details</summary><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (${model?.display_units||'in'})</dt><dd>${p.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd>${p.cad?.provenance?`<dt>Source</dt><dd>${escape(p.cad.provenance.file||'')} : ${p.cad.provenance.line||'—'}</dd>`:''}</dl></details>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
+ $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><details class="parttechnical"><summary>Details</summary><span class="badge">${escape(p.status.toUpperCase())}</span><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (${model?.display_units||'in'})</dt><dd>${p.origin.map(inches).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd>${p.cad?.provenance?`<dt>Source</dt><dd>${escape(p.cad.provenance.file||'')} : ${p.cad.provenance.line||'—'}</dd>`:''}</dl>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}</details>`;renderList();
 }
 const expandedAssemblies=new Set();
 function partMeasurement(mesh){
@@ -400,6 +404,7 @@ function endAssemblyReview(returnTo3D=true){
  if(!assemblyReview)return;
  const previous=assemblyReview;assemblyReview=null;
  visibility.clear();for(const [name,visible] of previous.visibility)visibility.set(name,visible);
+ hiddenParts.clear();for(const id of previous.hiddenParts||[])hiddenParts.add(id);
  $('explode').checked=previous.explode;$('dims').setAttribute('aria-pressed',String(previous.dimensions));
  grid.visible=previous.grid;environment.setEnabled($('environmenttoggle').checked);
  disposeTree(drawingDimensions);drawingLabels=[];$('assembly-labels').replaceChildren();$('drawing-context').hidden=true;
@@ -475,9 +480,10 @@ function openAssemblyDrawing(name,view,level,retainViewpoint=false){
  buildAnimation.finish();clearShow();clearValidationHighlights();clearAnnotationHover();if(!retainViewpoint)select(null);
  const nextLevel=level===undefined?(assemblyReview?.assembly===name?assemblyReview.level:null):level;
  if(!assemblyReview){
-  assemblyReview={visibility:new Map(visibility),explode:$('explode').checked,dimensions:$('dims').getAttribute('aria-pressed')==='true',grid:grid.visible};
+  assemblyReview={visibility:new Map(visibility),hiddenParts:new Set(hiddenParts),explode:$('explode').checked,dimensions:$('dims').getAttribute('aria-pressed')==='true',grid:grid.visible};
   $('dims').setAttribute('aria-pressed','true');
  }
+ hiddenParts.clear();
  Object.assign(assemblyReview,{assembly:name,view,level:assemblyRecords(name,nextLevel).length?nextLevel:null});expandedAssemblies.add(name);
  for(const mesh of meshes)visibility.set(mesh.userData.assembly,mesh.userData.assembly===name);
  $('explode').checked=false;grid.visible=false;environment.setEnabled(false);applyDisplay();
@@ -505,7 +511,7 @@ function renderList(){
  const focusKey=focused?.assembly||focused?.isolate||focused?.drawing||focused?.levelScope||focused?.id;
  const focusType=focused?.assembly?'assembly':focused?.isolate?'isolate':focused?.drawing?'drawing':focused?.levelScope?'levelScope':'id';
  $('assemblies').innerHTML=[...groups].map(([name,parts])=>{
-  const visible=visibility.get(name)!==false,open=q||expandedAssemblies.has(name)||parts.includes(selected)||assemblyReview?.assembly===name;
+  const visible=meshes.some(m=>m.userData.assembly===name&&m.visible),open=q||expandedAssemblies.has(name)||parts.includes(selected)||assemblyReview?.assembly===name;
   return `<section class="assembly-group"><div class="assembly-row"><button class="assembly-expand" data-expand="${escape(name)}" aria-expanded="${!!open}" aria-label="${open?'Collapse':'Expand'} ${escape(name)}"><span class="tree-chevron" aria-hidden="true">›</span><span>${escape(name)}</span><small>${parts.length}</small></button><label class="assembly-eye" title="${visible?'Hide':'Show'} ${escape(name)}"><input type="checkbox" data-assembly="${escape(name)}" aria-label="Show ${escape(name)}" ${visible?'checked':''}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></label><button class="assembly-isolate" data-isolate="${escape(name)}" title="Isolate ${escape(name)}" aria-label="Isolate ${escape(name)}">◎</button></div><div class="assembly-parts" ${open?'':'hidden'}>${assemblyReviewControls(name)}${parts.map(mesh=>`<button class="partitem ${mesh===selected?'selected':''}" data-id="${escape(mesh.userData.id)}" aria-pressed="${mesh===selected}" title="${escape(mesh.userData.id)}">${escape(partLabel(mesh.userData))}</button>`).join('')}</div></section>`;
  }).join('')||'<p class="sub">No parts match your search.</p>';
  $('assemblies').querySelectorAll('[data-expand]').forEach(button=>button.onclick=()=>{
@@ -514,22 +520,28 @@ function renderList(){
   button.setAttribute('aria-expanded',String(open));button.closest('.assembly-group').querySelector('.assembly-parts').hidden=!open;
   if(open)expandedAssemblies.add(button.dataset.expand);else expandedAssemblies.delete(button.dataset.expand);
  });
- $('assemblies').querySelectorAll('input').forEach(input=>input.onchange=()=>{endAssemblyReview();visibility.set(input.dataset.assembly,input.checked);applyDisplay();});
+ $('assemblies').querySelectorAll('input').forEach(input=>{const parts=meshes.filter(m=>m.userData.assembly===input.dataset.assembly);input.indeterminate=parts.some(m=>m.visible)&&parts.some(m=>!m.visible);});
+ $('assemblies').querySelectorAll('input').forEach(input=>input.onchange=()=>{endAssemblyReview();visibility.set(input.dataset.assembly,input.checked);if(input.checked)for(const m of meshes)if(m.userData.assembly===input.dataset.assembly)hiddenParts.delete(m.userData.id);applyDisplay();});
  $('assemblies').querySelectorAll('[data-isolate]').forEach(button=>button.onclick=()=>{
-  endAssemblyReview();for(const mesh of meshes)visibility.set(mesh.userData.assembly,mesh.userData.assembly===button.dataset.isolate);
+  endAssemblyReview();hiddenParts.clear();for(const mesh of meshes)visibility.set(mesh.userData.assembly,mesh.userData.assembly===button.dataset.isolate);
   applyDisplay();
  });
  $('assemblies').querySelectorAll('[data-drawing]').forEach(button=>button.onclick=()=>{openAssemblyDrawing(button.dataset.scope,button.dataset.projection);});
  $('assemblies').querySelectorAll('[data-level-scope]').forEach(select=>select.onchange=()=>openAssemblyDrawing(select.dataset.levelScope,assemblyReview?.assembly===select.dataset.levelScope?assemblyReview.view:'top',select.value==='all'?null:Number(select.value)));
  $('assemblies').querySelectorAll('[data-id]').forEach(button=>button.onclick=()=>{
-  const mesh=meshes.find(m=>m.userData.id===button.dataset.id);if(assemblyReview&&assemblyReview.assembly!==mesh.userData.assembly)endAssemblyReview();else if(assemblyReview&&assemblyReview.level!==null&&partMeasurement(mesh).level!==assemblyReview.level)openAssemblyDrawing(assemblyReview.assembly,assemblyReview.view,partMeasurement(mesh).level);visibility.set(mesh.userData.assembly,true);applyDisplay();select(mesh);
+  revealAndSelectPart(meshes.find(m=>m.userData.id===button.dataset.id));
  });
  if(focusKey){const replacement=[...$('assemblies').querySelectorAll(`[data-${focusType==='levelScope'?'level-scope':focusType}]`)].find(el=>el.dataset[focusType]===focusKey);replacement?.focus({preventScroll:true});}
+}
+function revealAndSelectPart(mesh){
+ if(assemblyReview&&assemblyReview.assembly!==mesh.userData.assembly)endAssemblyReview();
+ else if(assemblyReview&&assemblyReview.level!==null&&partMeasurement(mesh).level!==assemblyReview.level)openAssemblyDrawing(assemblyReview.assembly,assemblyReview.view,partMeasurement(mesh).level);
+ visibility.set(mesh.userData.assembly,true);hiddenParts.delete(mesh.userData.id);applyDisplay();select(mesh);
 }
 let down;renderer.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);renderer.domElement.addEventListener('pointerup',e=>{if(!camera||!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4)return;const r=renderer.domElement.getBoundingClientRect();const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const partHit=ray.intersectObjects(meshes.filter(m=>m.visible),false)[0], environmentHit=environment.pick(ray);if(environmentHit&&(!partHit||environmentHit.distance<partHit.distance))inspectEnvironment(environmentHit.entry.asset.id);else select(partHit?.object);});
 $('search').oninput=renderList;$('explode').onchange=()=>{const checked=$('explode').checked;endAssemblyReview();$('explode').checked=checked;applyDisplay();};
 $('dims').onclick=()=>{ $('dims').setAttribute('aria-pressed',String($('dims').getAttribute('aria-pressed')!=='true')); applyDisplay(); };
-$('reset').onclick=()=>{endAssemblyReview();visibility.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
+$('reset').onclick=()=>{endAssemblyReview();visibility.clear();hiddenParts.clear();$('assemblies').querySelectorAll('input').forEach(i=>i.checked=true);applyDisplay();};
 $('fit').onclick=()=>{buildCamera.stop();clearShow();if(assemblyReview)openAssemblyDrawing(assemblyReview.assembly,assemblyReview.view);else setView();};document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{buildCamera.stop();setView(b.dataset.mode,bounds(),true);});
 
 // Keep occasional tools off the canvas until requested.
@@ -553,6 +565,14 @@ function setModelPanel(open,{remember=false,focus=true,animate=true}={}) {
 $('modeltoggle').onclick=()=>{setModelPanel($('modelpanel').hidden,{remember:true});};
 $('closemodel').onclick=()=>{setModelPanel(false,{remember:true}); $('modeltoggle').focus();};
 widePartsLayout.addEventListener('change',restorePartsPanel);
+installFloatingInspector({panel:$('inspectorpanel'),handle:$('inspectortitle'),workspace:$('workspace'),getAvoidRects:()=>{
+ if(!camera||!meshes.length)return [];
+ const box=bounds(),rect=viewport.getBoundingClientRect(),work=$('workspace').getBoundingClientRect(),points=[];
+ for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){const p=new THREE.Vector3(x,y,z).project(camera);points.push({x:rect.left-work.left+(p.x+1)*rect.width/2,y:rect.top-work.top+(1-p.y)*rect.height/2});}
+ const obstacles=[{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}];
+ if(!$('modelpanel').hidden){const r=$('modelpanel').getBoundingClientRect();obstacles.push({left:r.left-work.left,right:r.right-work.left,top:r.top-work.top,bottom:r.bottom-work.top});}
+ return obstacles;
+}});
 $('closeinspector').onclick=()=>{select(null); $('modeltoggle').focus();};
 $('page-select').onchange=()=>{ location.hash=$('page-select').value; };
 function showPage(id) {
@@ -567,6 +587,7 @@ function showPage(id) {
  });
  $('thememenu').open=false;
 
+ const player=document.getElementById('sequence-player');if(player)player.hidden=page!=='workspace'||player.dataset.status==='empty';
  $('reports').scrollTop=0;
 }
 function showWorkspace() {
@@ -625,32 +646,37 @@ function loadModel(comparisonCommit=false) {
    }
    if (data.schema_version !== 1 || data.units !== 'in' || !Array.isArray(data.parts)) throw new Error('Unsupported model');
    if(data.engine==='cadquery'){
-    installVersions({showWorkspace,refreshModel:refreshComparisonModel});
-    optionComparison??=installOptionTabs({refreshModel:refreshComparisonModel,displayPrepared:async data=>{
+    versionsController??=installVersions({showWorkspace,refreshModel:refreshComparisonModel});
+    optionComparison??=installOptionTabs({registerTools:registerControlledTools,refreshModel:refreshComparisonModel,displayPrepared:async(data,_response,{signal}={})=>{
+     const displayEpoch=modelDisplayEpoch;
+     const assertCurrent=()=>{signal?.throwIfAborted();if(displayEpoch!==modelDisplayEpoch)throw new DOMException('The option display was interrupted.','AbortError');};
+     assertCurrent();
      // An arriving native event can invalidate a mesh reload after cache
      // eviction. Retry that preparation once; never acknowledge a canceled swap.
      let installed=await install(data,{animate:false});
-     if(!installed)installed=await install(data,{animate:false});
+     assertCurrent();if(!installed)installed=await install(data,{animate:false});
+     assertCurrent();
      if(!installed)throw new Error('The option display was interrupted. Select the tab again.');
      renderer.render(scene,camera);
     },readViewer:()=>({model,camera:viewerCamera(),selected:selected?.userData.id,visible_part_ids:meshes.filter(mesh=>mesh.visible).map(mesh=>mesh.userData.id)}),
      prepare:async data=>{await Promise.all(data.parts.map(part=>cadScene.asset(part)));},
      onSettled:()=>{if(modelRefreshQueued&&!modelRequest){modelRefreshQueued=false;queueMicrotask(()=>loadModel().catch(()=>{}));}},
-     beforeSwitch:()=>{if(!$('areaoverlay').hidden||document.querySelector('dialog[open]'))throw new Error('Finish or close the current dialog before comparing options.');modelDisplayEpoch++;cadScene.invalidate();showWorkspace();buildCamera.stop();buildAnimation.finish();}});
+     beforeSwitch:()=>{viewerBridge.sequence.pause();stopViewerMotion();if(!$('areaoverlay').hidden||document.querySelector('dialog[open]'))throw new Error('Finish or close the current dialog before comparing options.');modelDisplayEpoch++;cadScene.invalidate();showWorkspace();buildCamera.stop();buildAnimation.finish();}});
    }
-   if (data.revision !== revision||data.cad?.option_id!==model?.cad?.option_id||data.cad?.presentation!==model?.cad?.presentation||data.cad?.checkpoint!==model?.cad?.checkpoint||data.cad?.latest_build_id!==model?.cad?.latest_build_id||data.cad?.latest_status!==model?.cad?.latest_status) {const animate=!snapshotRefresh;snapshotRefresh=false;await install(data,{animate});}
+   if (data.revision !== revision||data.cad?.option_id!==model?.cad?.option_id||data.cad?.presentation!==model?.cad?.presentation||data.cad?.checkpoint!==model?.cad?.checkpoint||data.cad?.latest_build_id!==model?.cad?.latest_build_id||data.cad?.latest_status!==model?.cad?.latest_status) {const animate=!snapshotRefresh;snapshotRefresh=false;const installed=await install(data,{animate});if(installed===false){modelRefreshQueued=true;throw new Error('A newer model superseded this display request. Refresh the viewing context.');}}
    if(data.engine!=='cadquery')$('error').hidden=true;
    optionComparison?.controller.onChange(optionComparison.controller.state());
    modelLoadFailed=false;
    return data;
   } catch (error) {
-   modelLoadFailed=true;
+   modelLoadFailed=true;$('error').classList.remove('history-notice');
    $('error').hidden=false;$('error').textContent=`${model?'Keeping last good model.':'Unable to load model.'} ${error.message}`;
    throw error;
   } finally { modelRequest = null;if(modelRefreshQueued){modelRefreshQueued=false;queueMicrotask(()=>loadModel().catch(()=>{}));} }
  })();
  return modelRequest;
 }
+async function refreshDisplayed(){snapshotRefresh=true;if(modelRequest)await modelRequest;const data=await loadModel();if(!data)throw new Error('The requested model is still being prepared.');return data;}
 async function refresh(){try{
  // Ordered native events deliver revisions. Poll only as a connection/error
  // fallback, so an idle building does not resend its complete model every 2s.
@@ -670,7 +696,12 @@ async function applyFocusTask(){
   await loadModel();
   if(focusTask!==jobId)return;
   if(model?.cad?.build_id!==job.build_id)throw new Error('The model changed before the requested view could be shown.');
-  displayShow({part_ids:job.objects,region:job.region?{min:job.region.min.map(v=>v*viewerFactor(model.display_units)),max:job.region.max.map(v=>v*viewerFactor(model.display_units))}:undefined});
+  const shown=await viewerActivity(()=>{
+   if(focusTask!==jobId)return false;
+   if(model?.cad?.build_id!==job.build_id)throw new Error('The model changed before the requested view could be shown.');
+   displayShow({part_ids:job.objects,region:job.region?{min:job.region.min.map(v=>v*viewerFactor(model.display_units)),max:job.region.max.map(v=>v*viewerFactor(model.display_units))}:undefined});return true;
+  });
+  if(!shown)return;
   const ack=await fetch('/api/v1/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
    operation:'acknowledge_show',key:`${jobId}:viewer`,arguments:{job_id:jobId,build_id:job.build_id,
     camera:{position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),target:controls.target?.toArray(),units:'viewer inches'}}})});
@@ -692,6 +723,8 @@ const projectEvents=new ProjectEvents({onReset:snapshot=>{snapshotRefresh=true;c
 void projectEvents.connect().catch(()=>{});
 
 function updateViewerControls(){
+ controls.enabled=!document.body?.classList.contains('viewer-controlled');
+ if(!controls.enabled)controls.keys?.clear?.();
  const position=camera.position.clone(),quaternion=camera.quaternion.clone(),target=controls.target?.clone();
  if(controls.update()===false){camera.position.copy(position);camera.quaternion.copy(quaternion);if(target)controls.target.copy(target);}
 }
@@ -733,7 +766,7 @@ const priceEdits=new Map(),priceTimers=new Map();let priceQueue=Promise.resolve(
 const money=v=>v===null||v===undefined?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:estimate?.currency||'USD'}).format(Number(v));
 const fields=['quantity','unit_price','source','observed_on','note'];
 const today=()=>new Date().toLocaleDateString('en-CA');
-function priceValues(r){const q=r.quote;return {quantity:q?.quantity??'',unit_price:q?.unit_price??'',source:q?.source||'Manual entry',observed_on:q?.observed_on||today(),note:q?.note||'',url:q?.url||''};}
+function priceValues(r){const q=r.quote;return {quantity:r.quantity_override??q?.quantity??'',unit_price:q?.unit_price??'',source:q?.source||'Manual entry',observed_on:q?.observed_on||today(),note:q?.note||'',url:q?.url||''};}
 function priceRow(key){return [...$('pricerows').children].find(tr=>tr.dataset.key===key);}
 function rowStatus(key,message,error=false){const el=priceRow(key)?.querySelector('.savestate');if(el){el.textContent=message;el.classList.toggle('saveerror',error);}}
 function summary(data){
@@ -758,7 +791,7 @@ function renderPrices(data){
   let tr=priceRow(r.key);
   if(!tr){tr=document.createElement('tr');tr.dataset.key=r.key;
    const cell=(field,type='text',extra='')=>`<input data-field="${field}" type="${type}" aria-label="${escape(r.name+' '+r.unit+' '+field)}" ${extra}>`;
-   tr.innerHTML=`<td class="pricename">${escape(r.name)}<small>${escape(r.unit)}</small></td><td>${cell('quantity','number','min="1" step="1"')}<small class="qtybasis"></small></td><td>${cell('unit_price','number','min="0" step=".01" placeholder="—"')}</td><td class="lineamount">—</td><td>${cell('source','text','maxlength="200"')}<details><summary>Source link</summary>${cell('url','url','placeholder="https://..." maxlength="2000"')}<span class="evidence"></span></details></td><td>${cell('observed_on','date')}</td><td>${cell('note','text','maxlength="1000" placeholder="Grade, quote reference…"')}</td><td><span class="savestate" role="status"></span><button class="retryprice" type="button">Retry</button><button class="clearprice" type="button">Reset quote</button></td>`;
+   tr.innerHTML=`<td class="pricename">${escape(r.name)}<small>${escape(r.unit)}</small></td><td>${cell('quantity','number','min="1" step="1"')}<small class="qtybasis"></small></td><td>${cell('unit_price','number','min="0" step=".01" placeholder="—"')}</td><td class="lineamount">—</td><td>${cell('source','text','maxlength="200"')}<details><summary>Source link</summary>${cell('url','url','placeholder="https://..." maxlength="2000"')}<span class="evidence"></span></details></td><td>${cell('observed_on','date')}</td><td>${cell('note','text','maxlength="1000" placeholder="Grade, quote reference…"')}</td><td><span class="savestate" role="status"></span><button class="retryprice" type="button">Retry</button><button class="clearquantity" type="button">Reset quantity</button><button class="clearprice" type="button">Reset quote</button></td>`;
    $('pricerows').append(tr);
    tr.querySelectorAll('input').forEach(input=>{
     input.addEventListener('input',()=>editPrice(tr));
@@ -771,12 +804,14 @@ function renderPrices(data){
     input.addEventListener('paste',e=>pastePrices(e,tr,input));
    });
    tr.querySelector('.retryprice').onclick=()=>schedulePrice(r.key,0);
+   tr.querySelector('.clearquantity').onclick=()=>{clearTimeout(priceTimers.get(r.key));const edit={values:priceValues(r),version:Symbol()};priceEdits.set(r.key,edit);enqueuePrice(r.key,{key:r.key,action:'clear_quantity'},edit.version);};
    tr.querySelector('.clearprice').onclick=()=>{clearTimeout(priceTimers.get(r.key));const edit={values:priceValues(r),version:Symbol()};priceEdits.set(r.key,edit);enqueuePrice(r.key,{key:r.key,action:'clear_manual'},edit.version);};
   }
   tr.querySelectorAll('input,button').forEach(input=>input.disabled=data.editable===false);
   tr.querySelector('.qtybasis').textContent=`Model: ${r.model_quantity??'specify lot count'}`;
   tr.querySelector('[data-field="quantity"]').placeholder=r.model_quantity??'Required';
   tr.querySelector('.lineamount').textContent=money(r.total);
+  tr.querySelector('.clearquantity').hidden=r.quantity_override==null&&r.quote?.quantity==null;
   tr.querySelector('.clearprice').hidden=!r.has_manual&&!priceEdits.has(r.key);
   tr.querySelector('.evidence').innerHTML=r.sourced_quote?`<small>Source: ${money(r.sourced_quote.unit_price)} · ${escape(r.sourced_quote.source)}</small>`:'';
   if(!priceEdits.has(r.key)&&!(tr.contains(document.activeElement)&&document.activeElement.matches('input'))){
@@ -803,13 +838,13 @@ function savePriceRow(key){
  enqueuePrice(key,{key,kind:'manual',...v,quantity:v.quantity?Number(v.quantity):null},edit.version);
 }
 function enqueuePrice(key,payload,version){
- if(model?.cad)payload={...payload,client_key:crypto.randomUUID()};
+ if(model?.cad)payload={...payload,client_key:crypto.randomUUID(),expected_build:model.cad.build_id};
  rowStatus(key,'Saving…');
  priceQueue=priceQueue.then(async()=>{
   // A newer edit supersedes an unsent save.
   if(version&&priceEdits.get(key)?.version!==version)return;
   try{
-   const data=await priceRequest(payload);
+   const data=await priceRequest(model?.cad?{...payload,expected_estimate:estimate?.estimate_id}:payload);
    if(!version||priceEdits.get(key)?.version===version){priceEdits.delete(key);rowStatus(key,payload.action?'Reset':'Saved');}
    renderPrices(data);
   }catch(e){rowStatus(key,'Not saved — '+e.message,true);}
@@ -832,12 +867,18 @@ function clearValidationHighlights(){
  for(const m of meshes)if(validationHighlights.has(m.userData.id))m.material.emissive.set(m===selected?'#543c1f':'#000000');
  validationHighlights.clear();disposeTree(validationGroup);
 }
+function setWarningsVisible(enabled){
+ const toggle=$('validation-toggle');
+ if((toggle.getAttribute('aria-pressed')==='true')!==enabled)toggle.onclick();
+ // A directly requested passing finding can be open without the warning list.
+ if(!enabled)$('close-warning').onclick();
+}
 function showValidationFinding(f){
  clearValidationHighlights();
  if(validationReport?.revision!==revision)return;
  showWorkspace();endAssemblyReview();
  const targets=meshes.filter(m=>f.parts.includes(m.userData.id));
- for(const m of targets){visibility.set(m.userData.assembly,true);validationHighlights.add(m.userData.id);}
+ for(const m of targets){visibility.set(m.userData.assembly,true);hiddenParts.delete(m.userData.id);validationHighlights.add(m.userData.id);}
  $('assemblies').querySelectorAll('input').forEach(i=>i.checked=visibility.get(i.dataset.assembly)!==false);
  $('explode').checked=false;applyDisplay();
  if(targets.length)select(targets.find(m=>m.userData.id===f.parts[0])||targets[0]);
@@ -890,8 +931,91 @@ async function refreshValidation(){
 }
 refreshValidation();
 
-const showTool=createShowTool({loadModel,display:displayShow});
-registerShowTool(document.modelContext,showTool).catch(error=>console.warn('stud show tool could not register:',error));
+function stopViewerMotion(){
+ buildCamera.stop();buildAnimation.finish();
+ if(!camera)return;
+ const target=controls.target?.clone(),position=camera.position.clone(),orientation=camera.quaternion.clone();controls.dispose();
+ if(currentView==='firstperson')controls=new FlyControls(camera,renderer.domElement);
+ else{controls=new OrbitControls(camera,renderer.domElement);if(target)controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=currentView==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();camera.position.copy(position);camera.quaternion.copy(orientation);}
+ controls.enabled=!document.body?.classList.contains('viewer-controlled');
+}
+function assertViewerAvailable(){if(!$('areaoverlay').hidden||document.querySelector('dialog[open]'))throw new Error('Finish the open capture or dialog before controlling the viewer.');}
+function highlightParts(parts){
+ clearShow();for(const mesh of parts){const outline=new THREE.Box3Helper(partMeasurement(mesh).box.clone(),0xb05e22);outline.material.depthTest=false;outline.renderOrder=10;outline.userData.partId=mesh.userData.id;showGroup.add(outline);}
+}
+const controlFrame=document.createElement('div');controlFrame.id='viewer-control-frame';controlFrame.setAttribute('aria-hidden','true');document.body.append(controlFrame);
+function syncControlFrame(){
+ const workspace=$('workspace'),header=document.querySelector('.page-tabs');
+ const top=workspace&&!workspace.hidden?workspace.getBoundingClientRect().top:header?.getBoundingClientRect().bottom||0;
+ controlFrame.style.top=`${Math.max(0,top)}px`;
+}
+const controlFrameObserver=new ResizeObserver(syncControlFrame);
+for(const element of [document.body,document.querySelector('.page-tabs'),$('workspace')])if(element)controlFrameObserver.observe(element);
+window.addEventListener('resize',syncControlFrame);syncControlFrame();
+const controlStatus=document.createElement('span');controlStatus.id='viewer-control-status';controlStatus.className='sr-only';controlStatus.setAttribute('role','status');document.body.append(controlStatus);
+const controlStop=document.createElement('button');controlStop.id='viewer-control-stop';controlStop.type='button';controlStop.textContent='Stop';controlStop.hidden=true;document.body.append(controlStop);
+const viewerActivity=createControlActivity(active=>{syncControlFrame();controlFrame.classList.toggle('active',active);document.body.classList.toggle('viewer-controlled',active);if(active)stopViewerMotion();if(controls){controls.enabled=!active;controls.keys?.clear?.();}controlStop.hidden=!active;controlStatus.textContent=active?'stud is adjusting the view':'';});
+installCameraInputGuard({root:document,isControlled:()=>document.body.classList.contains('viewer-controlled')});
+const viewerAdapter={
+ stopAll:()=>{cancelPendingOption();wrapViewerTool.stop();stopViewerMotion()},sequenceReducedMotion:()=>reducedMotion.matches,sequenceActivity:operation=>{showWorkspace();return viewerActivity(operation)},sequenceChanged:renderSequencePlayer,
+ get model(){return model},get meshes(){return meshes},get camera(){return camera},get controls(){return controls},get view(){return currentView},get selected(){return selected},
+ get framedRegion(){return showFrame?modelRegion(showFrame):null},
+ get page(){return $('workspace').hidden?$('page-select').value:'workspace'},get drawing(){return assemblyReview},get validation(){return validationReport},get versions(){return versionsController},get optionComparison(){return optionComparison?.controller},
+ get environmentEnabled(){return $('environmenttoggle').checked},get gridVisible(){return grid.visible},set gridVisible(value){grid.visible=value},
+ get exploded(){return $('explode').checked},set exploded(value){$('explode').checked=value},get dimensions(){return $('dims').getAttribute('aria-pressed')==='true'},set dimensions(value){$('dims').setAttribute('aria-pressed',String(value))},
+ setEnvironmentEnabled:value=>{$('environmenttoggle').checked=value;environment.setEnabled(value)},visibility,hiddenParts,environment,measurement:partMeasurement,label:partLabel,designBase:designBaseElevation,setView,bounds,select,selectPart:revealAndSelectPart,highlight:highlightParts,
+ updateHighlights:()=>{for(const outline of showGroup.children){const mesh=meshes.find(m=>m.userData.id===outline.userData.partId);if(mesh&&outline.box){outline.box.copy(partMeasurement(mesh).box).translate(mesh.position.clone().sub(mesh.userData.basePosition));outline.visible=mesh.visible;}}},
+ highlights:()=>[...new Set([...showGroup.children.flatMap(o=>o.userData.partIds||[o.userData.partId]).filter(Boolean),...validationHighlights])],
+ applyDisplay,endDrawing:endAssemblyReview,openDrawing:openAssemblyDrawing,showWorkspace,setModelPanel,inspectEnvironment,
+ showPage:page=>{history.pushState(null,'',`#${page}`);showPage(page)},clearShow,clearWarnings:clearValidationHighlights,
+ stop:stopViewerMotion,assertAvailable:assertViewerAvailable,render:()=>renderer.render(scene,camera),displayShow,
+ showWarnings:setWarningsVisible,
+ showFinding:finding=>{showValidationFinding(finding);$('warning-title').textContent=finding.status+' · '+finding.rule;$('warning-message').textContent=finding.message;$('warning-detail').hidden=false;},
+ priceRequest,renderPrices,hasPriceDrafts:()=>priceEdits.size>0,refreshModel:refreshDisplayed
+};
+const viewerBridge=createViewerOperations(viewerAdapter);
+const showTool=createShowTool({loadModel:refreshDisplayed,display:input=>{stopViewerMotion();return displayShow(input);}});
+const wrapViewerTool=createViewerToolRunner({context:viewerBridge.context,activity:viewerActivity,before:(name,input,{readOnly})=>{if(name!=='sequence'&&(!readOnly||name==='camera'&&input.action==='stop')){viewerBridge.sequence.pause();if(name==='camera'&&input.action==='stop'){cancelPendingOption();viewerBridge.sequence.stop();wrapViewerTool.stop();}}}});
+controlStop.onclick=()=>{cancelPendingOption();viewerBridge.sequence.stop();wrapViewerTool.stop();stopViewerMotion();viewport.focus({preventScroll:true});};
+const sequencePanel=document.createElement('section');sequencePanel.id='sequence-player';sequencePanel.dataset.status='empty';sequencePanel.hidden=true;sequencePanel.setAttribute('aria-label','Guided presentation');
+const sequenceTitle=document.createElement('strong'),sequenceCaption=document.createElement('p'),sequenceProgress=document.createElement('span'),sequenceButtons=document.createElement('div');
+sequenceProgress.setAttribute('role','status');sequencePanel.append(sequenceTitle,sequenceCaption,sequenceProgress,sequenceButtons);document.body.append(sequencePanel);
+sequenceTitle.className=sequenceCaption.className=sequenceProgress.className='sr-only';
+const playbackButtons={};
+const playbackIcons={previous:'<path d="M6 5v14M18 5l-9 7 9 7Z"/>',play:'<path d="m8 5 11 7-11 7Z"/>',pause:'<path d="M8 5v14M16 5v14"/>',next:'<path d="M18 5v14M6 5l9 7-9 7Z"/>',replay:'<path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/>',dismiss:'<path d="m6 6 12 12M6 18 18 6"/>'};
+for(const [action,label] of [['previous','Previous'],['play','Play'],['pause','Pause'],['next','Next'],['replay','Replay'],['dismiss','Close']]){
+ const button=document.createElement('button');button.type='button';button.title=label;button.setAttribute('aria-label',label);button.dataset.action=action;button.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${playbackIcons[action]}</svg>`;button.onclick=async()=>{const result=await viewerToolDescriptors.find(tool=>tool.name==='sequence').execute({action});if(!result.ok){sequenceCaption.textContent=result.error.message;sequenceCaption.className='sequence-error';}};playbackButtons[action]=button;sequenceButtons.append(button);
+}
+function renderSequencePlayer(state){
+ // Preparation happens after initialization, through the public tool or controls.
+ sequencePanel.dataset.status=state.status;sequencePanel.hidden=state.status==='empty'||$('workspace').hidden;sequenceTitle.textContent=state.title;
+ sequenceCaption.textContent=state.error||state.caption||state.label;
+ sequenceProgress.textContent=`${state.status==='ready'?'Ready':state.status} · ${state.step}/${state.steps} · ${Math.round(state.duration)} seconds`;
+ playbackButtons.play.title=state.status==='paused'?'Resume':'Play';playbackButtons.play.setAttribute('aria-label',playbackButtons.play.title);
+ sequencePanel.title=`${state.title} · ${state.step}/${state.steps}`;sequenceCaption.className=state.error?'sequence-error':'sr-only';
+ playbackButtons.play.hidden=state.status==='playing';playbackButtons.pause.hidden=state.status!=='playing';
+ playbackButtons.previous.disabled=state.step<=1;playbackButtons.next.disabled=state.step>=state.steps;
+ document.body.classList.toggle('sequence-playing',state.status==='playing');
+}
+function cancelPendingOption(){
+ if(optionComparison?.controller.pending){modelDisplayEpoch++;cadScene.invalidate();optionComparison.controller.cancel();}
+}
+function interruptForNavigation(){
+ cancelPendingOption();
+ viewerBridge.sequence.pause();wrapViewerTool.stop();stopViewerMotion();
+}
+document.querySelector('.page-tabs').addEventListener('click',event=>{
+ const link=event.target.closest('a[href^="#"]');
+ if(link&&link.hash.slice(1)!==viewerAdapter.page)interruptForNavigation();
+},true);
+$('page-select').addEventListener('change',interruptForNavigation,true);
+window.addEventListener('hashchange',interruptForNavigation);
+window.addEventListener('popstate',interruptForNavigation);
+viewport.tabIndex=-1;
+// Feature adapters (for example installOptionTabs) receive this registration hook.
+function registerControlledTools(tools){return registerViewerTools(document.modelContext,tools.map(tool=>wrapViewerTool(tool)));}
+const viewerToolDescriptors=createViewerTools({...viewerBridge,activity:viewerActivity,wrap:wrapViewerTool});
+registerViewerTools(document.modelContext,[wrapViewerTool(showTool),...viewerToolDescriptors]).catch(error=>console.warn('stud viewer tools could not register:',error));
 
 $('closeareaimage').onclick=()=>$('areaimageview').close();
 installAreaCapture({viewport,selectedPart:()=>selected?.userData.id,context:()=>model?.cad?{...model.cad}:{} ,capture:()=>{
@@ -1051,3 +1175,42 @@ function attachAnnotationHover(button,targets,anchor){
  button.addEventListener('focus',show);button.addEventListener('blur',clearAnnotationHover);
 }
 restorePartsPanel();
+
+// A presentation-only panel: moving or opening it never resizes the canvas.
+function installFloatingInspector({panel,handle,workspace,getAvoidRects=()=>[],storage=localStorage}){
+ const key='stud.inspector-position';let position=null,drag=null;
+ try{const saved=JSON.parse(storage.getItem(key));if(Number.isFinite(saved?.x)&&Number.isFinite(saved?.y))position=saved;}catch{}
+ function place(){
+  if(panel.hidden)return;
+  const maxX=Math.max(8,workspace.clientWidth-panel.offsetWidth-8),maxY=Math.max(8,workspace.clientHeight-panel.offsetHeight-8);
+  const top=Math.min(76,maxY),candidates=[{x:maxX,y:top},{x:8,y:top},{x:maxX,y:maxY},{x:8,y:maxY}];
+  const obstacles=position?[]:getAvoidRects();
+  const overlap=p=>obstacles.reduce((sum,r)=>sum+Math.max(0,Math.min(p.x+panel.offsetWidth,r.right)-Math.max(p.x,r.left))*Math.max(0,Math.min(p.y+panel.offsetHeight,r.bottom)-Math.max(p.y,r.top)),0);
+  const requested=position||candidates.sort((a,b)=>overlap(a)-overlap(b))[0];
+  position=requested;
+  panel.style.left=`${Math.max(8,Math.min(maxX,requested.x))}px`;
+  panel.style.top=`${Math.max(8,Math.min(maxY,requested.y))}px`;
+ }
+ function save(){position={x:panel.offsetLeft,y:panel.offsetTop};try{storage.setItem(key,JSON.stringify(position));}catch{}}
+ handle.tabIndex=0;handle.setAttribute('role','button');handle.setAttribute('aria-label','Move part details; drag or use arrow keys');
+ handle.addEventListener('pointerdown',event=>{
+  if(event.button!==0)return;
+  drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:panel.offsetLeft,top:panel.offsetTop};
+  handle.setPointerCapture(event.pointerId);event.preventDefault();
+ });
+ handle.addEventListener('pointermove',event=>{
+  if(!drag||event.pointerId!==drag.id)return;
+  position={x:drag.left+event.clientX-drag.x,y:drag.top+event.clientY-drag.y};place();
+ });
+ function end(event){if(!drag||event.pointerId!==drag.id)return;drag=null;save();}
+ handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);handle.addEventListener('lostpointercapture',end);
+ handle.addEventListener('keydown',event=>{
+  const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];if(!delta)return;
+  event.preventDefault();const step=event.shiftKey?32:8;
+  position={x:panel.offsetLeft+delta[0]*step,y:panel.offsetTop+delta[1]*step};place();save();
+ });
+ new ResizeObserver(place).observe(workspace);
+ new ResizeObserver(place).observe(panel);
+ new MutationObserver(place).observe(panel,{attributes:true,attributeFilter:['hidden']});
+ place();
+}

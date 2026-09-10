@@ -55,17 +55,18 @@ export function createShowTool({loadModel, display}) {
     description: 'Show the current stud design to the user. Refreshes the model, reveals all assemblies, exits exploded display, and frames the whole design or highlights specified parts/a region. Changes only the viewer; does not edit the design or imply user approval. Coordinates are inches, X width, Y depth, Z up.',
     inputSchema: showInputSchema,
     annotations: {readOnlyHint: false},
-    execute: async (input = {}) => {
+    execute: async (input = {}, {signal} = {}) => {
       try { validateShowInput(input); }
       catch (error) { return {ok: false, error: {code: 'INVALID_INPUT', message: error.message}}; }
       let model;
-      try { model = await loadModel(); }
+      try { model = await loadModel(); if(!model)throw new Error('The model is still being prepared.'); }
       catch (error) { return {ok: false, error: {code: 'MODEL_UNAVAILABLE', message: error.message}}; }
       if (input.expected_revision && input.expected_revision !== model.revision) {
         return {ok: false, error: {code: 'REVISION_CONFLICT', message: 'The current design has a different revision.', actual_revision: model.revision}};
       }
       const missing = (input.part_ids || []).filter(id => !model.parts.some(p => p.id === id));
       if (missing.length) return {ok: false, error: {code: 'PART_NOT_FOUND', message: 'Some requested parts do not exist.', missing_part_ids: missing}};
+      signal?.throwIfAborted();
       try { return {ok: true, ...await display(input)}; }
       catch (error) { return {ok: false, error: {code: 'DISPLAY_FAILED', message: error.message}}; }
     },
