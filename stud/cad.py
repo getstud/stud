@@ -1,4 +1,4 @@
-"""Completed CadQuery output and project meaning, in millimeters.
+"""Completed CadQuery output and project meaning in declared project units.
 
 Use ordinary CadQuery for geometry. Model publishes snapshots; it never wraps
 booleans, sketches, selectors, or the rest of the CadQuery modeling language.
@@ -15,12 +15,9 @@ import time
 import cadquery as cq
 
 from .contracts import StudError, atomic_write, digest, encoded
+from .units import validate as validate_units, defaults as unit_defaults, requirement_units
 
 _publication = ContextVar('stud_publication', default=None)
-
-
-def inches(value):
-    return float(value) * 25.4
 
 
 def location_matrix(location):
@@ -42,8 +39,8 @@ def shape_bounds(shape):
 
 
 @contextmanager
-def publication_context(callback, directory, runtime, settings):
-    token = _publication.set(dict(callback=callback, directory=Path(directory), runtime=runtime, settings=settings))
+def publication_context(callback, directory, runtime, settings, units='mm'):
+    token = _publication.set(dict(callback=callback, directory=Path(directory), runtime=runtime, settings=settings,units=validate_units(units)))
     try:
         yield
     finally:
@@ -51,7 +48,11 @@ def publication_context(callback, directory, runtime, settings):
 
 
 class Model:
-    def __init__(self, name):
+    def __init__(self, name, *, units=None):
+        self.context = _publication.get()
+        self.units=validate_units(units if units is not None else (self.context['units'] if self.context else 'mm'))
+        if self.context and self.units!=self.context['units']:
+            raise StudError('unit_mismatch','The model units must match the project; geometry is not converted implicitly.')
         self.name = name
         self.assemblies = {}
         self.objects = {}
@@ -66,7 +67,6 @@ class Model:
         self.connections = {}
         self.notes = []
         self.timings = {'archive_seconds': 0.0, 'tessellation_seconds': 0.0}
-        self.context = _publication.get()
         self._batch = None
         # The worker can retain a partially evaluated model after an exception.
         if self.context:
@@ -122,19 +122,19 @@ class Model:
         native = io.BytesIO()
         snapshot.exportBrep(native)
         native_bytes = native.getvalue()
-        settings = self.context['settings'] if self.context else {}
+        settings = {**unit_defaults(self.units),**(self.context['settings'] if self.context else {})}
         runtime = self.context['runtime']['id'] if self.context else cq.__version__
-        mesh_settings={key:settings.get(key,.1) for key in ('linear_tolerance_mm','angular_tolerance')}
-        shape_key = digest(dict(brep=digest(native_bytes), runtime=runtime, units='mm', settings=mesh_settings))
+        mesh_settings={key:settings.get(key,.1) for key in ('linear_tolerance','angular_tolerance')}
+        shape_key = digest(dict(brep=digest(native_bytes), runtime=runtime, units=self.units, settings=mesh_settings))
         self.timings['archive_seconds'] += time.perf_counter() - started
         if shape_key not in self.assets:
             asset = dict(key=shape_key, native=f'assets/{shape_key}.brep', mesh=f'assets/{shape_key}.mesh',
-                         native_sha256=digest(native_bytes), bounds=shape_bounds(snapshot))
+                         native_sha256=digest(native_bytes), units=self.units,bounds=shape_bounds(snapshot))
             if self.context:
                 directory = self.context['directory']
                 atomic_write(directory / asset['native'], native_bytes)
                 started = time.perf_counter()
-                vertices, triangles = snapshot.tessellate(settings.get('linear_tolerance_mm', 0.1),
+                vertices, triangles = snapshot.tessellate(settings.get('linear_tolerance', 0.1),
                                                          settings.get('angular_tolerance', 0.1))
                 coordinates = [v for point in vertices for v in point.toTuple()]
                 indices = [i for triangle in triangles for i in triangle]
@@ -151,7 +151,7 @@ class Model:
                    local_placement=location_matrix(location), placement=location_matrix(world),
                    bounds=shape_bounds(snapshot.located(world * snapshot.location())),
                    material=material, blank=deepcopy(blank), color=color, lineage=deepcopy(lineage),
-                   volume_mm3=snapshot.Volume(), provenance=self._provenance())
+                   volume=snapshot.Volume(), provenance=self._provenance())
         if any(old['mark'] == obj['mark'] and old['id'] != object_id for old in self.objects.values()):
             raise StudError('duplicate_id', 'Part marks must be unique; provide an explicit mark.', references=[object_id])
         # Replacing an object never silently preserves references to old faces.
@@ -200,21 +200,28 @@ class Model:
         encoded(self.references[key])
         return key
 
-    def requirement(self, requirement_id, kind, targets, *, threshold=0, units='mm',
-                    tolerance=0.01, explanation='', **policy):
+    def requirement(self, requirement_id, kind, targets, *, threshold=0, units=None,
+                    tolerance=None, explanation='', **policy):
         self._unique(self.requirements, requirement_id)
+        units=units or requirement_units(self.units,kind)
+        tolerance=unit_defaults(self.units)['query_tolerance'] if tolerance is None else tolerance
         self.requirements[requirement_id] = dict(id=requirement_id, kind=kind, targets=list(targets),
             threshold=threshold, units=units, tolerance=tolerance, explanation=explanation, policy=policy)
         return requirement_id
 
     def demand(self, demand_id, *, product_id, specification, object_ids, quantity=None,
-               unit='each', purchase_unit='each', pack_size=1, stock_lengths_mm=None,
-               cuts_mm=None, sheets=None, unresolved=None, **details):
+               unit='each', purchase_unit='each', pack_size=1, stock_lengths=None,
+               cuts=None, sheets=None, unresolved=None, **details):
         self._unique(self.demands, demand_id)
+        if (unit in ('in','mm') and unit!=self.units) or any(
+                record.get('length_unit',self.units)!=self.units for record in (specification,details)):
+            raise StudError('unit_mismatch','Material dimensions must use the project units; no stock conversion is implicit.')
+        specification={**specification,'length_unit':self.units}
+        details.pop('length_unit',None)
         self.demands[demand_id] = dict(id=demand_id, product_id=product_id, specification=specification,
             object_ids=list(object_ids), quantity=quantity, unit=unit, purchase_unit=purchase_unit,
-            pack_size=pack_size, stock_lengths_mm=stock_lengths_mm, cuts_mm=cuts_mm, sheets=sheets,
-            unresolved=unresolved or [], **details)
+            pack_size=pack_size, stock_lengths=stock_lengths, cuts=cuts, sheets=sheets,
+            unresolved=unresolved or [],length_unit=self.units, **details)
         return demand_id
 
     def dimension(self, dimension_id, start, end, *, label='', measurement='distance', **layout):
@@ -242,7 +249,7 @@ class Model:
         return step_id
 
     def export(self):
-        return dict(name=self.name, units='mm', objects=list(self.objects.values()),
+        return dict(name=self.name, units=self.units, objects=list(self.objects.values()),
             assemblies=[{k: v for k, v in item.items() if not k.startswith('_')} for item in self.assemblies.values()],
             assets=self.assets, references=self.references, requirements=list(self.requirements.values()),
             demands=list(self.demands.values()), dimensions=list(self.dimensions.values()),

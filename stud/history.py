@@ -187,7 +187,7 @@ class History:
         return dict(**report,evidence_checkpoint=evidence)
 
 
-def initialize(root, name=None):
+def initialize(root, name=None, *, units='mm'):
     """Explicitly enroll only modeling files; never sweep up unrelated edits."""
     root = Path(root).resolve()
     root.mkdir(parents=True, exist_ok=True)
@@ -210,7 +210,7 @@ def initialize(root, name=None):
         if tracked_ignore != (root / '.gitignore').read_bytes():
             raise StudError('conversion_conflict', 'Save or separately reconcile existing .gitignore edits before conversion.')
     project_id, option_id = identifier('project'), identifier('option')
-    manifest = new_manifest(name or root.name, project_id)
+    manifest = new_manifest(name or root.name, project_id,units=units)
     write_json(root / 'stud.json', manifest)
     write_json(root / 'estimating.json', {'schema_version': 1, 'currency': 'USD', 'overrides': {},
                                           'allowances': {}, 'quote_selection': {}, 'tax_rate': '0',

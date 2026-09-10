@@ -33,7 +33,7 @@ class QueryCache:
             else:
                 shapes.append(dict(id=target,shape=obj['shape_digest'],placement=obj['placement']))
         try:
-            return digest(dict(schema_version=1,units='mm',kind=kind,shapes=shapes,
+            return digest(dict(schema_version=1,units=model.units,declared_units=requirement.get('units'),kind=kind,shapes=shapes,
                 threshold=requirement['threshold'],tolerance=requirement['tolerance'],policy=requirement.get('policy',{})))
         except (TypeError,ValueError):return None
 

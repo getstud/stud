@@ -11,7 +11,7 @@ import time
 
 from .contracts import StudError, digest, encoded
 
-CALCULATION_VERSION = 3
+CALCULATION_VERSION = 4
 CENT = Decimal('0.01')
 PRECEDENCE = {'estimated': 0, 'sourced': 1, 'manual': 2}
 
@@ -35,7 +35,7 @@ def ceil(value):
 
 
 def quote_key(record):
-    return (record['product_id'], digest(record['specification']), record['purchase_unit'],
+    return (record['product_id'], digest({'length_unit':'mm',**record['specification']}), record['purchase_unit'],
             str(decimal(record.get('pack_size', 1))))
 
 
@@ -108,13 +108,13 @@ def plan_purchase(demand, inputs):
     pack = decimal(demand.get('pack_size', 1))
     if pack <= 0:
         raise StudError('invalid_quantity', 'Pack size must be greater than zero.')
-    cuts = demand.get('cuts_mm')
+    cuts = demand.get('cuts')
     if cuts is not None:
-        lengths = sorted(decimal(length) for length in (demand.get('stock_lengths_mm') or []))
-        kerf = decimal(demand.get('kerf_mm', 3))
+        lengths = sorted(decimal(length) for length in (demand.get('stock_lengths') or []))
+        kerf = decimal(demand.get('kerf', .125 if demand.get('length_unit')=='in' else 3))
         boards = []
-        for cut in sorted(cuts, key=lambda cut: decimal(cut['length_mm']), reverse=True):
-            length = decimal(cut['length_mm'])
+        for cut in sorted(cuts, key=lambda cut: decimal(cut['length']), reverse=True):
+            length = decimal(cut['length'])
             if length <= 0:
                 raise StudError('invalid_quantity', 'Cut lengths must be positive.')
             eligible = [(board['remaining'], i) for i, board in enumerate(boards)
@@ -125,20 +125,20 @@ def plan_purchase(demand, inputs):
             else:
                 candidates = [stock for stock in lengths if stock >= length]
                 if not candidates:
-                    missing.append(f'No available blank fits {cut["object_id"]}: {length} mm')
+                    missing.append(f'No available blank fits {cut["object_id"]}: {length} {demand.get("length_unit","mm")}')
                     continue
                 board = dict(length=min(candidates), remaining=min(candidates), cuts=[])
                 boards.append(board)
                 loss = Decimal(0)
             board['remaining'] -= length + loss
-            board['cuts'].append(dict(**cut, kerf_before_mm=str(loss)))
-        plan['stock'] = [dict(id=f'{demand["id"]}.stock.{index + 1}', length_mm=str(board['length']),
-                              kerf_mm=str(kerf),
-                              trailing_kerf_mm=str(min(kerf,board['remaining'])),
-                              remaining_mm=str(max(Decimal(0),board['remaining']-kerf)), cuts=board['cuts'])
+            board['cuts'].append(dict(**cut, kerf_before=str(loss)))
+        plan['stock'] = [dict(id=f'{demand["id"]}.stock.{index + 1}', length=str(board['length']),
+                              kerf=str(kerf),
+                              trailing_kerf=str(min(kerf,board['remaining'])),
+                              remaining=str(max(Decimal(0),board['remaining']-kerf)), cuts=board['cuts'])
                          for index, board in enumerate(boards)]
         quantity = Decimal(len(boards))
-        plan['demand_quantity'] = str(sum((decimal(c['length_mm']) for c in cuts), Decimal(0)))
+        plan['demand_quantity'] = str(sum((decimal(c['length']) for c in cuts), Decimal(0)))
         plan['basis'] = 'Specified blank lengths, longest cuts first, shortest fitting stock; kerf between cuts and before reusable offcuts.'
     elif demand.get('sheets') is not None:
         sheets = demand['sheets']
@@ -177,7 +177,7 @@ def purchase_lines(demands, inputs):
     for original in demands:
         demand=deepcopy(original)
         signature=digest({k:v for k,v in demand.items() if k not in
-            ('id','object_ids','cuts_mm','sheets','quantity','unresolved')})
+            ('id','object_ids','cuts','sheets','quantity','unresolved')})
         if signature not in groups:
             demand['demand_ids']=[demand['id']]
             groups[signature]=demand
@@ -186,22 +186,22 @@ def purchase_lines(demands, inputs):
             merged['demand_ids'].append(demand['id'])
             merged['object_ids']+=demand['object_ids']
             merged.setdefault('unresolved',[]).extend(demand.get('unresolved',[]))
-            for field in ('cuts_mm','sheets'):
+            for field in ('cuts','sheets'):
                 if demand.get(field) is not None:merged[field]+=demand[field]
             if demand.get('quantity') is not None:merged['quantity']=str(decimal(merged['quantity'])+decimal(demand['quantity']))
     lines={}
     for demand in groups.values():
         plan=plan_purchase(demand,{})
         parts=[plan]
-        if demand.get('cuts_mm') is not None and plan['stock']:
+        if demand.get('cuts') is not None and plan['stock']:
             by_length={}
-            for stock in plan['stock']:by_length.setdefault(stock['length_mm'],[]).append(stock)
+            for stock in plan['stock']:by_length.setdefault(stock['length'],[]).append(stock)
             parts=[]
             for length,stocks in sorted(by_length.items(),key=lambda row:decimal(row[0])):
                 part=deepcopy(plan)
-                part.update(specification={**plan['specification'],'stock_length_mm':str(decimal(length).normalize())},
+                part.update(specification={**plan['specification'],'stock_length':str(decimal(length).normalize())},
                     stock=stocks,quantity=str(len(stocks)),
-                    demand_quantity=str(sum((decimal(cut['length_mm']) for stock in stocks for cut in stock['cuts']),Decimal(0))),
+                    demand_quantity=str(sum((decimal(cut['length']) for stock in stocks for cut in stock['cuts']),Decimal(0))),
                     object_ids=sorted({cut['object_id'] for stock in stocks for cut in stock['cuts']}))
                 parts.append(part)
         for part in parts:

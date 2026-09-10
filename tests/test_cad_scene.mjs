@@ -14,16 +14,16 @@ function asset(){
  return {bytes,hash:createHash('sha256').update(new Uint8Array(bytes)).digest('hex')};
 }
 const meshAsset=asset();
-function part(id,x=0){return {id,stock:'wood',color:'#d8b982',cad:{shape_key:'shared',mesh_url:'/mesh',mesh_sha256:meshAsset.hash,
+function part(id,x=0){return {id,stock:'wood',color:'#d8b982',cad:{units:'mm',shape_key:'shared',mesh_url:'/mesh',mesh_sha256:meshAsset.hash,
  placement:[[1,0,0,x],[0,1,0,0],[0,0,1,0],[0,0,0,1]]}};}
 function manifest(parts,complete=true,id='b1'){return {parts,stocks:{wood:{color:'#d8b982'}},cad:{build_id:id,completion:{geometry:complete?'complete':'partial'}}};}
 const okFetch=async()=>({ok:true,arrayBuffer:async()=>meshAsset.bytes});
 
 test('native mesh decoding preserves physical units and rejects corrupt indices',()=>{
- assert.ok(Math.abs(decodeMesh(meshAsset.bytes).positions[3]-1)<1e-6);
+ assert.ok(Math.abs(decodeMesh(meshAsset.bytes,'mm').positions[3]-1)<1e-6);
  const corrupted=meshAsset.bytes.slice(0);new DataView(corrupted).setUint32(52,99,true);
- assert.throws(()=>decodeMesh(corrupted),/missing vertex/);
- assert.throws(()=>decodeMesh(meshAsset.bytes.slice(0,-1)),/corrupt/);
+ assert.throws(()=>decodeMesh(corrupted,'mm'),/missing vertex/);
+ assert.throws(()=>decodeMesh(meshAsset.bytes.slice(0,-1),'mm'),/corrupt/);
 });
 
 test('patches retain object identity, reuse assets, and distinguish partial prior context',async()=>{
@@ -70,4 +70,23 @@ test('ordered event replay is harmless and a gap requests one snapshot',()=>{
  assert.equal(stream.accept({sequence:1,type:'part_batch'}),false);
  assert.equal(stream.accept({sequence:3,type:'build_ended'}),false);
  assert.equal(events.length,1);assert.equal(resets,1);
+});
+
+test('inch assets retain inch coordinates and reject unit conflicts',async()=>{
+ const inch=part('inch',10);inch.cad.units='in';
+ const scene=new CadScene({THREE,group:new THREE.Group(),fetcher:okFetch});
+ const result=(await scene.prepare(manifest([inch])))();
+ assert.equal(result.meshes[0].position.x,10);
+ assert.ok(Math.abs(result.meshes[0].geometry.attributes.position.array[3]-25.4)<1e-5);
+ const metric=part('metric',254);
+ await assert.rejects(()=>scene.prepare(manifest([metric])),/conflicting/);
+ assert.throws(()=>decodeMesh(meshAsset.bytes),/declare in or mm/);
+ assert.throws(()=>decodeMesh(meshAsset.bytes,'feet'),/declare in or mm/);
+});
+
+test('metric cut labels report native millimeters from the viewer presentation',async()=>{
+ const {cutSpecification}=await import('../web/assembly-instructions.js');
+ const metric={size:[1.5,3.5,24],blank_size:[1.5,3.5,24],cut_length:24,cad:{units:'mm',operations:[]}};
+ assert.equal(cutSpecification(metric,{section:[1.5,3.5]}).text,'609.6 mm cut');
+ assert.equal(cutSpecification({...metric,cad:{units:'in',operations:[]}},{section:[1.5,3.5]}).text,'24″ cut');
 });

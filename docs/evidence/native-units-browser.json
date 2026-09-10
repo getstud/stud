@@ -1,0 +1,119 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "units": "in",
+      "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-browser-in-mmr1rjoi",
+      "geometry": {
+        "units": "in",
+        "part_units": "in",
+        "min": [
+          10,
+          1.2246467991473533e-15,
+          -23.5
+        ],
+        "max": [
+          11.5,
+          24,
+          -19.999999999999993
+        ],
+        "dimensions": [
+          {
+            "id": "width",
+            "label": "Board thickness",
+            "start": [
+              10,
+              20,
+              0
+            ],
+            "end": [
+              11.5,
+              20,
+              0
+            ],
+            "inches": 1.5
+          }
+        ]
+      },
+      "inspector": "P-859169B3 · Board\n\nLumber\n\n24″ cut\n\nBottom edge 0″ above design base\n\nMODELED\nDetails\n\nStock blank: 1.5″ × 3.5″ × 24″",
+      "footer": "PERSPECTIVE · INCHES",
+      "focus_acknowledged": true,
+      "camera": {
+        "position": [
+          34.54727478501546,
+          29.847956088761592,
+          9.186457220520094
+        ],
+        "quaternion": [
+          -0.20147249851517993,
+          0.3146304179368595,
+          0.06852521839860927,
+          0.9250517968710461
+        ],
+        "target": [
+          10.75,
+          11.999999999999998,
+          -21.75
+        ]
+      },
+      "errors": []
+    },
+    {
+      "units": "mm",
+      "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-browser-mm-eytvp3ov",
+      "geometry": {
+        "units": "mm",
+        "part_units": "mm",
+        "min": [
+          10,
+          1.2246467991473533e-15,
+          -23.5
+        ],
+        "max": [
+          11.49999988079071,
+          23.999998092651367,
+          -19.999999999999996
+        ],
+        "dimensions": [
+          {
+            "id": "width",
+            "label": "Board thickness",
+            "start": [
+              10,
+              20,
+              0
+            ],
+            "end": [
+              11.5,
+              20,
+              0
+            ],
+            "inches": 1.5000000000000009
+          }
+        ]
+      },
+      "inspector": "P-859169B3 · Board\n\nLumber\n\n609.6 mm cut\n\nBottom edge 0 mm above design base\n\nMODELED\nDetails\n\nStock blank: 38.1 mm × 88.9 mm × 609.6 mm",
+      "footer": "PERSPECTIVE · MILLIMETERS",
+      "focus_acknowledged": true,
+      "camera": {
+        "position": [
+          34.547274785015446,
+          29.847956088761578,
+          9.186457220520083
+        ],
+        "quaternion": [
+          -0.20147249851517987,
+          0.3146304179368594,
+          0.06852521839860924,
+          0.9250517968710461
+        ],
+        "target": [
+          10.75,
+          11.999999999999996,
+          -21.75
+        ]
+      },
+      "errors": []
+    }
+  ]
+}

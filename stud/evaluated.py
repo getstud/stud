@@ -8,6 +8,7 @@ from OCP.gp import gp_Trsf
 
 from .contracts import StudError, confined, digest, read_json, manifest_name
 from .source import runtime_fingerprint
+from .units import validate as validate_units
 
 
 def location_from_matrix(matrix):
@@ -23,6 +24,7 @@ def load_model(directory, *, require_runtime=True, manifest_version=None, expect
     manifest = read_json(path)
     if not manifest:
         raise StudError('unavailable_artifact', 'The evaluated model manifest is missing.')
+    validate_units(manifest.get('units'))
     if expected:
         required={key:expected[key] for key in ('project_id','source_id')}
         required['build_id']=expected.get('build_id',expected['id'])
@@ -41,6 +43,8 @@ def load_model(directory, *, require_runtime=True, manifest_version=None, expect
         key = obj['shape_key']
         if key not in loaded:
             asset = manifest['assets'][key]
+            if asset.get('units')!=manifest['units']:
+                raise StudError('artifact_identity_mismatch','The shape archive units differ from the evaluated model.')
             file = confined(directory, asset['native'])
             if not file.is_file() or digest(file.read_bytes()) != asset['native_sha256']:
                 raise StudError('unavailable_artifact', 'A native shape archive is missing or corrupt.', references=[obj['id']])
@@ -48,7 +52,7 @@ def load_model(directory, *, require_runtime=True, manifest_version=None, expect
         local = loaded[key]
         location = location_from_matrix(obj['placement'])
         shapes[obj['id']] = dict(local=local, world=local.moved(location), location=location)
-    model = SimpleNamespace(name=manifest['name'], objects={o['id']:o for o in manifest['objects']},
+    model = SimpleNamespace(name=manifest['name'],units=manifest['units'], objects={o['id']:o for o in manifest['objects']},
                             assemblies={a['id']:a for a in manifest['assemblies']}, shapes=shapes,
                             references=manifest['references'], requirements={r['id']:r for r in manifest['requirements']})
     return model, manifest

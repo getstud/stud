@@ -81,7 +81,7 @@ try {
   assert.equal(manifest.checks.all_passed, true);
   const promptId = crypto.randomUUID();
   await api('save_prompt', { prompt_id: promptId, text: 'Installed viewer note', object_id: 'starter', build_id: build.id, source_id: source.source_id });
-  await api('save_prices', { quotes: [{ product_id: 'lumber.38x89', specification: { material: 'softwood', section_mm: [38,89], stock_length_mm: '2.4E+3' },
+  await api('save_prices', { quotes: [{ product_id: 'lumber.1.5x3.5', specification: { material: 'softwood', section: [1.5,3.5], stock_length: '96', length_unit: 'in' },
     purchase_unit: 'board', price: '8.50', currency: 'USD', supplier: 'Installed test', source: 'Manual fixture', quote_date: '2026-09-09', kind: 'manual' }],
     expected_build: build.id });
   const saved = JSON.parse(command('finish', project, '--request', request.id, '--source', source.source_id, '--summary', 'Installed native workflow', '--wait'));

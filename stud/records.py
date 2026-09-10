@@ -148,6 +148,10 @@ class Records:
             files={}
             for index,quote in enumerate(quotes):
                 quote=dict(quote)
+                specification=quote.get('specification',{})
+                if specification.get('length_unit',session.manifest['units'])!=session.manifest['units']:
+                    raise StudError('unit_mismatch','Quote dimensions must use the project units.')
+                quote['specification']={**specification,'length_unit':session.manifest['units']}
                 record_id=quote.get('id') or 'quote_'+digest(f'{key}:{index}'.encode())[:32]
                 quote.update(id=record_id,save_sequence=self._sequence(),project_id=session.manifest['project_id'])
                 if quote.get('action')=='clear_manual':

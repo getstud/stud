@@ -25,7 +25,7 @@ class GeometryPreview:
         self.objects={key:obj for key,obj in self.objects.items() if key in model.objects}
         for key,assembly in model.assemblies.items():
             if key not in self.assemblies:self.assemblies[key]=deepcopy({k:v for k,v in assembly.items() if not k.startswith('_')})
-        return dict(name=model.name,units='mm',preview_scope='geometry',objects=list(self.objects.values()),
+        return dict(name=model.name,units=model.units,preview_scope='geometry',objects=list(self.objects.values()),
             assets=dict(self.assets),assemblies=[obj for key,obj in self.assemblies.items() if key in model.assemblies],
             references=deepcopy(model.references),dimensions=deepcopy(list(model.dimensions.values())),
             requirements=[],demands=[],drawings=[],steps=[],connections=[],notes=list(model.notes),timings={})

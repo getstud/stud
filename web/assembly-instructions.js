@@ -6,16 +6,17 @@ export function workshopInches(value){
  return `${sign}${whole||!eighth?whole:''}${['','⅛','¼','⅜','½','⅝','¾','⅞'][eighth]}″`;
 }
 export function cutSpecification(part,stock={}){
+ const format=value=>part.cad?.units==='mm'?`${Number((value*25.4).toFixed(3))} mm`:workshopInches(value);
  const blank=part.blank_size||part.size;
  const shaped=part.cad?part.cad.operations.some(operation=>!['square_cut','panel_cut'].includes(operation.kind)):!!(part.profile||part.outline||part.seats||part.blank_size);
  if(Number.isFinite(part.cut_length)&&part.cut_length>0){
   const axis=blank.findIndex((length,i)=>Math.abs(length-part.cut_length)<1e-5&&(!stock.section||blank.filter((_,j)=>j!==i).sort((a,b)=>a-b).every((v,j)=>Math.abs(v-[...stock.section].sort((a,b)=>a-b)[j])<1e-5)));
-  return {kind:'lumber',axis,length:part.cut_length,shaped,text:`${workshopInches(part.cut_length)} ${shaped?'blank':'cut'}`};
+  return {kind:'lumber',axis,length:part.cut_length,shaped,text:`${format(part.cut_length)} ${shaped?'blank':'cut'}`};
  }
  if(stock.sheet){
   const thicknessAxis=Number.isFinite(stock.sheet_thickness)?blank.findIndex(v=>Math.abs(v-stock.sheet_thickness)<1e-5):-1;
   const size=thicknessAxis<0?blank:blank.filter((_,i)=>i!==thicknessAxis);
-  return {kind:'sheet',axis:-1,shaped,text:`${size.map(workshopInches).join(' × ')} ${shaped?'blank':'cut'}`};
+  return {kind:'sheet',axis:-1,shaped,text:`${size.map(format).join(' × ')} ${shaped?'blank':'cut'}`};
  }
  return {kind:'part',axis:-1,shaped,text:stock.product?'Purchased part':'See part details'};
 }

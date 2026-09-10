@@ -1,0 +1,23 @@
+{
+  "cli": "/private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/stud-update-probe-xWRQ2O/previous/stud.app/Contents/MacOS/stud",
+  "previous_version": "1.0.0-preview.7",
+  "version": "1.0.0-preview.8",
+  "signature_verified": true,
+  "payload_bytes": 592519302,
+  "signing_key_kind": "release",
+  "public_key_sha256": "c86f40098a08a56e70d0c7a2bedcdef2a0a36bc118a47536b20cb33631fa1d16",
+  "project_id": "project_ead6f9cdaae7423eb0f6d2bd9e8679a6",
+  "checkpoint": "e06a78b13747ef696fe4dc6ddc8c1f218e545e6a",
+  "preserved": {
+    "project": true,
+    "checkpoint": true,
+    "prompt": true,
+    "prices": true,
+    "pdf": true,
+    "unrelated_file": true
+  },
+  "smoke_passed": true,
+  "source_commit": "0351ee9",
+  "workflow_run": 34467982437,
+  "note": "Production-key update evidence before the native-unit correction; superseded by the final native-unit candidate when available."
+}

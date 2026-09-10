@@ -1,7 +1,7 @@
-"""A detailed 8 x 10 foot framing study; all coordinates are millimeters."""
+"""A detailed 8 x 10 foot framing study; all coordinates are inches."""
 from stud.cad import Model
-from stud.buildings import shed
+from shed import shed
 
-model = Model('8 x 10 foot shed framing')
-components = shed(model, length=3048, depth=2438.4, door_width=914.4, window_width=650,
-    wall_exceptions={'front': {'stud.at_406_4': {'bore': {'x': 19, 'z': 500, 'diameter': 12}}}})
+model = Model('8 x 10 foot shed framing', units='in')
+components = shed(model, length=120, depth=96, door_width=36, window_width=26,
+    wall_exceptions={'front': {'stud.at_16': {'bore': {'x': .75, 'z': 20, 'diameter': .5}}}})

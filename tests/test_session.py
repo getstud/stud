@@ -16,15 +16,15 @@ from stud.cad import Model
 model = Model('Measured component')
 model.assembly('frame')
 model.part('beam', cq.Workplane('XY').box(600, 38, 89, centered=(False, False, False)),
-           parent='frame', material='2x4', blank={'size_mm': [600, 38, 89], 'cut_length_mm':600,
-               'operations':[{'kind':'square_cut','finished_length_mm':600}]})
+           parent='frame', material='2x4', blank={'size': [600, 38, 89], 'cut_length':600,
+               'operations':[{'kind':'square_cut','finished_length':600}]})
 model.reference('beam', 'left', point=(0,0,0))
 model.reference('beam', 'right', point=(600,0,0))
 model.requirement('length', 'length', ['beam:left', 'beam:right'], threshold=600)
 model.requirement('blank', 'stock_fit', ['beam'])
-model.demand('lumber', product_id='2x4', specification={'material':'pine','section_mm':[38,89]},
+model.demand('lumber', product_id='2x4', specification={'material':'pine','section':[38,89]},
              object_ids=['beam'], unit='mm', purchase_unit='board',
-             stock_lengths_mm=[2400], cuts_mm=[{'object_id':'beam','length_mm':600}])
+             stock_lengths=[2400], cuts=[{'object_id':'beam','length':600}])
 model.dimension('length', 'beam:left', 'beam:right', label='Length')
 model.drawing('front', dimensions=['length'])
 '''
@@ -191,7 +191,7 @@ class EvaluationAndFinishTests(ProjectFixture):
         self.assertEqual(result['status'], 'complete', result)
         manifest = read_json(result['manifest'])
         self.assertEqual(manifest['source_id'], source)
-        self.assertAlmostEqual(manifest['objects'][0]['volume_mm3'], 700 * 38 * 89, places=6)
+        self.assertAlmostEqual(manifest['objects'][0]['volume'], 700 * 38 * 89, places=6)
         self.assertTrue(manifest['checks']['all_passed'], manifest['checks'])
         mesh = Path(result['artifact_path']) / next(iter(manifest['assets'].values()))['mesh']
         self.assertEqual(mesh.read_bytes()[:8], b'STUDMESH')

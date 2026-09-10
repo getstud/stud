@@ -257,7 +257,7 @@ class Versions:
             result=dict(project_id=job['project_id'],left_checkpoint=args['left'],right_checkpoint=args['right'],
                 left_source_id=(reports[0] or {}).get('source_id'),right_source_id=(reports[1] or {}).get('source_id'),
                 left_build_id=(reports[0] or {}).get('build_id'),right_build_id=(reports[1] or {}).get('build_id'),
-                objects=object_changes(*manifests),requirements=record_changes(*[m.get('requirements',[]) if m else [] for m in manifests]),
+                units=[(manifest or {}).get('units') for manifest in manifests],objects=object_changes(*manifests),requirements=record_changes(*[m.get('requirements',[]) if m else [] for m in manifests]),
                 findings=record_changes(*[[dict(**finding,id=finding['requirement_id']) for finding in (m or {}).get('checks',{}).get('findings',[])] for m in manifests]),
                 materials=record_changes(*[m.get('demands',[]) if m else [] for m in manifests]),
                 estimates=estimate_difference,views=views,view_errors=view_errors,

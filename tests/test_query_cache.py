@@ -11,6 +11,17 @@ from stud.contracts import read_json,write_json
 
 
 class QueryCacheTests(unittest.TestCase):
+    def test_cached_evidence_cannot_bypass_mixed_requirement_unit_rejection(self):
+        model=Model('Native inches',units='in')
+        model.part('board',cq.Workplane('XY').box(1.5,3.5,24,centered=(False,False,False)),blank={'size':[1.5,3.5,24]})
+        model.requirement('good','stock_fit',['board'])
+        self.assertTrue(check_model(model,cache_path=self.path)['all_passed'])
+        model.requirement('wrong','stock_fit',['board'],units='mm3')
+        self.assert_full_agreement(model)
+        findings=check_model(model,cache_path=self.path)['findings']
+        self.assertEqual(findings[-1]['status'],'execution_failed')
+        self.assertEqual(findings[-1]['error']['category'],'unit_mismatch')
+
     def setUp(self):
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
         self.path=Path(temporary.name)/'queries.json'
@@ -19,10 +30,10 @@ class QueryCacheTests(unittest.TestCase):
         model=Model('Native cache fixture')
         top=cq.Workplane('XY').box(100,60,12,centered=(False,False,False))
         top=top.cut(cq.Workplane('XY').center(hole_x,30).circle(5).extrude(15))
-        model.part('top',top,blank={'size_mm':[blank,60,12]},location=cq.Location(cq.Vector(0,0,40)))
+        model.part('top',top,blank={'size':[blank,60,12]},location=cq.Location(cq.Vector(0,0,40)))
         model.requirement('top.stock','stock_fit',['top'])
         if not remove:
-            model.part('support',cq.Workplane('XY').box(100,60,40,centered=(False,False,False)),location=cq.Location(cq.Vector(move,0,0)),blank={'size_mm':[100,60,40]})
+            model.part('support',cq.Workplane('XY').box(100,60,40,centered=(False,False,False)),location=cq.Location(cq.Vector(move,0,0)),blank={'size':[100,60,40]})
             model.requirement('support.stock','stock_fit',['support'])
         model.requirement('bearing','support',['top','support'],threshold=threshold,direction=list(direction))
         model.requirement('edges','panel_edge_support',['top','support'],threshold=0,direction_local=[0,0,-1])

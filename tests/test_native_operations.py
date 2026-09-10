@@ -13,16 +13,16 @@ class NativeOperationsTests(ProjectFixture):
         source_text=DESIGN+"""
 model.reference('beam','detail_end',point=(100,0,0))
 model.dimension('detail_length','beam:left','beam:detail_end',label='End region')
-model.drawing('end_detail',label='End detail',detail_of='front',crop_mm=[-10,-10,110,100],dimensions=['detail_length'],scale=2)
+model.drawing('end_detail',label='End detail',detail_of='front',crop=[-10,-10,110,100],dimensions=['detail_length'],scale=2)
 """
         request=self.begin();source=self.edit(request,source_text)
-        self.session.save_prices(key='quote',quotes=[dict(id='test_quote',product_id='2x4',specification={'material':'pine','section_mm':[38,89],'stock_length_mm':'2.4E+3'},
+        self.session.save_prices(key='quote',quotes=[dict(id='test_quote',product_id='2x4',specification={'material':'pine','section':[38,89],'stock_length':'2.4E+3'},
             purchase_unit='board',pack_size=1,price='17.25',currency='USD',supplier='Synthetic supplier',source='Explicit test fixture',quote_date='2026-09-09',kind='manual')])
         finished=self.finish(request,source)
         result=self.session.wait(self.session.plans(key='detail',checkpoint=finished['checkpoint'],build_id=finished['build_id'])['id'])
         self.assertEqual(result['status'],'complete',result)
         detail=result['result']['sheets'][1]
-        self.assertEqual(detail['projection']['crop_mm'],[-10,-10,110,100])
+        self.assertEqual(detail['projection']['crop'],[-10,-10,110,100])
         import math
         self.assertAlmostEqual(math.dist(detail['dimensions'][0]['start'],detail['dimensions'][0]['end']),100*72/25.4/2)
         pdf=PdfReader(result['result']['pdf'])
@@ -39,7 +39,7 @@ model.drawing('end_detail',label='End detail',detail_of='front',crop_mm=[-10,-10
         self.assertAlmostEqual(result['result']['value'],700)
         self.assertEqual(self.session.measure(key='named',**args)['id'],job['id'])
         picked=self.session.measure(key='picked',build_id=finished['build_id'],targets=[
-            {'object_id':'beam','point_mm':[0,19,44.501]}, {'object_id':'beam','point_mm':[700,19,44.501]}])
+            {'object_id':'beam','point':[0,19,44.501]}, {'object_id':'beam','point':[700,19,44.501]}])
         result=self.session.wait(picked['id'])
         self.assertEqual(result['status'],'complete',result)
         self.assertAlmostEqual(result['result']['value'],700)
@@ -60,7 +60,7 @@ model.drawing('end_detail',label='End detail',detail_of='front',crop_mm=[-10,-10
         sheet=result['result']['sheets'][0];start,end=sheet['dimensions'][0]['start'],sheet['dimensions'][0]['end']
         import math
         self.assertAlmostEqual(math.dist(start,end),700*72/25.4/5,places=6)
-        self.assertIn('100 mm',reader.pages[0].extract_text())
+        self.assertIn('exactly 100 mm',reader.pages[0].extract_text())
         self.assertEqual(self.session.plans(key='packet',**args)['id'],job['id'])
         # Simulate stopping after export publication, before the job completion write.
         interrupted=self.session.job(job['id']);interrupted['status']='interrupted';self.session._save_job(interrupted)

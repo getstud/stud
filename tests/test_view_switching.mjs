@@ -11,7 +11,7 @@ for(const view of ['perspective','top','front','side']) test(`returning from fli
  const camera=new THREE.PerspectiveCamera(38,1,.1,10000);
  camera.position.set(3000,2000,4000);camera.rotation.set(.4,1,0);
  class Orbit {constructor(){this.target=new THREE.Vector3();}update(){}dispose(){}}
- const context=vm.createContext({THREE,preserveCamera,camera,currentView:'firstperson',focusDistance:100,assemblyReview:null,buildCamera:{cancel(){},stop(){}},
+ const context=vm.createContext({model:null,THREE,preserveCamera,camera,currentView:'firstperson',focusDistance:100,assemblyReview:null,buildCamera:{cancel(){},stop(){}},
  controls:{dispose(){}},viewport:{clientWidth:800,clientHeight:700},renderer:{domElement:{}},
  OrbitControls:Orbit,FlyControls:class {},document:{querySelectorAll:()=>[]},$:()=>({}),bounds:()=>frame});
  vm.runInContext(setViewSource+`;setView('${view}',bounds(),true);`,context);

@@ -12,13 +12,14 @@ from stud.session_http import serve_project
 from stud.estimate import purchase_lines
 
 root=Path(tempfile.mkdtemp(prefix='stud-browser-'))
-(root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial')\n")
-initialize(root,'Browser acceptance workbench')
+(root/'workbench.py').write_bytes((Path(__file__).resolve().parents[1]/'examples/cadquery-workbench/workbench.py').read_bytes())
+(root/'design.py').write_text("from stud.cad import Model\nmodel=Model('Initial',units='in')\n")
+initialize(root,'Browser acceptance workbench',units='in')
 def design(width):
-    return "from stud.cad import Model\nfrom stud.construction import workbench\nmodel=Model('Workbench')\nworkbench(model,width="+str(width)+")\n"
+    return "from stud.cad import Model\nfrom workbench import workbench\nmodel=Model('Workbench',units='in')\nworkbench(model,width="+str(width)+")\n"
 with Session(root) as session:
     first=session.begin(key='first',expected_head=session.snapshot()['option']['head'],intent='Create the workbench')
-    (Path(first['workspace'])/'design.py').write_text(design(1828.8))
+    (Path(first['workspace'])/'design.py').write_text(design(72))
     source=session.source(first['id'])['source_id']
     build=session.wait(session.evaluate(first['id'],source)['id'])
     manifest=read_json(Path(build['artifact_path'])/'manifest.json')
@@ -33,7 +34,7 @@ with Session(root) as session:
     alternative=session.create_option(key='wide',name='Wider workbench',base_checkpoint=baseline['checkpoint'])
     session.activate_option(key='activate',option_id=alternative['id'],expected_head=alternative['head'])
     draft=session.begin(key='wide-design',expected_head=alternative['head'],intent='Widen the workbench')
-    (Path(draft['workspace'])/'design.py').write_text(design(2133.6))
+    (Path(draft['workspace'])/'design.py').write_text(design(84))
     source=session.source(draft['id'])['source_id']
     wider=session.wait(session.finish(draft['id'],expected_source=source,summary='Seven foot workbench')['id'])
     if wider['status']!='complete':raise RuntimeError(wider)

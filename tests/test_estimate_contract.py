@@ -26,31 +26,31 @@ class EstimateContractTests(unittest.TestCase):
         self.assertEqual(calculate(demands,{},[quote(demand())])['total'],'12.35')
 
     def test_mixed_board_lengths_are_separate_purchases_and_quotes(self):
-        lumber=dict(id='framing',product_id='2x4',specification={'section_mm':[38,89]},object_ids=['long','short'],unit='mm',purchase_unit='board',
-            stock_lengths_mm=[2400,3600],cuts_mm=[dict(object_id='long',length_mm=3000),dict(object_id='short',length_mm=2000)])
+        lumber=dict(id='framing',product_id='2x4',specification={'section':[38,89]},object_ids=['long','short'],unit='mm',purchase_unit='board',
+            stock_lengths=[2400,3600],cuts=[dict(object_id='long',length=3000),dict(object_id='short',length=2000)])
         plans=purchase_lines([lumber],{})
         self.assertEqual(len(plans),2)
-        prices=[quote(p,'30' if p['stock'][0]['length_mm']=='3600' else '20',key=str(i)) for i,p in enumerate(plans)]
+        prices=[quote(p,'30' if p['stock'][0]['length']=='3600' else '20',key=str(i)) for i,p in enumerate(plans)]
         result=calculate([lumber],{},prices)
         self.assertEqual(result['total'],'50.00')
-        self.assertEqual(sorted(p['stock'][0]['remaining_mm'] for p in plans),['397','597'])
+        self.assertEqual(sorted(p['stock'][0]['remaining'] for p in plans),['397','597'])
         with self.assertRaises(StudError):calculate([lumber],{'overrides':{'2x4':5}},prices)
         changed=calculate([lumber],{'overrides':{plans[0]['line_id']:2}},prices)
         self.assertIn(changed['total'],('70.00','80.00'))
 
     def test_reusable_offcut_accounts_for_last_saw_cut_and_exact_fit(self):
-        lumber=dict(id='framing',product_id='2x4',specification={'section_mm':[38,89]},object_ids=['a','b'],unit='mm',purchase_unit='board',
-            stock_lengths_mm=[1000],kerf_mm=3,cuts_mm=[dict(object_id='a',length_mm=600),dict(object_id='b',length_mm=200)])
+        lumber=dict(id='framing',product_id='2x4',specification={'section':[38,89]},object_ids=['a','b'],unit='mm',purchase_unit='board',
+            stock_lengths=[1000],kerf=3,cuts=[dict(object_id='a',length=600),dict(object_id='b',length=200)])
         board=purchase_lines([lumber],{})[0]['stock'][0]
-        self.assertEqual(board['remaining_mm'],'194')
-        self.assertEqual(board['trailing_kerf_mm'],'3')
-        self.assertEqual([c['kerf_before_mm'] for c in board['cuts']],['0','3'])
-        lumber['cuts_mm']=[dict(object_id='a',length_mm=1000)]
+        self.assertEqual(board['remaining'],'194')
+        self.assertEqual(board['trailing_kerf'],'3')
+        self.assertEqual([c['kerf_before'] for c in board['cuts']],['0','3'])
+        lumber['cuts']=[dict(object_id='a',length=1000)]
         board=purchase_lines([lumber],{})[0]['stock'][0]
-        self.assertEqual((board['remaining_mm'],board['trailing_kerf_mm']),('0','0'))
-        lumber['cuts_mm']=[dict(object_id='a',length_mm=998)]
+        self.assertEqual((board['remaining'],board['trailing_kerf']),('0','0'))
+        lumber['cuts']=[dict(object_id='a',length=998)]
         board=purchase_lines([lumber],{})[0]['stock'][0]
-        self.assertEqual((board['remaining_mm'],board['trailing_kerf_mm']),('0','2'))
+        self.assertEqual((board['remaining'],board['trailing_kerf']),('0','2'))
 
     def test_precedence_clear_manual_and_latest_save_are_explicit(self):
         base=demand();sourced=quote(base,sequence=3);manual=quote(base,'15',sequence=2,kind='manual',key='manual')

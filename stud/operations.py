@@ -40,14 +40,15 @@ class Operations:
                 views=views,diagnostic=diagnostic,estimate_mode=estimate_mode,include_lists=bool(include_lists)),
                 freeze=lambda:dict(price_basis=select_quotes(self.session.records.values('quotes')) if estimate_mode=='current' else None))
 
-    def measure(self, *, key, build_id, targets, kind='point_distance', source_id=None, tolerance_mm=.01, expected_display=None, manifest_version=None):
+    def measure(self, *, key, build_id, targets, kind='point_distance', source_id=None, tolerance=None, expected_display=None, manifest_version=None):
         session=self.session
         with session.mutex:
             job=session.job(build_id)
+            tolerance=job['settings']['query_tolerance'] if tolerance is None else tolerance
             if source_id and job['source_id']!=source_id:raise StudError('stale_target','Measurement source and build do not match.',expected=source_id,current=job['source_id'])
             if expected_display and session.state['displayed_build']!=expected_display:raise StudError('stale_target','The displayed model changed before the measurement request.',expected=expected_display,current=session.state['displayed_build'])
             return self.submit('measure',key,dict(build_id=build_id,source_id=job['source_id'],targets=targets,
-                kind=kind,tolerance_mm=tolerance_mm,manifest_version=manifest_version))
+                kind=kind,tolerance=tolerance,manifest_version=manifest_version))
 
     def _plan_build(self,job):
         session=self.session;args=job['arguments'];report=session.history.checkpoint_report(args['checkpoint'])
@@ -181,7 +182,7 @@ class Operations:
             if region is not None:
                 import math
                 if not isinstance(region,dict) or any(not isinstance(region.get(k),list) or len(region[k])!=3 or not all(isinstance(n,(int,float)) and math.isfinite(n) for n in region[k]) for k in ('min','max')):
-                    raise StudError('invalid_region','A focus region requires finite min/max model coordinates in millimeters.')
+                    raise StudError('invalid_region','A focus region requires finite min/max model coordinates in project units.')
                 if any(b<=a for a,b in zip(region['min'],region['max'])):raise StudError('invalid_region','Each focus maximum must exceed its minimum.')
             job=dict(id=job_id,kind='show',status='waiting_viewer',payload_id=digest(arguments),arguments=arguments,
                 project_id=session.manifest['project_id'],source_id=manifest['source_id'],build_id=expected_build,objects=ids,region=region)
