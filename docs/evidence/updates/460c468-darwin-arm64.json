@@ -1,0 +1,44 @@
+{
+  "cli": "/private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/stud-update-probe-S7ec0b/previous/stud.app/Contents/MacOS/stud",
+  "previous_version": "1.0.0-preview.7",
+  "version": "1.0.0-preview.8",
+  "signature_verified": true,
+  "payload_bytes": 592638798,
+  "signing_key_kind": "release",
+  "public_key_sha256": "c86f40098a08a56e70d0c7a2bedcdef2a0a36bc118a47536b20cb33631fa1d16",
+  "project_id": "project_4c579ba4da9d4249be7e25327396cb8b",
+  "checkpoint": "cf8497aaa3786d5fbe3fbed88accf3024532af8d",
+  "preserved": {
+    "project": true,
+    "checkpoint": true,
+    "prompt": true,
+    "prices": true,
+    "pdf": true,
+    "unrelated_file": true
+  },
+  "smoke_passed": true,
+  "source_commit": "460c46817a2f362632a32f46512edb2666061b39",
+  "workflow_run": 34487673963,
+  "job_id": 102906679143,
+  "platform": "darwin-arm64",
+  "tests": {
+    "python": {
+      "count": 246,
+      "elapsed_seconds": 597.389
+    },
+    "node": {
+      "passed": 77,
+      "failed": 0
+    },
+    "rust": {
+      "passed": 9,
+      "failed": 0
+    },
+    "native_update_probe": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "macos_code_signature_verified": true,
+  "macos_notarization_verified": true
+}

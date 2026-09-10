@@ -1,0 +1,44 @@
+{
+  "cli": "/private/var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/stud-update-probe-HgDza4/previous/stud.app/Contents/MacOS/stud",
+  "previous_version": "1.0.0-preview.7",
+  "version": "1.0.0-preview.8",
+  "signature_verified": true,
+  "payload_bytes": 623734157,
+  "signing_key_kind": "release",
+  "public_key_sha256": "c86f40098a08a56e70d0c7a2bedcdef2a0a36bc118a47536b20cb33631fa1d16",
+  "project_id": "project_9be82c3d8b8d4525ac75de4b54286cae",
+  "checkpoint": "a15a3bf6d1dae659f1596d7ad4923acac1488503",
+  "preserved": {
+    "project": true,
+    "checkpoint": true,
+    "prompt": true,
+    "prices": true,
+    "pdf": true,
+    "unrelated_file": true
+  },
+  "smoke_passed": true,
+  "source_commit": "460c46817a2f362632a32f46512edb2666061b39",
+  "workflow_run": 34487673963,
+  "job_id": 102906678979,
+  "platform": "darwin-x64",
+  "macos_code_signature_verified": true,
+  "macos_notarization_verified": true,
+  "tests": {
+    "python": {
+      "count": 246,
+      "elapsed_seconds": 1387.444
+    },
+    "node": {
+      "passed": 77,
+      "failed": 0
+    },
+    "rust": {
+      "passed": 9,
+      "failed": 0
+    },
+    "native_update_probe": {
+      "passed": 1,
+      "failed": 0
+    }
+  }
+}

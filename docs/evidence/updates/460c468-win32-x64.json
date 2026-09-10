@@ -1,0 +1,55 @@
+{
+  "cli": "D:\\a\\_temp\\stud-update-probe-0pDIj8\\previous\\stud.exe",
+  "previous_version": "1.0.0-preview.7",
+  "version": "1.0.0-preview.8",
+  "signature_verified": true,
+  "payload_bytes": 432971935,
+  "payload_sha256": "427ae29b543f3efac6f987e78aed24990f45c359355c231ea75365747a533238",
+  "installer_lock_observations": 121,
+  "signing_key_kind": "release",
+  "public_key_sha256": "c86f40098a08a56e70d0c7a2bedcdef2a0a36bc118a47536b20cb33631fa1d16",
+  "project_id": "project_dff944a8f5c34354a4f7d95c9bc7d790",
+  "checkpoint": "3c7ec6a00fdaf8303df63af25f9ce89ca82ba0cd",
+  "installer_lock_namespace_verified": true,
+  "preserved": {
+    "project": true,
+    "checkpoint": true,
+    "prompt": true,
+    "prices": true,
+    "pdf": true,
+    "unrelated_file": true
+  },
+  "smoke_passed": true,
+  "candidate_run": 34487673963,
+  "source_commit": "460c46817a2f362632a32f46512edb2666061b39",
+  "harness_commit": "c0384b06ef70b120b634d9d01994ef989b8e896b",
+  "workflow_run": 34493377698,
+  "job_id": 102925523619,
+  "platform": "win32-x64",
+  "signed_installer_artifact_id": 10158128641,
+  "candidate_suite_job_id": 102906678787,
+  "tests": {
+    "python": {
+      "count": 246,
+      "elapsed_seconds": 738.6
+    },
+    "node": {
+      "passed": 77,
+      "failed": 0
+    },
+    "rust": {
+      "passed": 3,
+      "failed": 0
+    },
+    "focused_harness_node": {
+      "passed": 10,
+      "failed": 0
+    },
+    "native_update_probe": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "ordinary_nsis_installation_smoke_passed": true,
+  "evidence_note": "The complete native-unit candidate suite and ordinary NSIS install passed in run34487673963. The original update probe used a different APPDATA lock namespace from NSIS. The focused run reuses its unchanged signed installer and signature, demonstrates the former lock bypass and corrected rejection through Windows KnownFolder, observes 121 blocked CLI polls while the installer holds its lock, and passes all six preservation assertions."
+}
