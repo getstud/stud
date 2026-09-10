@@ -1,0 +1,31 @@
+name: Native worker diagnostics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-workers:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [direct, normal, fast]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install locked runtime
+        run: |
+          python -m pip install --require-hashes -r requirements.lock
+          python -m pip install pypdf==6.0.0
+      - name: Observe worker result and process exit
+        run: python scripts/diagnose-native-workers.py --engine . --output worker-diagnostics --mode ${{ matrix.mode }} --repeat 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-worker-${{ matrix.mode }}
+          path: worker-diagnostics/
