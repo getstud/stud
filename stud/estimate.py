@@ -226,6 +226,7 @@ def purchase_lines(demands, inputs):
         line['allowance']=str(allowance)
         line['quantity_override']=str(decimal(override)) if override is not None else None
         if line['quantity'] is not None:line['quantity']=str(decimal(line['quantity'])+allowance)
+        line['model_quantity']=line['quantity']
         if override is not None:
             line['quantity']=str(decimal(override))
             line['basis']+=f' Explicit purchase quantity: {line["quantity"]}.'

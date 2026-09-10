@@ -5,7 +5,7 @@ const source=fs.readFileSync('web/app.js','utf8');
 const functionText=source.slice(source.indexOf('let focusTask=null'),source.indexOf('const projectEvents='));
 let releaseA;const requested=[],shown=[];
 const context=vm.createContext({
-  queueMicrotask,
+  queueMicrotask,viewerActivity:async action=>action(),
   fetch:async (url,options)=>{
     requested.push(url);
     if(url.endsWith('/A'))await new Promise(resolve=>releaseA=resolve);

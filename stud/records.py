@@ -122,7 +122,9 @@ class Records:
         actions=[json.loads(body) for name,body in self.pending_files().items() if name.startswith('records/input_changes/')] if include_pending else []
         for action in sorted(actions,key=lambda action:action['save_sequence']):
             if action['option_id']!=option_id:continue
-            values.setdefault('overrides',{}).update(action.get('overrides',{}))
+            for key,value in action.get('overrides',{}).items():
+                if value is None:values.setdefault('overrides',{}).pop(key,None)
+                else:values.setdefault('overrides',{})[key]=value
         return values
 
     def save_prices(self, *, key, quotes, overrides=None, expected_build=None, option_id=None):
@@ -159,9 +161,10 @@ class Records:
                 else:validate_quote(quote)
                 files[f'records/quotes/{record_id}.json']=encoded(quote)
             if overrides:
-                for value in overrides.values():decimal(value)
+                for value in overrides.values():
+                    if value is not None:decimal(value)
                 change=dict(id=identifier('input'),option_id=option_id,save_sequence=self._sequence(),
-                            overrides={k:str(decimal(v)) for k,v in overrides.items()},build_id=expected_build)
+                            overrides={k:str(decimal(v)) if v is not None else None for k,v in overrides.items()},build_id=expected_build)
                 files[f'records/input_changes/{change["id"]}.json']=encoded(change)
             return self.save_batch(key=key,payload=original,files=files,kind='pricing')
 

@@ -57,6 +57,10 @@ export class ComparisonScene {
   for(const side of this.sides){if(side===source)continue;side.camera.position.copy(source.camera.position);side.camera.quaternion.copy(source.camera.quaternion);side.camera.zoom=source.camera.zoom;side.camera.updateProjectionMatrix();side.controls.target.copy(source.controls.target);side.controls.update();}
   this.syncing=false;
  }
- select(id){for(const side of this.sides)for(const mesh of side.cad.objects.values())mesh.material.emissive.set(mesh.userData.id===id?'#68400f':'#000000');this.onSelect(id);}
+ setCamera({position,target,zoom=1}){
+  if(position.every((v,i)=>v===target[i]))throw new Error('Camera position and target must differ.');
+  const side=this.sides[0];side.camera.position.set(position[0],position[2],-position[1]);side.controls.target.set(target[0],target[2],-target[1]);side.camera.zoom=zoom;side.camera.lookAt(side.controls.target);side.camera.updateProjectionMatrix();side.controls.update();this.sync(side);
+ }
+ select(id){this.selected=id;for(const side of this.sides)for(const mesh of side.cad.objects.values())mesh.material.emissive.set(mesh.userData.id===id?'#68400f':'#000000');this.onSelect(id);}
  dispose(){this.closed=true;cancelAnimationFrame(this.frame);for(const side of this.sides){side.controls.dispose();side.cad.dispose();side.renderer.dispose();side.renderer.forceContextLoss();}this.sides=[];}
 }

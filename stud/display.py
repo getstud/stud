@@ -162,7 +162,7 @@ def prices_for_viewer(session):
         report=session.history.checkpoint_report(session.state['view_checkpoint']) or {}
         estimate=report.get('original_estimate') or {}
         if 'id' not in estimate:
-            return dict(currency='USD',revision=manifest['build_id'],rows=[],subtotal=None,total=None,complete=False,
+            return dict(currency='USD',revision=manifest['build_id'],build_id=manifest['build_id'],view_checkpoint=session.state.get('view_checkpoint'),rows=[],subtotal=None,total=None,complete=False,
                 priced_lines=0,unpriced_lines=0,categories={},price_kinds={},editable=False,
                 context='No original estimate was saved for this checkpoint.')
     else:estimate=current_estimate(session,manifest)
@@ -173,30 +173,50 @@ def prices_for_viewer(session):
                url=quote_record.get('source',''),note=quote_record.get('note',''),quantity=line.get('quantity_override')) if quote_record else None
         rows.append(dict(key=line['line_id'],product_id=line['product_id'],specification=line['specification'],pack_size=line['pack_size'],
             purchase_unit=line['purchase_unit'],name=line['product_id'].replace('.',' ').title(),unit=line['purchase_unit'],
-            model_quantity=line['quantity'],quantity=line['quantity'],total=line['line_total'],basis=line['basis'],
+            model_quantity=line.get('model_quantity',line['quantity'] if line.get('quantity_override') is None else None),quantity=line['quantity'],quantity_override=line.get('quantity_override'),total=line['line_total'],basis=line['basis'],
+            stock=line.get('stock',[]),object_ids=line.get('object_ids',[]),demand_quantity=line.get('demand_quantity'),missing=line.get('missing',[]),allowance=line.get('allowance'),
             quote=q,quote_kind=quote_kind,has_manual=quote_kind=='manual',sourced_quote=None,category='Materials'))
     return dict(currency=estimate['currency'],revision=f'{manifest["build_id"]}:final',estimate_id=estimate['id'],
         editable=not historical,context=f'Original saved estimate for checkpoint {session.state["view_checkpoint"][:12]}.' if historical else 'Current design and project quotes.',
-        price_basis_id=estimate['price_basis_id'],build_id=manifest['build_id'],rows=rows,subtotal=estimate['known_subtotal'],
+        price_basis_id=estimate['price_basis_id'],build_id=manifest['build_id'],view_checkpoint=session.state.get('view_checkpoint') if historical else None,
+        source_id=manifest['source_id'],units=manifest['units'],missing=estimate.get('missing',[]),estimating_inputs=estimate.get('estimating_inputs',{}),rows=rows,subtotal=estimate['known_subtotal'],
         total=estimate['total'],complete=estimate['status']=='complete',tax=estimate['tax'],contingency=estimate['contingency'],
         priced_lines=sum(row['total'] is not None for row in rows),unpriced_lines=sum(row['total'] is None for row in rows),
         categories={},price_kinds={kind:dict(lines=sum(row['quote_kind']==kind for row in rows)) for kind in ('manual','source','estimate')})
 
 
 def save_viewer_prices(session,payload):
+    # Keep context validation and the write in one coordinator transaction.
+    with session.mutex:
+        return _save_viewer_prices(session,payload)
+
+
+def _save_viewer_prices(session,payload):
     estimate=prices_for_viewer(session)
+    if not estimate.get('editable',True):
+        raise StudError('stale_target','Return to the current design before editing its estimate.')
+    if payload.get('expected_build') and payload['expected_build']!=estimate['build_id']:
+        raise StudError('stale_target','The displayed build changed before this price was saved.')
     if payload.get('expected_estimate') and payload['expected_estimate']!=estimate['estimate_id']:
         raise StudError('stale_revision','The estimate changed before this price was saved.',expected=payload['expected_estimate'],current=estimate['estimate_id'])
     row=next((row for row in estimate['rows'] if row['key']==payload.get('key')),None)
     if not row:raise StudError('unresolved_reference','The priced material no longer exists.')
     quote_record=dict(product_id=row['product_id'],specification=row['specification'],purchase_unit=row['purchase_unit'],pack_size=row['pack_size'])
-    if payload.get('action')=='clear_manual':quote_record['action']='clear_manual'
-    else:
+    action=payload.get('action')
+    if action not in (None,'clear_manual','clear_quantity'):raise StudError('invalid_request','Unknown estimate action.')
+    if action=='clear_manual':quote_record['action']='clear_manual'
+    elif action!='clear_quantity':
         quote_record.update(price=payload['unit_price'],currency=estimate['currency'],supplier=payload['source'],
                             source=payload.get('url',''),quote_date=payload['observed_on'],kind={'source':'sourced','estimate':'estimated'}.get(payload.get('kind'),'manual'),
                             note=payload.get('note',''))
-    overrides={row['key']:payload['quantity']} if payload.get('quantity') is not None else None
-    session.save_prices(key=payload.get('client_key') or identifier('price'),quotes=[quote_record],overrides=overrides,expected_build=estimate['build_id'])
+    overrides=None
+    if action=='clear_quantity' or ('quantity' in payload and payload['quantity'] is None):
+        overrides={row['key']:None}
+        # Earlier input files may contain a product-wide override. Remove that
+        # scope as well when it is the source of this unambiguous purchase line.
+        if row['product_id'] in estimate.get('estimating_inputs',{}).get('overrides',{}):overrides[row['product_id']]=None
+    elif 'quantity' in payload:overrides={row['key']:payload['quantity']}
+    session.save_prices(key=payload.get('client_key') or identifier('price'),quotes=[] if action=='clear_quantity' else [quote_record],overrides=overrides,expected_build=estimate['build_id'])
     return prices_for_viewer(session)
 
 
@@ -231,15 +251,21 @@ def save_viewer_prompt(session,payload):
 
 
 def csv_for_viewer(session,path):
+    with session.mutex:
+        return _csv_for_viewer(session,path)
+
+
+def _csv_for_viewer(session,path):
     manifest,job=displayed_manifest(session)
     if manifest['completion']['geometry']!='complete':raise StudError('incomplete_geometry','Complete exports require complete geometry.')
     stream=io.StringIO();writer=csv.writer(stream)
-    checkpoint=job.get('checkpoint') or ''
+    checkpoint=(session.state.get('view_checkpoint') if session.state.get('view_mode')=='history' else job.get('checkpoint')) or ''
     if path=='/api/parts.csv':
         writer.writerow(['project_id','source_id','build_id','checkpoint','part_id','mark','label','units','blank'])
         for obj in manifest['objects']:writer.writerow([manifest['project_id'],manifest['source_id'],manifest['build_id'],checkpoint,obj['id'],obj['mark'],obj['label'],manifest['units'],(obj.get('blank') or {}).get('size')])
     else:
-        estimate=current_estimate(session,manifest)
+        estimate=prices_for_viewer(session)
+        if not estimate.get('estimate_id'):raise StudError('unresolved_reference','No original estimate was saved for this checkpoint.')
         writer.writerow(['source_id','build_id','checkpoint','estimate_id','price_basis_id','product','quantity','unit','unit_price','amount','currency'])
-        for row in estimate['rows']:writer.writerow([manifest['source_id'],manifest['build_id'],checkpoint,estimate['id'],estimate['price_basis_id'],row['product_id'],row['quantity'],row['purchase_unit'],row['unit_price'],row['line_total'],estimate['currency']])
+        for row in estimate['rows']:writer.writerow([manifest['source_id'],manifest['build_id'],checkpoint,estimate['estimate_id'],estimate['price_basis_id'],row['product_id'],row['quantity'],row['purchase_unit'],(row['quote'] or {}).get('unit_price'),row['total'],estimate['currency']])
     return stream.getvalue()

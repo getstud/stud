@@ -110,3 +110,22 @@ test('superseded initial readers wait for the newest metadata instead of seeing 
  assert.equal(finished,false);releaseNew();await latest;await initial;
  assert.equal(controller.state().displayed.option_id,'b');
 });
+
+test('aborting a slow option preparation prevents its display commit',async()=>{
+ const {controller,calls}=fixture();await controller.refresh();let release;
+ controller.prepare=()=>new Promise(resolve=>release=resolve);
+ const signal=new AbortController(),tool=createComparisonTools(controller).find(t=>t.name==='switch_option');
+ const pending=tool.execute({option:'b'},{signal:signal.signal});
+ while(!release)await new Promise(resolve=>setImmediate(resolve));
+ signal.abort(Object.assign(new Error('Stopped'),{code:'CONTROL_STOPPED'}));release();
+ assert.equal((await pending).error.code,'CONTROL_STOPPED');assert.equal(controller.pending,null);
+ assert.equal(calls.some(c=>c.operation==='inspect_option'),false);
+});
+test('aborting an accepted option switch prevents late scene presentation',async()=>{
+ const {controller}=fixture();await controller.refresh();let release,displayed=false;
+ const original=controller.run;controller.run=async(op,args)=>op==='inspect_option'?new Promise(resolve=>release=resolve):original(op,args);
+ controller.displayPrepared=async()=>{displayed=true};
+ const abort=new AbortController(),pending=controller.switchOption('b',{signal:abort.signal});
+ while(!release)await new Promise(resolve=>setImmediate(resolve));
+ abort.abort(Error('Stopped'));release({});await assert.rejects(pending,/Stopped/);assert.equal(displayed,false);
+});

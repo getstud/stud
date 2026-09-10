@@ -105,7 +105,7 @@ New projects automatically check solid collisions and stock fit. Add measured co
 
 ## Show a design with WebMCP
 
-In a compatible browser, stud registers one site tool: `show`. It presents the
+In a compatible browser, stud registers `show` alongside the [hands-free viewer tools](voice-viewer.md). It presents the
 current project's latest valid model in the shared viewer. No separate MCP
 server is needed. Browsers without WebMCP retain the normal interface.
 
