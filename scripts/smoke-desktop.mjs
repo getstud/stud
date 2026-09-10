@@ -4,6 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
+import { smokeEnvironment } from './smoke-environment.mjs';
 
 let cli = path.resolve(process.argv[2] || (process.platform === 'darwin'
   ? 'src-tauri/target/aarch64-apple-darwin/release/bundle/macos/stud.app/Contents/MacOS/stud'
@@ -12,10 +13,12 @@ let resources = process.platform === 'darwin' ? path.resolve(path.dirname(cli), 
 let python = path.join(resources, process.platform === 'win32' ? 'runtime/python.exe' : 'runtime/bin/python3');
 const temporary = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'stud-installed-')));
 const project = path.join(temporary, 'Project with spaces & café');
-const env = { ...process.env, HOME: temporary, APPDATA: temporary,
-  LOCALAPPDATA: temporary, STUD_DATA_DIR: path.join(temporary, 'catalog'),
-  PATH: process.platform === 'win32' ? `${process.env.SystemRoot}\\System32` : '/usr/bin:/bin',
-  PYTHONHOME: '/invalid-python', PYTHONPATH: '/invalid-python' };
+const env = smokeEnvironment(temporary);
+const support = process.platform === 'darwin' ? path.join(env.HOME, 'Library/Application Support/app.stud.desktop') : path.join(env.APPDATA, 'app.stud.desktop');
+const lockPath = path.join(support, 'runtime.lock');
+const lockScript = process.platform === 'win32'
+  ? "import sys,msvcrt,time\nf=open(sys.argv[1],'r+b')\nmsvcrt.locking(f.fileno(),msvcrt.LK_NBLCK,1)\nprint('locked',flush=True)\ntime.sleep(60)"
+  : "import sys,fcntl,time\nf=open(sys.argv[1],'r+b')\nfcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)\nprint('locked',flush=True)\ntime.sleep(60)";
 function command(...args) {
   const result = spawnSync(cli, args, { cwd: temporary, env, encoding: 'utf8', timeout: 120000, maxBuffer: 16 * 1024 * 1024 });
   assert.equal(result.status, 0, result.error?.message || result.stdout + result.stderr);
@@ -45,6 +48,7 @@ let beforeFiles = await bundleFiles();
 let server;
 let blocker;
 let updateEvidence;
+let installerLockNamespaceVerified;
 try {
   for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
     'skills/stud-design/references/stud-integration.md', 'engine/README.md',
@@ -54,6 +58,25 @@ try {
     assert.ok((await fs.readFile(path.join(resources, file), 'utf8')).length, `Missing bundled skill resource: ${file}`);
   }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
+  if (process.platform === 'win32' && process.env.STUD_SIGNED_UPDATE_CONFIG) {
+    const powershell = path.join(process.env.SystemRoot, 'System32/WindowsPowerShell/v1.0/powershell.exe');
+    const folder = spawnSync(powershell, ['-NoProfile', '-Command', "[Environment]::GetFolderPath('ApplicationData') | ConvertTo-Json -Compress"], { encoding: 'utf8' });
+    assert.equal(folder.status, 0, folder.stderr);
+    const knownFolder = JSON.parse(folder.stdout);
+    assert.equal(path.resolve(env.APPDATA).toLowerCase(), path.resolve(knownFolder).toLowerCase());
+    const installerLock = path.join(knownFolder, 'app.stud.desktop/runtime.lock');
+    blocker = spawn(python, ['-B', '-E', '-s', '-c', lockScript, installerLock], { env, stdio: ['ignore', 'pipe', 'pipe'] });
+    assert.equal(await firstLine(blocker), 'locked');
+    const oldHarness = spawnSync(cli, ['--version'], { env: { ...env, APPDATA: temporary }, encoding: 'utf8' });
+    assert.equal(oldHarness.status, 0, 'The original isolated APPDATA bypasses the installer lock');
+    const corrected = spawnSync(cli, ['--version'], { env, encoding: 'utf8' });
+    assert.notEqual(corrected.status, 0);
+    assert.match(corrected.stderr, /being updated/);
+    await stop(blocker, false); blocker = null;
+    assert.match(command('--version'), /^stud /);
+    installerLockNamespaceVerified = true;
+    console.log('Windows known-folder lock proof passed: old harness bypasses the lock; corrected harness waits for installation.');
+  }
   assert.equal(JSON.parse(command('doctor')).status, 'healthy');
   command('init', project, '--name', 'Café 工作台');
   server = spawn(cli, ['serve', project, '--port', '0', '--no-open'], { cwd: temporary, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -106,11 +129,6 @@ try {
     assert.equal(response.status, 200, route);
     assert.ok((await response.text()).length, route);
   }
-  const support = process.platform === 'darwin' ? path.join(temporary, 'Library/Application Support/app.stud.desktop') : path.join(temporary, 'app.stud.desktop');
-  const lockPath = path.join(support, 'runtime.lock');
-  const lockScript = process.platform === 'win32'
-    ? "import sys,msvcrt,time\nf=open(sys.argv[1],'r+b')\nmsvcrt.locking(f.fileno(),msvcrt.LK_NBLCK,1)\nprint('locked',flush=True)\ntime.sleep(60)"
-    : "import sys,fcntl,time\nf=open(sys.argv[1],'r+b')\nfcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)\nprint('locked',flush=True)\ntime.sleep(60)";
   const conflict = spawnSync(python, ['-B', '-E', '-s', '-c', lockScript.replace('time.sleep(60)', ''), lockPath], { env, encoding: 'utf8' });
   assert.notEqual(conflict.status, 0, 'Viewer must hold the shared update lock');
   await stop(server); server = null;
@@ -131,7 +149,8 @@ try {
       assert.ok(Date.now()<deadline);await new Promise(resolve=>setTimeout(resolve,50));
     }
     assert.equal(await fs.readFile(path.join(project,'user-notes.txt'),'utf8'),'Keep this unrelated project file.\n');
-    updateEvidence={...result,project_id:state.project_id,checkpoint:originalHead};
+    updateEvidence={...result,project_id:state.project_id,checkpoint:originalHead,
+      ...(installerLockNamespaceVerified ? {installer_lock_namespace_verified:true} : {})};
   }
   const copy = path.join(temporary, 'Reopened copy');
   await fs.cp(project, copy, { recursive: true });

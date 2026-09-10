@@ -7,6 +7,10 @@ on:
         description: Build production-signed candidate artifacts and test updates without publishing a release
         type: boolean
         default: false
+      recheck_windows_run:
+        description: Recheck a signed Windows artifact from this Actions run after test-harness corrections (no rebuild)
+        type: string
+        default: ''
   push:
     tags: ['v*']
 
@@ -14,12 +18,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: desktop-${{ github.ref }}
+  group: desktop-${{ github.ref }}${{ inputs.recheck_windows_run && format('-recheck-{0}', inputs.recheck_windows_run) || '' }}
   cancel-in-progress: false
 
 jobs:
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && !inputs.recheck_windows_run
     runs-on: ubuntu-latest
     outputs:
       channel: ${{ steps.release.outputs.channel }}
@@ -44,7 +48,7 @@ jobs:
 
   build:
     needs: release
-    if: ${{ !cancelled() && (needs.release.result == 'success' || (github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
+    if: ${{ !cancelled() && !inputs.recheck_windows_run && (needs.release.result == 'success' || (github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/'))) }}
     strategy:
       fail-fast: false
       # Tagged jobs share a release manifest; branch verification has no shared writer.
@@ -199,9 +203,50 @@ jobs:
             src-tauri/target/${{ matrix.triple }}/release/bundle/nsis/*-setup.exe*
             docs/evidence/updates/*.json
 
+  recheck-windows:
+    if: github.event_name == 'workflow_dispatch' && inputs.recheck_windows_run != ''
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: read
+    env:
+      STUD_UPDATER_PUBLIC_KEY: ${{ vars.STUD_UPDATER_PUBLIC_KEY }}
+      STUD_RELEASE_REPOSITORY: ${{ github.repository }}
+      STUD_RELEASE_CHANNEL: preview
+      STUD_EXISTING_CANDIDATE_RUN: ${{ inputs.recheck_windows_run }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> target
+            desktop/launcher -> target
+      - run: npm ci
+      - run: node --test tests/test_smoke_environment.mjs tests/test_desktop_release.mjs
+      - name: Stage matching runtime and CLI for the acceptance probe
+        run: node scripts/build-desktop.mjs --stage-only --target win32-x64
+      - name: Reuse signed payload and verify native project preservation
+        run: node scripts/ci-native-update.mjs x86_64-pc-windows-msvc
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: stud-evidence-win32-x64
+          path: docs/evidence/updates/win32-x64.json
+          if-no-files-found: ignore
+
   ready:
     needs: [release, build]
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && !inputs.recheck_windows_run
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

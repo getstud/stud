@@ -17,6 +17,28 @@ function run(command,args,options={}) {
  return result.stdout;
 }
 try {
+ let candidateRun;
+ const reuseRun=process.env.STUD_EXISTING_CANDIDATE_RUN;
+ if(reuseRun) {
+   assert.equal(process.platform,'win32');assert.match(reuseRun,/^\d+$/);
+   candidateRun=JSON.parse(run('gh',['api',`repos/${repository}/actions/runs/${reuseRun}`]));
+   assert.equal(candidateRun.event,'workflow_dispatch');
+   assert.match(candidateRun.head_sha,/^[a-f0-9]{40}$/);
+   const changed=run('git',['diff','--name-only',candidateRun.head_sha,'HEAD']).trim().split(/\r?\n/).filter(Boolean);
+   for(const file of changed) assert.ok(/^(docs\/|tests\/)/.test(file)||[
+     '.github/workflows/desktop.yml','scripts/ci-native-update.mjs','scripts/native-update-probe.mjs',
+     'scripts/smoke-desktop.mjs','scripts/smoke-environment.mjs',
+   ].includes(file),`Candidate application source changed: ${file}`);
+   const artifact=path.join(temporary,'artifact');
+   run('gh',['run','download',reuseRun,'--repo',repository,'--name','stud-win32-x64','--dir',artifact]);
+   const installers=(await fs.readdir(artifact,{recursive:true})).filter(name=>name.endsWith('-setup.exe'));
+   assert.equal(installers.length,1);
+   const original=path.join(artifact,installers[0]);
+   const destination=path.resolve('src-tauri/target',triple,'release/bundle/nsis');
+   await fs.mkdir(destination,{recursive:true});
+   for(const suffix of ['','.sig'])await fs.copyFile(original+suffix,path.join(destination,path.basename(original))+suffix);
+   console.log(`Reusing unchanged signed Windows installer from run ${reuseRun}, application commit ${candidateRun.head_sha}.`);
+ }
  const releases=JSON.parse(run('gh',['release','list','--repo',repository,'--limit','100','--json','tagName,isDraft']));
  const previous=releases.filter(release=>{
    if(release.isDraft||!release.tagName.startsWith('v'))return false;
@@ -46,4 +68,10 @@ try {
    '--previous-installer',previousInstaller,'--previous-version',previous.tagName.slice(1),
    '--payload',payload,'--signature',payload+'.sig','--target',triple,
    '--evidence',`docs/evidence/updates/${platform}.json`],{stdio:'inherit'});
+ if(candidateRun) {
+   const evidence=`docs/evidence/updates/${platform}.json`;
+   const result=JSON.parse(await fs.readFile(evidence,'utf8'));
+   await fs.writeFile(evidence,JSON.stringify({...result,candidate_run:Number(reuseRun),
+     source_commit:candidateRun.head_sha,harness_commit:process.env.GITHUB_SHA},null,2)+'\n');
+ }
 } finally {await fs.rm(temporary,{recursive:true,force:true,maxRetries:10,retryDelay:500});}
