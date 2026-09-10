@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import time
 
-from .contracts import StudError, confined, identifier, read_json, write_json
+from .contracts import StudError, atomic_write, confined, identifier, read_json, write_json
 from .source import manifest_at, new_manifest, source_files
 
 
@@ -141,6 +141,12 @@ class History:
         destination = confined(self.root, f'.stud/workspaces/{request_id}')
         destination.parent.mkdir(parents=True, exist_ok=True)
         self.git('worktree', 'add', '--detach', str(destination), head)
+        # Git checkout filters may rewrite line endings. Requests start from the
+        # exact committed modeling bytes that determine source identity.
+        for name in source_files(destination, manifest_at(destination)):
+            body = self.read_file(head, name)
+            if body is not None:
+                atomic_write(confined(destination, name), body)
         return destination
 
     def options(self):

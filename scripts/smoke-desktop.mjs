@@ -54,7 +54,7 @@ try {
   }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
   assert.equal(JSON.parse(command('doctor')).status, 'healthy');
-  command('init', project, '--name', 'Installed app test');
+  command('init', project, '--name', 'Café 工作台');
   server = spawn(cli, ['serve', project, '--port', '0', '--no-open'], { cwd: temporary, env, stdio: ['ignore', 'pipe', 'pipe'] });
   const line = await firstLine(server);
   const url = line.match(/http:\/\/127\.0\.0\.1:\d+/)?.[0];
@@ -125,7 +125,8 @@ try {
   assert.equal((await (await fetch(copyUrl + '/api/v1/prompts')).json())[0].text, 'Installed viewer note');
   assert.deepEqual(await (await fetch(copyUrl + '/api/pricing')).json(), originalEstimate);
   const catalog = JSON.parse(command('projects', '--json'));
-  assert.ok(catalog.some(entry => entry.path === copy && entry.available));
+  const catalogPath = process.platform === 'win32' ? copy.toLowerCase() : copy;
+  assert.ok(catalog.some(entry => entry.path === catalogPath && entry.available));
   await stop(server); server = null;
   // A CLI-created background coordinator must keep the update lock and have
   // a supported stop command, even when no foreground viewer process exists.

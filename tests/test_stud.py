@@ -76,6 +76,21 @@ class StudTests(unittest.TestCase):
                 init_project(project)
             self.assertEqual((project/'design.py').read_bytes(), original)
 
+    def test_generated_python_is_utf8_under_windows_locale(self):
+        from stud_cli import init_project as init_native_project
+        write_text = Path.write_text
+
+        def windows_write(path, data, encoding=None, errors=None, newline=None):
+            return write_text(path, data, encoding=encoding or 'cp1252', errors=errors, newline=newline)
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(Path, 'write_text', windows_write):
+            for index, initialize in enumerate((init_project, init_native_project)):
+                project = initialize(Path(directory)/str(index), 'Café 工作台')
+                source = (project/'design.py').read_bytes()
+                self.assertIn('Café 工作台', source.decode('utf-8'))
+                compile(source, str(project/'design.py'), 'exec')
+                self.assertIn('Café 工作台', (project/'README.md').read_text(encoding='utf-8'))
+
     def test_viewer_opens_before_any_build(self):
         from unittest.mock import patch, MagicMock
         import serve

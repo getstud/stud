@@ -28,7 +28,7 @@ project.box('frame.stud.01', 'Frame', '2x4',
 project.dimension('Height', (-4, 0, 0), (-4, 0, 80))
 project.notes.append('Design study. Geometry and material quantities do not establish structural suitability.')
 project.validation = {{'version': 1, 'automatic': ['solid_collision', 'stock_fit'], 'rules': []}}
-''')
+''', encoding='utf-8')
     (destination / '.gitignore').write_text('__pycache__/\n*.pyc\noutput/model/\n.DS_Store\n')
     (destination / 'README.md').write_text(f'''# {title}
 
@@ -39,7 +39,7 @@ Use the stud checkout's `python3 /path/to/stud_cli.py` if the command is not ins
 Saved comments and prices live in `annotations/`; keep them with this project.
 Generated files live in `output/model/`. Units are inches, with Z up.
 Only open trusted designs: design.py and its helpers are executable Python.
-''')
+''', encoding='utf-8')
     register(destination, title)
     return destination
 
@@ -68,7 +68,7 @@ model.demand('starter.lumber',product_id='lumber.38x89',specification={{'materia
              cuts_mm=[{{'object_id':'starter','length_mm':600}}])
 model.dimension('starter.length','starter:left','starter:right',label='Length')
 model.drawing('starter.front',dimensions=['starter.length'])
-''')
+''', encoding='utf-8')
     if example:
         import shutil
         for source in (ROOT/'examples'/('cadquery-'+example)).glob('*.py'):
@@ -86,7 +86,7 @@ The complete command protocol is documented in stud's CadQuery project guide.
 Keep the entire folder: `records/` contains review/pricing history, `exports/`
 contains immutable PDF packets, and `.stud/` contains recoverable local drafts.
 Only open trusted projects: the design executes Python.
-''')
+''', encoding='utf-8')
     register(destination,title)
     return destination
 
@@ -96,7 +96,7 @@ def main(argv=None):
     version_file = ROOT / 'version.json'
     if not version_file.exists():
         version_file = ROOT / 'package.json'
-    version = json.loads(version_file.read_text())['version']
+    version = json.loads(version_file.read_text(encoding='utf-8'))['version']
     parser.add_argument('--version', action='version', version=f'stud {version}')
     commands = parser.add_subparsers(dest='command', required=True)
     catalog = commands.add_parser('projects', help='List remembered projects or register an existing folder')
@@ -209,8 +209,8 @@ def main(argv=None):
                 elif operation=='option_rename':operation='rename_option';arguments=dict(option_id=args.option,name=args.name,expected_revision=args.expected_revision)
                 elif operation=='restore':arguments=dict(checkpoint=args.checkpoint,option_id=args.option,expected_head=args.expected_head)
                 elif operation=='compare':arguments=dict(left=args.left,right=args.right,mode=args.mode)
-                elif operation=='prices':operation='save_prices';arguments=json.loads(args.input.read_text())
-                elif operation in ('measure','show'):arguments=json.loads(args.input.read_text())
+                elif operation=='prices':operation='save_prices';arguments=json.loads(args.input.read_text(encoding='utf-8'))
+                elif operation in ('measure','show'):arguments=json.loads(args.input.read_text(encoding='utf-8'))
                 elif operation=='inspect':operation='inspect_checkpoint';arguments=dict(checkpoint=args.checkpoint)
                 elif operation=='live':operation='return_live'
                 result=client.command(operation,arguments,args.key)

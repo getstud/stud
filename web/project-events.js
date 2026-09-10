@@ -1,6 +1,7 @@
 // Ordered delivery with explicit snapshot recovery. Geometry stays in assets.
 export class ProjectEvents {
   constructor({onEvent,onReset,onError=()=>{}}){this.onEvent=onEvent;this.onReset=onReset;this.onError=onError;this.sequence=0;this.source=null;this.generation=0;}
+  get connected(){return this.source?.readyState===1;}
   async connect(){
     const generation=++this.generation;this.source?.close();
     const response=await fetch('/api/v1/status',{cache:'no-store'});

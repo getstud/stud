@@ -1,6 +1,7 @@
 """Fault-isolated operations on an existing native archive; never rerun source."""
 import argparse
 import math
+import os
 from pathlib import Path
 import sys
 import traceback
@@ -66,4 +67,11 @@ def run(request):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--request',required=True,type=Path)
-    raise SystemExit(run(read_json(parser.parse_args().request)))
+    status = run(read_json(parser.parse_args().request))
+    if os.name == 'nt':
+        # Results are durable before run returns. The pinned native stack crashes
+        # during Windows interpreter teardown; preserve the actual worker status.
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(status)
+    raise SystemExit(status)

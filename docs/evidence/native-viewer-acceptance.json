@@ -1,8 +1,8 @@
 {
-  "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-browser-7dl0lnlz",
-  "baseline": "916ceef667709660b0d1c60b98f710bc06822463",
-  "wider": "21e3570ee45812ba9d13d8f16c0cf7afd1c5150a",
-  "active_request": "request_93e0da95ef194e5e8a41f1050b1af30c",
+  "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-browser-7ssoizzv",
+  "baseline": "0686817358755fbc1487efef8d6adaa06f7e34f3",
+  "wider": "8f2599e4b59cfa4aa29d3fa29d5e9b73a0aab9ae",
+  "active_request": "request_78ded3f468054952a9e3c0b58de3e7e4",
   "errors": [],
   "initial_camera": {
     "position": [
@@ -46,7 +46,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -70,7 +70,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -94,7 +94,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -118,7 +118,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -142,7 +142,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -166,7 +166,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -190,7 +190,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -214,7 +214,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -238,7 +238,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -262,7 +262,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -286,7 +286,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -310,7 +310,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -334,7 +334,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -358,7 +358,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -382,7 +382,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -406,7 +406,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -430,7 +430,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -454,7 +454,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -478,7 +478,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -502,7 +502,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -526,7 +526,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -550,7 +550,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -574,7 +574,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -598,7 +598,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -622,7 +622,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -646,7 +646,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -670,7 +670,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -694,7 +694,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -718,7 +718,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -742,7 +742,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -766,7 +766,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -790,7 +790,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -814,7 +814,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -838,7 +838,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -862,7 +862,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -886,7 +886,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -910,7 +910,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -934,7 +934,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -958,7 +958,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -982,7 +982,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1006,7 +1006,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1030,7 +1030,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1054,7 +1054,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1078,7 +1078,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1102,7 +1102,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1126,7 +1126,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1150,7 +1150,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1174,7 +1174,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1198,7 +1198,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1222,7 +1222,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1246,7 +1246,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1270,7 +1270,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1294,7 +1294,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1318,7 +1318,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1342,7 +1342,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1366,7 +1366,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1390,7 +1390,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1414,7 +1414,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1438,7 +1438,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1462,7 +1462,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1486,7 +1486,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1510,7 +1510,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1534,7 +1534,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1558,7 +1558,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1582,7 +1582,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1606,7 +1606,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1630,7 +1630,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 12,
@@ -1654,79 +1654,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
-    },
-    {
-      "count": 12,
-      "animation": [],
-      "camera": {
-        "position": [
-          134.5325252047993,
-          87.39939101277423,
-          108.29227780713262
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          17.99999997019768,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
-    },
-    {
-      "count": 12,
-      "animation": [],
-      "camera": {
-        "position": [
-          134.5325252047993,
-          87.39939101277423,
-          108.29227780713262
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          17.99999997019768,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
-    },
-    {
-      "count": 12,
-      "animation": [],
-      "camera": {
-        "position": [
-          134.5325252047993,
-          87.39939101277423,
-          108.29227780713262
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          17.99999997019768,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_f31f836acc6145b3930a052e48a92406"
+      "build": "build_e87f7671ffe84ae9aa8d25f5e09aedb1"
     },
     {
       "count": 10,
@@ -1750,7 +1678,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 10,
@@ -1774,7 +1702,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1798,7 +1726,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1822,7 +1750,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1846,7 +1774,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1870,7 +1798,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1894,7 +1822,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1918,7 +1846,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1942,7 +1870,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1966,7 +1894,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -1990,7 +1918,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -2014,7 +1942,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -2038,7 +1966,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -2062,7 +1990,7 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 12,
@@ -2086,23 +2014,257 @@
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 12,
+      "animation": [],
+      "camera": {
+        "position": [
+          134.5325252047993,
+          87.39939101277423,
+          108.29227780713262
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          17.99999997019768,
+          -12.000000000000002
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 12,
+      "animation": [],
+      "camera": {
+        "position": [
+          134.5325252047993,
+          87.39939101277423,
+          108.29227780713262
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          17.99999997019768,
+          -12.000000000000002
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [
         {
           "id": "bench.fixture.0",
-          "start": 7215.899999976158,
+          "start": 6693.699999988079,
           "targetY": 36,
-          "y": 84
+          "y": 81.17721599999999
         }
       ],
       "camera": {
         "position": [
-          134.5325252047993,
-          87.39939101277423,
-          108.29227780713262
+          134.54750958591546,
+          87.42982641813029,
+          108.31175750258363
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.01919708971661,
+          -12.000000000000004
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 72.3386099272602
+        }
+      ],
+      "camera": {
+        "position": [
+          134.59881346596816,
+          87.53403188204884,
+          108.37845254665214
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469728,
+          18.084924643595638,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 47.417616843046034
+        }
+      ],
+      "camera": {
+        "position": [
+          134.78152280258712,
+          87.90514048368034,
+          108.61597468425676
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.319001242762937,
+          -12.000000000000004
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 44.14384467254019
+        }
+      ],
+      "camera": {
+        "position": [
+          134.82344229546038,
+          87.99028492495071,
+          108.670470024992
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469728,
+          18.372706064378367,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 44.14384467254019
+        }
+      ],
+      "camera": {
+        "position": [
+          134.82344229546038,
+          87.99028492495071,
+          108.670470024992
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469728,
+          18.372706064378367,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 44.14384467254019
+        }
+      ],
+      "camera": {
+        "position": [
+          134.82344229546038,
+          87.99028492495071,
+          108.670470024992
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469728,
+          18.372706064378367,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 38.33794098141032
+        }
+      ],
+      "camera": {
+        "position": [
+          134.935421356733,
+          88.21773029588746,
+          108.81604280464643
         ],
         "quaternion": [
           -0.2014724985151801,
@@ -2112,770 +2274,680 @@
         ],
         "target": [
           42.00000381469728,
-          17.99999997019768,
-          -12.000000000000002
+          18.516167139360636,
+          -12.000000000000007
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [
         {
           "id": "bench.fixture.0",
-          "start": 7215.899999976158,
+          "start": 6693.699999988079,
           "targetY": 36,
-          "y": 76.4048245774417
+          "y": 38.33794098141032
         }
       ],
       "camera": {
         "position": [
-          134.57435335340523,
-          87.48434992086965,
-          108.34665440032036
+          134.935421356733,
+          88.21773029588746,
+          108.81604280464643
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.516167139360636,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 36.755412970583606
+        }
+      ],
+      "camera": {
+        "position": [
+          134.99855219899752,
+          88.34595799911354,
+          108.89811289959027
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.31463041793685953,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.59704671088831,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 36.291283402637774
+        }
+      ],
+      "camera": {
+        "position": [
+          135.03433726665963,
+          88.41864255188538,
+          108.94463348755107
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368594,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.64289246291355,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 36.07376641262628
+        }
+      ],
+      "camera": {
+        "position": [
+          135.06842590730804,
+          88.48788142055315,
+          108.98894872039395
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860934,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469728,
+          18.686564851095046,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [
+        {
+          "id": "bench.fixture.0",
+          "start": 6693.699999988079,
+          "targetY": 36,
+          "y": 36.005716583399064
+        }
+      ],
+      "camera": {
+        "position": [
+          135.10110115417632,
+          88.55424948579622,
+          109.0314265413227
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368596,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          18.728426481186933,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.16382876189238,
+          88.68165816240787,
+          109.11297243135363
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368594,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          18.80878945201148,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.19303830139876,
+          88.74098688397785,
+          109.1509448327119
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860934,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          18.846211018951692,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.22274524852594,
+          88.80132591104191,
+          109.18956386397724
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.31463041793685953,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          18.88426983567037,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.22274524852594,
+          88.80132591104191,
+          109.18956386397724
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.31463041793685953,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          18.88426983567037,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.28342491043918,
+          88.92457491898428,
+          109.26844742446448
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          18.96200909717781,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.3102943578663,
+          88.97915058132213,
+          109.30337770611973
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          18.996432673945325,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.3102943578663,
+          88.97915058132213,
+          109.30337770611973
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          18.996432673945325,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.33785522653352,
+          89.03513061835864,
+          109.3392068353871
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.031742059481413,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.36300430146332,
+          89.08621195991583,
+          109.37190063279584
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.063961594841267,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.39272070399903,
+          89.14657019225704,
+          109.41053195609231
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368594,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.10203252528068,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.42576991192493,
+          89.21369782549877,
+          109.45349592639593
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.14437325257801,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.42576991192493,
+          89.21369782549877,
+          109.45349592639593
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.14437325257801,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.46098584461487,
+          89.28522638434293,
+          109.49927663889287
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.18948986190469,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.4920279029691,
+          89.34827721185283,
+          109.53963131475336
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.229259145648903,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.4920279029691,
+          89.34827721185283,
+          109.53963131475336
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.229259145648903,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.51548415798615,
+          89.39592019584018,
+          109.5701244462755
         ],
         "quaternion": [
           -0.20147249851517998,
-          0.3146304179368594,
-          0.06852521839860927,
+          0.3146304179368596,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.259309938373512,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.53846464074022,
+          89.44259681881684,
+          109.59999907385578
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
           0.9250517968710461
         ],
         "target": [
           42.00000381469727,
-          18.053587766838653,
-          -12.000000000000002
+          19.288751199284622,
+          -12.000000000000009
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 46.873669092603826
-        }
-      ],
+      "animation": [],
       "camera": {
         "position": [
-          134.76676103186762,
-          87.87515723164358,
-          108.59678438232143
+          135.55840175488848,
+          89.48309192809283,
+          109.62591732224848
         ],
         "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368595,
+          -0.20147249851518004,
+          0.3146304179368596,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.314293472949412,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.57690119180427,
+          89.52066691080492,
+          109.64996659023902
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368596,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.337993877974643,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.59510974291518,
+          89.5576510631507,
+          109.67363770668322
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368596,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.36132161698723,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.61241635156523,
+          89.59280324231115,
+          109.69613629792835
+        ],
+        "quaternion": [
+          -0.20147249851518012,
+          0.3146304179368594,
           0.06852521839860932,
           0.9250517968710461
         ],
         "target": [
-          42.00000381469727,
-          18.300089318765792,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 45.34601272128135
-        }
-      ],
-      "camera": {
-        "position": [
-          134.78602126434626,
-          87.91427749815279,
-          108.62182268454369
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
           42.000003814697266,
-          18.324764410916,
-          -12.000000000000002
+          19.383493839660115,
+          -12.000000000000009
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 43.693439112224915
-        }
-      ],
-      "camera": {
-        "position": [
-          134.80928712377073,
-          87.96153376166151,
-          108.65206830179551
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          18.35457127985638,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 43.693439112224915
-        }
-      ],
-      "camera": {
-        "position": [
-          134.80928712377073,
-          87.96153376166151,
-          108.65206830179551
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          18.35457127985638,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 43.693439112224915
-        }
-      ],
-      "camera": {
-        "position": [
-          134.80928712377073,
-          87.96153376166151,
-          108.65206830179551
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          18.35457127985638,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 37.62654759664751
-        }
-      ],
-      "camera": {
-        "position": [
-          134.92916923206474,
-          88.20503134308183,
-          108.8079150425777
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          18.5081572800562,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 37.62654759664751
-        }
-      ],
-      "camera": {
-        "position": [
-          134.92916923206474,
-          88.20503134308183,
-          108.8079150425777
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          18.5081572800562,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 36.333408254726024
-        }
-      ],
-      "camera": {
-        "position": [
-          135.0022923856755,
-          88.35355484924497,
-          108.90297514227171
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469726,
-          18.601838421011244,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 36.067075921450176
-        }
-      ],
-      "camera": {
-        "position": [
-          135.04371042295563,
-          88.43768076301482,
-          108.9568185907359
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.31463041793685936,
-          0.06852521839860928,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.654900806821,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [
-        {
-          "id": "bench.fixture.0",
-          "start": 7215.899999976158,
-          "targetY": 36,
-          "y": 36.00132209317461
-        }
-      ],
-      "camera": {
-        "position": [
-          135.08460384102293,
-          88.52074110068408,
-          109.0099800342234
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685936,
-          0.0685252183986093,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469726,
-          18.707291080939758,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [],
       "camera": {
         "position": [
-          135.1210265089073,
-          88.59472071002635,
-          109.0573295024731
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.31463041793685936,
-          0.06852521839860928,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.753953689368767,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.15819896765885,
-          88.67022325106652,
-          109.1056536988501
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.31463041793685936,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.801576886345266,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.19566239282946,
-          88.74631678621184,
-          109.1543561515719
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368593,
-          0.06852521839860927,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.84957285261264,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.19566239282946,
-          88.74631678621184,
-          109.1543561515719
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368593,
-          0.06852521839860927,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.84957285261264,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.23108231045504,
-          88.81825966741961,
-          109.20040204448514
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.31463041793685936,
-          0.06852521839860928,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.894950795601236,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.23108231045504,
-          88.81825966741961,
-          109.20040204448514
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.31463041793685936,
-          0.06852521839860928,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.894950795601236,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.29813375262069,
-          88.95445066564629,
-          109.28756891930047
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469726,
-          18.98085321220368,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.3277689508244,
-          89.0146439604607,
-          109.32609467696525
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469726,
-          19.018820108365315,
-          -12
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.3580446563259,
-          89.07613821652876,
-          109.36545309411719
-        ],
-        "quaternion": [
-          -0.20147249851518012,
-          0.3146304179368595,
-          0.06852521839860935,
-          0.9250517968710461
-        ],
-        "target": [
-          42.000003814697266,
-          19.05760758530723,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.38939856716837,
-          89.13982246071545,
-          109.40621317821243
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.097776396362068,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.38939856716837,
-          89.13982246071545,
-          109.40621317821243
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.097776396362068,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.41643968956168,
-          89.19474681928207,
-          109.44136663732374
-        ],
-        "quaternion": [
-          -0.20147249851518012,
-          0.3146304179368594,
-          0.06852521839860934,
-          0.9250517968710461
-        ],
-        "target": [
-          42.000003814697266,
-          19.132419913133702,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.44171524378743,
-          89.24608505824543,
-          109.4742248578172
-        ],
-        "quaternion": [
-          -0.20147249851518018,
-          0.3146304179368595,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.16480148642774,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.46697596111844,
-          89.29739316136916,
-          109.5070637903475
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469727,
-          19.197164051553226,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.49645389669612,
-          89.35726703346378,
-          109.5453851065985
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469727,
-          19.2349294719646,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.49645389669612,
-          89.35726703346378,
-          109.5453851065985
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469727,
-          19.2349294719646,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.52214192121042,
-          89.40944305814095,
-          109.57877953846709
-        ],
-        "quaternion": [
-          -0.20147249851518018,
-          0.3146304179368595,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.267839478256025,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.54495084553986,
-          89.45577122160128,
-          109.60843114009533
+          135.62948676534918,
+          89.62747567616627,
+          109.71832783584748
         ],
         "quaternion": [
           -0.2014724985151801,
@@ -2884,166 +2956,94 @@
           0.9250517968710459
         ],
         "target": [
-          42.00000381469727,
-          19.297060948469287,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.5645937922695,
-          89.49566883508761,
-          109.6339669708439
-        ],
-        "quaternion": [
-          -0.20147249851518018,
-          0.3146304179368595,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.32222635190837,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.58432525919343,
-          89.53574624565559,
-          109.65961787784501
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.3475051622834,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.60239914885608,
-          89.5724568814822,
-          109.68311393440642
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.37066038086304,
-          -12.000000000000005
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.61930467052528,
-          89.60679439604277,
-          109.70509111257638
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.392318754171722,
-          -12.000000000000005
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.63693936310165,
-          89.64261296023506,
-          109.72801621292567
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.414911298931727,
+          42.000003814697266,
+          19.405363463177267,
           -12.000000000000007
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [],
       "camera": {
         "position": [
-          135.63693936310165,
-          89.64261296023506,
-          109.72801621292567
+          135.6476081660992,
+          89.66428281375642,
+          109.74188565682249
         ],
         "quaternion": [
           -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
+          0.3146304179368595,
+          0.06852521839860934,
           0.9250517968710459
         ],
         "target": [
-          42.00000381469727,
-          19.414911298931727,
+          42.000003814697266,
+          19.42857955020492,
           -12.000000000000007
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [],
       "camera": {
         "position": [
-          135.6554572247802,
-          89.68022536625601,
-          109.75208943310778
+          135.6476081660992,
+          89.66428281375642,
+          109.74188565682249
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.42857955020492,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.66546708004415,
+          89.70055680338065,
+          109.76510224495092
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.451459354370442,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.68136926219574,
+          89.73285639293843,
+          109.785775081748
         ],
         "quaternion": [
           -0.2014724985151801,
@@ -3053,681 +3053,674 @@
         ],
         "target": [
           42.000003814697266,
-          19.43863530869376,
-          -12.000000000000005
+          19.471832307314518,
+          -12.000000000000007
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 13,
       "animation": [],
       "camera": {
         "position": [
-          135.67223028945688,
-          89.71429384186008,
-          109.77389441718746
+          135.69586198684743,
+          89.76229317421543,
+          109.80461562379521
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.490399545102747,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.7093456158444,
+          89.78968033895794,
+          109.82214434149127
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.507673988097558,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.72133515950276,
+          89.81403280426481,
+          109.83773074824713
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.52303429566067,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.73443422525338,
+          89.8406388664582,
+          109.85475953372293
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368595,
+          0.0685252183986093,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.53981605854109,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.74674988419247,
+          89.86565371819826,
+          109.87076989034372
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.555594166076848,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.7582084290874,
+          89.88892764963163,
+          109.8856659987072
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368594,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.57027418883898,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.76904966731894,
+          89.91094774359348,
+          109.89975960840817
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368594,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.584163354127192,
+          -12.000000000000005
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.7796575242771,
+          89.93249380705632,
+          109.91354982245375
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368595,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.000003814697266,
+          19.59775352487143,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.79002983454825,
+          89.95356144175766,
+          109.9270338258062
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368596,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.611041926869415,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.8001379670158,
+          89.97409249383503,
+          109.94017439801402
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.31463041793685953,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.62399187959612,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.81006126146755,
+          89.99424811366119,
+          109.95307468080131
+        ],
+        "quaternion": [
+          -0.20147249851518015,
+          0.3146304179368596,
+          0.06852521839860937,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.636705028583425,
+          -12.000000000000007
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.8191939763225,
+          90.01279795408887,
+          109.96494721011277
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.648405332869874,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.8283418668373,
+          90.03137861843607,
+          109.97683946778201
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368594,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469726,
+          19.660125079330992,
+          -12.000000000000009
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 13,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.83655111930335,
+          90.04805277564937,
+          109.9875114959879
+        ],
+        "quaternion": [
+          -0.20147249851518012,
+          0.3146304179368594,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469726,
+          19.670642297194746,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 54.749658768
+        }
+      ],
+      "camera": {
+        "position": [
+          135.86172525157815,
+          90.09918501223163,
+          110.02023786794514
+        ],
+        "quaternion": [
+          -0.2014724985151802,
+          0.3146304179368595,
+          0.06852521839860937,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.702893934570888,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 52.69082576825939
+        }
+      ],
+      "camera": {
+        "position": [
+          135.8645871033845,
+          90.10499783954292,
+          110.02395827529342
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368594,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.706560373027433,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 50.423699535735494
+        }
+      ],
+      "camera": {
+        "position": [
+          135.8679732492232,
+          90.11187558246712,
+          110.02836026488372
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.71089850657263,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 46.01946804568021
+        }
+      ],
+      "camera": {
+        "position": [
+          135.8755288040079,
+          90.1272219868851,
+          110.0381824861038
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.720578244902097,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 42.556362
+        }
+      ],
+      "camera": {
+        "position": [
+          135.8829307803037,
+          90.14225645158884,
+          110.04780505528834
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.73006122738398,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 40.133599838877515
+        }
+      ],
+      "camera": {
+        "position": [
+          135.88965540611667,
+          90.15591512129961,
+          110.05654706884523
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.73867642773502,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 38.40776431932207
+        }
+      ],
+      "camera": {
+        "position": [
+          135.89606788548375,
+          90.16893977726377,
+          110.06488329202242
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368595,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469726,
+          19.746891724173874,
+          -12.00000000000001
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 37.277940540594116
+        }
+      ],
+      "camera": {
+        "position": [
+          135.90201746836922,
+          90.18102422475708,
+          110.07261774977351
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.3146304179368594,
+          0.0685252183986093,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469726,
+          19.754513984503095,
+          -12.000000000000012
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 36.54967118689758
+        }
+      ],
+      "camera": {
+        "position": [
+          135.90802026859708,
+          90.19321676422808,
+          110.08042139006976
+        ],
+        "quaternion": [
+          -0.20147249851518007,
+          0.3146304179368594,
+          0.06852521839860932,
+          0.9250517968710461
+        ],
+        "target": [
+          42.00000381469726,
+          19.76220442380317,
+          -12.000000000000012
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [
+        {
+          "id": "bench.fixture.1",
+          "start": 8618.5,
+          "targetY": 36,
+          "y": 36.154347752522796
+        }
+      ],
+      "camera": {
+        "position": [
+          135.91417946941354,
+          90.20572697549844,
+          110.08842835113117
         ],
         "quaternion": [
           -0.20147249851518018,
-          0.31463041793685953,
-          0.06852521839860937,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.460123985790315,
-          -12.000000000000005
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.6883231270861,
-          89.74698067976003,
-          109.79481510610547
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.48074119546834,
-          -12.000000000000005
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.70387289311688,
-          89.77856446214449,
-          109.81502980194549
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.500662653329712,
-          -12.000000000000004
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.71882259190176,
-          89.80892942276185,
-          109.8344644103658
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.519815339858447,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.71882259190176,
-          89.80892942276185,
-          109.8344644103658
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469727,
-          19.519815339858447,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.7335630972042,
-          89.83886948171761,
-          109.85362706725897
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.31463041793685953,
-          0.06852521839860937,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.538700019837346,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.74752247249307,
-          89.86722295471988,
-          109.87177425513447
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368596,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.556583961372997,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.76003698370556,
-          89.89264170365803,
-          109.88804311971073
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.57261682690177,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.7714698398147,
-          89.91586345752036,
-          109.9029058326526
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368596,
-          0.06852521839860937,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.58726393868224,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 13,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.78242238139478,
-          89.93810962438468,
-          109.9171441367067
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.31463041793685953,
-          0.06852521839860937,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.601295699361494,
-          -12.000000000000002
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 53.266983792017086
-        }
-      ],
-      "camera": {
-        "position": [
-          135.81227899846573,
-          89.99875265235298,
-          109.95595773889896
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.31463041793685953,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.639546264526583,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 53.15070819705674
-        }
-      ],
-      "camera": {
-        "position": [
-          135.81248433161537,
-          89.99916971313073,
-          109.95622467199351
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.639809325442105,
-          -11.999999999999998
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 48.904111902441926
-        }
-      ],
-      "camera": {
-        "position": [
-          135.82056440197323,
-          90.01558148314248,
-          109.96672876345873
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.650161042685447,
-          -11.999999999999996
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 44.992590100552164
-        }
-      ],
-      "camera": {
-        "position": [
-          135.82951844249695,
-          90.03376841063726,
-          109.97836901613958
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.661632439787443,
-          -11.999999999999995
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 41.51678553416716
-        }
-      ],
-      "camera": {
-        "position": [
-          135.8395999133225,
-          90.0542453091346,
-          109.99147492821282
-        ],
-        "quaternion": [
-          -0.20147249851518015,
           0.3146304179368594,
           0.06852521839860934,
           0.9250517968710459
         ],
         "target": [
-          42.000003814697266,
-          19.674548235165602,
-          -11.999999999999993
+          42.00000381469726,
+          19.770095234461145,
+          -12.000000000000014
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [
         {
           "id": "bench.fixture.1",
-          "start": 8965.699999988079,
+          "start": 8618.5,
           "targetY": 36,
-          "y": 41.51678553416716
+          "y": 36.01211692649143
         }
       ],
       "camera": {
         "position": [
-          135.8395999133225,
-          90.0542453091346,
-          109.99147492821282
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368594,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.674548235165602,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 39.169787621345826
-        }
-      ],
-      "camera": {
-        "position": [
-          135.8487729964786,
-          90.07287714331281,
-          110.0033999363157
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.686300256976768,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 37.587655728
-        }
-      ],
-      "camera": {
-        "position": [
-          135.85779071306052,
-          90.09119340592181,
-          110.01512296787223
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710461
-        ],
-        "target": [
-          42.000003814697266,
-          19.697853232149313,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 36.70072053022693
-        }
-      ],
-      "camera": {
-        "position": [
-          135.86572888510136,
-          90.1073169603066,
-          110.02544259152532
-        ],
-        "quaternion": [
-          -0.20147249851518015,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.70802315750348,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 36.19440444394477
-        }
-      ],
-      "camera": {
-        "position": [
-          135.87416941658194,
-          90.12446087803262,
-          110.03641528245005
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368596,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.000003814697266,
-          19.71883667661911,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 36.0196088874618
-        }
-      ],
-      "camera": {
-        "position": [
-          135.88229690443563,
-          90.14096895971025,
-          110.04698101665986
-        ],
-        "quaternion": [
-          -0.20147249851518,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469727,
-          19.729249142406438,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [
-        {
-          "id": "bench.fixture.1",
-          "start": 8965.699999988079,
-          "targetY": 36,
-          "y": 36.0196088874618
-        }
-      ],
-      "camera": {
-        "position": [
-          135.88229690443563,
-          90.14096895971025,
-          110.04698101665986
-        ],
-        "quaternion": [
-          -0.20147249851518,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469727,
-          19.729249142406438,
-          -11.999999999999993
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.89056797991174,
-          90.15776868823386,
-          110.05773341477875
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860935,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          19.739845564322955,
-          -11.999999999999995
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.89852390038612,
-          90.17392829220691,
-          110.06807611139547
-        ],
-        "quaternion": [
-          -0.2014724985151801,
-          0.3146304179368595,
-          0.06852521839860934,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          19.75003822794022,
-          -11.999999999999995
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.90561933344725,
-          90.18834012408162,
-          110.07730017437498
+          135.92057894746478,
+          90.21872522394436,
+          110.09674767259777
         ],
         "quaternion": [
           -0.20147249851518012,
@@ -3736,94 +3729,22 @@
           0.9250517968710461
         ],
         "target": [
-          42.00000381469728,
-          19.759128485019072,
-          -11.999999999999993
+          42.00000381469726,
+          19.778293874368654,
+          -12.000000000000014
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.9121373434997,
-          90.20157912784981,
-          110.08577358744319
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.31463041793685936,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.76747898124793,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.91827482616486,
-          90.21404522647157,
-          110.09375231490789
-        ],
-        "quaternion": [
-          -0.20147249851518012,
-          0.3146304179368594,
-          0.06852521839860932,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.77534196787081,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.91827482616486,
-          90.21404522647157,
-          110.09375231490789
-        ],
-        "quaternion": [
-          -0.20147249851518012,
-          0.3146304179368594,
-          0.06852521839860932,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.77534196787081,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.92404179742633,
-          90.2257587638315,
-          110.1012493775478
+          135.92641477072408,
+          90.23057860948668,
+          110.10433424283487
         ],
         "quaternion": [
           -0.20147249851518015,
@@ -3832,118 +3753,382 @@
           0.9250517968710459
         ],
         "target": [
-          42.00000381469728,
-          19.78273027678464,
-          -11.999999999999991
+          42.000003814697266,
+          19.785770392466507,
+          -12.000000000000014
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.9295184387284,
-          90.23688259982609,
-          110.10836901124046
+          135.92641477072408,
+          90.23057860948668,
+          110.10433424283487
         ],
         "quaternion": [
-          -0.20147249851518,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.789746631802736,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.93493584128532,
-          90.24788611351939,
-          110.11541163456445
-        ],
-        "quaternion": [
-          -0.20147249851518,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.796687093578328,
-          -11.99999999999999
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.94028462463686,
-          90.25875025186475,
-          110.12236505292144
-        ],
-        "quaternion": [
-          -0.20147249851518,
-          0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.80353964441005,
-          -11.99999999999999
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.94561772978852,
-          90.26958254556043,
-          110.12929808961862
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368595,
+          -0.20147249851518015,
+          0.3146304179368594,
           0.06852521839860934,
-          0.9250517968710461
+          0.9250517968710459
         ],
         "target": [
-          42.00000381469728,
-          19.810372109241957,
-          -11.99999999999999
+          42.000003814697266,
+          19.785770392466507,
+          -12.000000000000014
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.9503507247116,
-          90.27919593018501,
-          110.1354509830186
+          135.93193896659275,
+          90.2417990355574,
+          110.11151569746414
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368594,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.792847671635723,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.93652231902297,
+          90.25110847503447,
+          110.11747405562336
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.31463041793685953,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.798719596790153,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.94105489242364,
+          90.2603147750935,
+          110.12336640104422
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368596,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.80452646679872,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.94549423765582,
+          90.26933171550695,
+          110.12913754984605
+        ],
+        "quaternion": [
+          -0.20147249851517998,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.81021389828803,
+          -12.000000000000014
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.9496363995342,
+          90.27774503433815,
+          110.13452236028793
+        ],
+        "quaternion": [
+          -0.20147249851517998,
+          0.3146304179368596,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.815520595710453,
+          -12.000000000000014
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.95367431216457,
+          90.28594660814656,
+          110.13977164670739
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368596,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.000003814697266,
+          19.82069373504607,
+          -12.000000000000012
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.95769823484304,
+          90.29411976637655,
+          110.14500274618942
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.3146304179368596,
+          0.06852521839860934,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.825848951267215,
+          -12.000000000000014
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.96152806751638,
+          90.30189870025144,
+          110.14998152866477
+        ],
+        "quaternion": [
+          -0.20147249851517998,
+          0.3146304179368596,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.830755510637104,
+          -12.000000000000012
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.96515347388575,
+          90.30926241528091,
+          110.15469455694496
+        ],
+        "quaternion": [
+          -0.20147249851518,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.83540017088954,
+          -12.000000000000012
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.97203197838667,
+          90.3232336344528,
+          110.16363661279617
+        ],
+        "quaternion": [
+          -0.20147249851517998,
+          0.31463041793685953,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.844212511685747,
+          -12.000000000000014
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.97203197838667,
+          90.3232336344528,
+          110.16363661279617
+        ],
+        "quaternion": [
+          -0.20147249851517998,
+          0.31463041793685953,
+          0.0685252183986093,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.844212511685747,
+          -12.000000000000014
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.97868128061512,
+          90.33673931126984,
+          110.17228070569317
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.85273121183143,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.97868128061512,
+          90.33673931126984,
+          110.17228070569317
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.85273121183143,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.9817894101635,
+          90.34305236363883,
+          110.17632127410603
+        ],
+        "quaternion": [
+          -0.20147249851518004,
+          0.31463041793685953,
+          0.06852521839860931,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469727,
+          19.856713167039153,
+          -12.000000000000016
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          135.9848327550969,
+          90.34923382925754,
+          110.18027762251948
         ],
         "quaternion": [
           -0.20147249851518,
@@ -3952,94 +4137,22 @@
           0.9250517968710461
         ],
         "target": [
-          42.00000381469728,
-          19.816435747674266,
-          -11.99999999999999
+          42.00000381469727,
+          19.86061212395779,
+          -12.000000000000018
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.9547766012061,
-          90.28818551368016,
-          110.14120462246149
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.82210592379851,
-          -11.99999999999999
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.9547766012061,
-          90.28818551368016,
-          110.14120462246149
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.82210592379851,
-          -11.99999999999999
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.95920234207532,
-          90.29717482170102,
-          110.14695808559145
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368595,
-          0.06852521839860931,
-          0.9250517968710459
-        ],
-        "target": [
-          42.00000381469728,
-          19.82777592616746,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.96337216684697,
-          90.30564432779572,
-          110.15237885779459
+          135.98784307391531,
+          90.355348214148,
+          110.18419103698342
         ],
         "quaternion": [
           -0.20147249851518007,
@@ -4048,70 +4161,46 @@
           0.9250517968710461
         ],
         "target": [
-          42.00000381469728,
-          19.833118063683433,
-          -11.999999999999991
+          42.00000381469727,
+          19.864468769734426,
+          -12.000000000000018
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.96735319816474,
-          90.3137303675829,
-          110.1575541985077
+          135.9907379568002,
+          90.36122813226915,
+          110.18795438473377
         ],
         "quaternion": [
-          -0.20147249851518007,
+          -0.20147249851518004,
           0.3146304179368595,
-          0.06852521839860932,
-          0.9250517968710461
+          0.0685252183986093,
+          0.9250517968710459
         ],
         "target": [
-          42.00000381469728,
-          19.83821832998229,
-          -11.99999999999999
+          42.00000381469727,
+          19.868177525691937,
+          -12.00000000000002
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.97128207073746,
-          90.32171046555399,
-          110.16266173285221
-        ],
-        "quaternion": [
-          -0.20147249851518007,
-          0.3146304179368595,
-          0.06852521839860932,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469728,
-          19.843251773523825,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.9749745274489,
-          90.32921036934722,
-          110.16746192657708
+          135.99342383993894,
+          90.3666835422346,
+          110.19144603281416
         ],
         "quaternion": [
           -0.20147249851518004,
@@ -4120,112 +4209,112 @@
           0.9250517968710459
         ],
         "target": [
-          42.00000381469729,
-          19.84798233478349,
-          -11.999999999999991
+          42.00000381469727,
+          19.871618523303304,
+          -12.00000000000002
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.97889790098134,
-          90.33717929798681,
-          110.17256231216926
+          135.99604680897323,
+          90.372011164722,
+          110.1948558925587
         ],
         "quaternion": [
-          -0.20147249851518,
+          -0.20147249851517998,
           0.3146304179368595,
-          0.0685252183986093,
-          0.9250517968710461
-        ],
-        "target": [
-          42.00000381469729,
-          19.853008733273754,
-          -11.999999999999991
-        ]
-      },
-      "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
-    },
-    {
-      "count": 14,
-      "animation": [],
-      "camera": {
-        "position": [
-          135.982795762991,
-          90.34509640910186,
-          110.17762953278184
-        ],
-        "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
           0.0685252183986093,
           0.9250517968710459
         ],
         "target": [
-          42.00000381469729,
-          19.85800244788153,
-          -11.99999999999999
+          42.00000381469727,
+          19.874978919015007,
+          -12.00000000000002
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.982795762991,
-          90.34509640910186,
-          110.17762953278184
+          135.9985012434756,
+          90.3769964696485,
+          110.19804665741177
         ],
         "quaternion": [
-          -0.20147249851518004,
-          0.3146304179368594,
+          -0.20147249851517998,
+          0.3146304179368596,
           0.0685252183986093,
           0.9250517968710459
         ],
         "target": [
-          42.00000381469729,
-          19.85800244788153,
-          -11.99999999999999
+          42.00000381469727,
+          19.87812339806475,
+          -12.00000000000002
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     },
     {
       "count": 14,
       "animation": [],
       "camera": {
         "position": [
-          135.9864012141111,
-          90.35241959218703,
-          110.18231661923797
+          136.00092767365157,
+          90.38192489381242,
+          110.20120101664051
         ],
         "quaternion": [
           -0.20147249851518004,
-          0.3146304179368595,
+          0.31463041793685953,
           0.06852521839860931,
           0.9250517968710459
         ],
         "target": [
-          42.00000381469729,
-          19.862621542626634,
-          -11.999999999999988
+          42.00000381469728,
+          19.88123199959667,
+          -12.00000000000002
         ]
       },
       "selected": "bench.leg.left.front",
-      "build": "build_8c1b03abdacd4b0c9f3c80ea9de02d2c"
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
+    },
+    {
+      "count": 14,
+      "animation": [],
+      "camera": {
+        "position": [
+          136.00329037805201,
+          90.38672388187919,
+          110.20427253236109
+        ],
+        "quaternion": [
+          -0.2014724985151801,
+          0.3146304179368595,
+          0.06852521839860935,
+          0.9250517968710459
+        ],
+        "target": [
+          42.00000381469728,
+          19.884258959363088,
+          -12.00000000000002
+        ]
+      },
+      "selected": "bench.leg.left.front",
+      "build": "build_2b9f23c770764e5c9113c506386d24dd"
     }
   ],
-  "pdf_bytes": 22410,
+  "pdf_bytes": 22411,
   "recovery": {
     "superseding_focus_acknowledged": true,
     "partial_failure": true,
@@ -4233,7 +4322,7 @@
     "deleted_prompt_context": true,
     "missing_asset_recovery": true,
     "event_reconnect": true,
-    "prompt_id": "browser_review_86a002fe587747d9b0dba8b7c1766139",
-    "partial_prompt_id": "partial_review_eb10a1986b7a4d2c823f27d56e2c6ec3"
+    "prompt_id": "browser_review_459cff7af12141edb8ba060b0fc45c39",
+    "partial_prompt_id": "partial_review_9177c278291b4674abf70bb4b673dd2d"
   }
 }
