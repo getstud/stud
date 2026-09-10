@@ -107,11 +107,12 @@ class ProjectLock:
             if os.name == 'nt':
                 import msvcrt
                 self.stream.seek(0)
-                if not self.stream.read(1):
-                    self.stream.write(b'\0')
-                    self.stream.flush()
-                self.stream.seek(0)
                 msvcrt.locking(self.stream.fileno(), msvcrt.LK_NBLCK, 1)
+                # Windows locks may extend past EOF. Keep the existing byte-zero
+                # lock protocol, but no payload: a mandatory lock on a stored
+                # placeholder byte prevents copying an otherwise idle project.
+                # Truncate only after ownership, also removing an older marker.
+                self.stream.truncate(0)
             else:
                 import fcntl
                 fcntl.flock(self.stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
