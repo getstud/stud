@@ -31,6 +31,17 @@ export class BuildAnimation {
     });
   }
 
+  // Successive publication batches extend the reveal without finishing the
+  // objects already falling into place. Reconnects never call this operation.
+  append(meshes, now, reducedMotion = false) {
+    if(reducedMotion||!meshes.length)return;
+    const active=new Set(this.entries.map(entry=>entry.mesh));
+    const additions=meshes.filter(mesh=>!active.has(mesh));
+    const start=Math.max(now,...this.entries.map(entry=>entry.start+200));
+    const next=new BuildAnimation();next.start(additions,start,false);
+    this.entries.push(...next.entries);this.update(now);
+  }
+
   // Refresh display settings without losing the reveal's timing or order.
   rebase(changeDisplay, now) {
     const entries = this.entries;

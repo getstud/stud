@@ -8,6 +8,8 @@ Describe what you want to build: a garage workbench, storage shelves, or a frame
 
 The current workflow runs through **[ChatGPT for desktop](https://chatgpt.com/download/)**, with stud's live viewer open alongside the conversation. You don't need to write code to design a project.
 
+This source revision introduces CadQuery projects, explicit editing requests, saved alternatives and vector plan packets. For native release verification, see the [implementation ledger](docs/IMPLEMENTATION.md); previously published installers can use the older project format.
+
 ## What you get
 
 **A 3D view as the design changes.** Explore the model, switch between front, side, top, and perspective views, and isolate assemblies to see how the pieces fit together. The viewer updates as the agent edits the project.
@@ -34,7 +36,7 @@ Download an installer from [GitHub Releases](https://github.com/getstud/stud/rel
 | macOS, Intel | `stud_<version>_x64.dmg` |
 | Windows, x64 | `stud_<version>_x64-setup.exe` |
 
-The desktop app includes stud, Python, and the browser viewer. You don't need to install Python or Node.js separately. The desktop window handles setup and updates; you review designs in the browser.
+The desktop build includes stud, Python, CadQuery, PDF dependencies, Git and the browser viewer. You don't need to install Python, Git or Node.js separately. The desktop window handles setup and updates; you review designs in the browser.
 
 **macOS**
 
@@ -52,15 +54,18 @@ See the [desktop guide](docs/desktop.md) for building installers locally and det
 
 ### Run from source
 
-Install Git, Python 3.10+, and Node.js/npm. The Python engine uses the standard library, so no pip dependencies are needed.
+Install Git, Python 3.13, and Node.js/npm.
 
-The source launcher looks for `python3` by default. If your Python executable has a different name or location, set `STUD_PYTHON` before running stud. For example, in Windows PowerShell, use `$env:STUD_PYTHON = "python"` if `python` runs Python 3.10+.
+The source launcher uses `STUD_PYTHON`, or looks for `python3` by default. Set it to the project's virtual environment before running stud, as shown below. In Windows PowerShell, after cloning and entering the checkout, replace the three Python/environment commands below with `py -3.13 -m venv .venv`, `.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.lock`, and `$env:STUD_PYTHON = "$PWD\.venv\Scripts\python.exe"`.
 
 From a terminal:
 
 ```sh
 git clone https://github.com/getstud/stud.git
 cd stud
+python3.13 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.lock
+export STUD_PYTHON="$PWD/.venv/bin/python"
 npm ci
 npm link
 ```
@@ -75,7 +80,9 @@ npm run stud -- serve ../my-workbench
 
 Open [localhost:8765](http://127.0.0.1:8765) to view the project. Stop the server with Ctrl+C. The project directory must not already exist; keeping it outside the checkout makes it easier to update stud independently of your designs.
 
-A [worked gable-shed example](examples/framed-shed/README.md) shows how the Python builders coordinate framing, roof edges, siding and trim. Adapt its architectural choices to the project; its checks and API patterns are reusable. Desktop packages include it under `engine/examples/framed-shed/`.
+Run `stud doctor` to check CAD, PDF and Git availability.
+
+The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams. The older [framed shed](examples/framed-shed/README.md) remains a legacy API example.
 
 ## Make something
 
@@ -89,6 +96,8 @@ Have the agent create the project and open its viewer before building the design
 stud init my-workbench --name "Garage workbench"
 stud serve my-workbench
 ```
+
+For each requested design change, the agent reads `stud status`, calls `stud begin`, edits the returned workspace, evaluates its captured source and calls `stud finish`. That saves one recoverable checkpoint. The **Versions** page compares alternatives, displays original estimates and restores an older design as a new checkpoint while keeping review history.
 
 The command opens your browser before the first build. Use `--no-open` to open the printed URL in Codex’s in-app browser instead. You can also open [localhost:8765](http://127.0.0.1:8765) in Codex's in-app browser or another browser. Then keep the conversation going:
 
@@ -115,9 +124,9 @@ stud checks the geometry in the model and the requirements declared for the desi
 | Opening clearance | Space that must remain clear |
 | Face alignment | Faces that should line up |
 
-New projects enable collision and stock-fit checks. Other relationships must be declared; the viewer's **Checks** section shows findings and coverage by assembly. A starter with no declared relationships reports unverified coverage.
+The native starter declares length and stock-fit requirements. Other relationships, including collisions, must be declared; the viewer's **Checks** section shows findings and coverage. A model with no declared relationships reports incomplete coverage.
 
-These are geometry checks, not structural engineering or building-code approval. Material takeoffs are planning estimates: stock packing is conservative, and sheet quantities are not cutting layouts. See the [validation guide](docs/validation.md) for supported geometry, tolerances, and exceptions.
+These are geometry checks, not structural engineering or building-code approval. Native purchasing data includes actual stock cuts and explicit sheet layouts; missing fabrication details and prices remain visible. See the [CadQuery guide](docs/cadquery.md) for native measurements and the [legacy validation guide](docs/validation.md) for older projects.
 
 ## Your materials, your prices
 
@@ -133,9 +142,7 @@ Use **Add project** in the desktop app to choose an existing project with the na
 
 The catalog is stored separately from designs in `~/Library/Application Support/stud/projects.sqlite3` on macOS, `%LOCALAPPDATA%/stud/projects.sqlite3` on Windows, and `$XDG_DATA_HOME/stud/projects.sqlite3` (default `~/.local/share`) on Linux. `STUD_DATA_DIR` overrides the catalog directory.
 
-Each project has its own design and `annotations/` folder containing comments, prices, and saved screenshots. Keep that entire folder with the project so an agent can read your feedback when you return.
-
-Generated files live in `output/model/` and can be rebuilt. Your projects live separately from the app, so you can update stud without moving your designs into its installation folder.
+Current projects keep immutable prompts and quotes in `records/`, saved reports in `checkpoints/`, and immutable PDF packets in `exports/`. Keep `.git` for history and `.stud` for recoverable drafts and artifacts when copying the folder. Legacy projects retain their `annotations/` and `output/model/` folders. Designs live separately from the app.
 
 ## The commands
 
@@ -143,20 +150,28 @@ The agent and the desktop installation use the same CLI:
 
 ```text
 stud init <directory>              create a project with a starter model
+stud init <directory> --example shed  create a detailed construction fixture
 stud serve [directory]             start the live viewer
 stud serve [directory] --port 8766  use a different port
-stud build [directory]             validate and export JSON and CSV files
+stud status [directory]            inspect current request, build and option
+stud begin [directory] ...         start an isolated editing request
+stud evaluate [directory] ...      evaluate a captured source
+stud finish [directory] ...        finalize one request and checkpoint
+stud compare [directory] ...       compare two fixed checkpoints
+stud plans [directory] ...         generate an immutable PDF packet
+stud doctor                       inspect the installed runtime
+stud build [directory]             evaluate the current design
 stud validate [directory]          check the design
 stud validate [directory] --json   return machine-readable findings
 stud validate [directory] --strict fail on warnings or unverified coverage
 stud --version                     print the installed version
 ```
 
-`init` requires a new directory. The other project commands default to the current directory. Strict validation exits `1` for failures, `2` for warnings or unverified work, and `0` otherwise. A build with validation failures does not replace the model exports.
+`init` requires a new directory. Other project commands default to the current directory. Use a command's `--help` for its required identities and flags. Current geometry and its check outcome are separate; failed requirements remain inspectable.
 
 ## Under the hood
 
-The AI writes a Python design using stud's parts, stock, dimensions, and assembly builders. You can inspect or edit it yourself, but the normal workflow is to ask for changes in conversation. Models use inches, with Z pointing up.
+The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. Current models use millimeters, with Z pointing up; `inches()` converts imperial inputs. Legacy models retain their inch-based API.
 
 The browser viewer uses Three.js. In a compatible browser, the optional WebMCP `show` tool lets an agent focus the viewer on particular parts or a region. Browsers without WebMCP still support the normal viewer interface.
 
@@ -166,7 +181,7 @@ See the [workshop guide](docs/workshop.md) for modeling, comments, pricing, expo
 
 **The terminal can't find `stud`.** Enable the command through the desktop setup, then restart your terminal or Codex. For a source checkout, run `npm link` or use `npm run stud --` from the repository.
 
-**The source launcher can't find Python.** Install Python 3.10+ or set `STUD_PYTHON` to the interpreter you want the npm launcher to use. The desktop app includes its own runtime.
+**The source launcher can't find Python.** Install the Python 3.13 environment and locked dependencies above, then set `STUD_PYTHON`. The desktop build includes its own runtime. `stud doctor` identifies missing or incompatible packages.
 
 **The viewer still shows an older design.** A failed rebuild keeps the last good model. Check the reported build error and have the agent correct it. Viewer JavaScript or CSS changes require a browser refresh; server changes require a restart.
 

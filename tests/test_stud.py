@@ -11,7 +11,7 @@ import unittest
 import urllib.request
 import uuid
 
-from stud_cli import init_project
+from stud_cli import init_legacy_project as init_project
 
 ROOT = Path(__file__).resolve().parents[1]
 

@@ -1,0 +1,21 @@
+#design-versions .version-toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:18px 0}
+#design-versions label{display:grid;gap:6px;flex:1;min-width:180px;font-size:11px;color:var(--muted)}
+#design-versions select,#design-versions input{width:100%;padding:9px;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:3px}
+#design-versions button{border:1px solid var(--line);padding:9px 12px;border-radius:3px;white-space:nowrap}
+#design-versions td button{padding:5px 8px;margin:0 6px 6px 0}
+#design-versions small,#version-status{color:var(--muted)}
+#version-error{color:var(--danger);white-space:pre-wrap}
+#version-status{white-space:pre-wrap}
+#design-versions h3{font-size:15px;font-weight:500;margin:32px 0 14px}
+#design-versions .comparison-views{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#design-versions .comparison-views section{min-width:0}
+#design-versions .comparison-canvas{height:330px;position:relative;overflow:hidden;border:1px solid var(--line);background:var(--stage)}
+#design-versions .comparison-canvas canvas{display:block;width:100%;height:100%;touch-action:none}
+#design-versions .comparison-legend{font-size:11px;color:var(--muted)}
+#design-versions .comparison-legend span{display:inline-block;margin-right:16px}
+#design-versions .comparison-legend i{display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:2px}
+#design-versions .comparison-details{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+#design-versions details{margin-top:20px}
+#design-versions details summary{cursor:pointer;padding:8px 0}
+#design-versions td .checkpoint-code{font-family:monospace}
+@media(max-width:760px){#design-versions .comparison-views{grid-template-columns:1fr}#design-versions .comparison-canvas{height:280px}}

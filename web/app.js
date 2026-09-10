@@ -10,6 +10,9 @@ import {preserveCamera} from '/camera-transition.js';
 import {FlyControls} from '/fly-controls.js';
 import {BuildAnimation} from '/build-animation.js';
 import {BuildCamera, stopOnCameraInput} from '/build-camera.js';
+import {CadScene} from '/cad-scene.js';
+import {ProjectEvents} from '/project-events.js';
+import {installVersions} from '/versions.js';
 const buildCamera=new BuildCamera();
 const buildAnimation=new BuildAnimation();
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -24,6 +27,7 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;viewport.prepend(renderer.domElem
 const scene=new THREE.Scene();scene.add(new THREE.HemisphereLight('#fffff0','#768371',2.6));
 const sun=new THREE.DirectionalLight('#fff4dc',3);sun.position.set(150,230,100);scene.add(sun);
 const group=new THREE.Group();scene.add(group);
+const cadScene=new CadScene({THREE,group});
 const grid=new THREE.GridHelper(320,20,'#c6cebf','#dce0d5');grid.position.set(72,-.5,48);scene.add(grid);
 function applyViewerTheme() {
  const colors=getComputedStyle(document.documentElement);
@@ -241,7 +245,8 @@ function partGeometry(p){
  const vertices=[];for(const [a,b,c,d] of faces)for(const i of [a,b,c,a,c,d])vertices.push(...points[i].map((v,j)=>v-p.size[j]/2));
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
 }
-function install(data){
+function install(data,options={}){
+ if(data.engine==='cadquery')return installCad(data,options);
  const isLiveUpdate=Boolean(model);
  const previousIds=new Set(meshes.map(m=>m.userData.id));
  buildAnimation.finish();
@@ -295,6 +300,44 @@ function install(data){
  if(isLiveUpdate&&!assemblyReview)buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
  if(isLiveUpdate&&!assemblyReview)buildCamera.follow(bounds(),camera,controls,performance.now(),reducedMotion.matches);
 }
+let cadTiming=null;
+async function installCad(data,{animate=true}={}){
+ const started=performance.now();
+ const prepared=await cadScene.prepare(data);if(!prepared)return;
+ const assetsPrepared=performance.now();
+ const wasLive=Boolean(model),oldSelected=selected?.userData.id;
+ const patched=buildAnimation.rebase(prepared,performance.now());if(!patched)return;
+ clearShow();clearValidationHighlights();
+ model=data;revision=data.revision;meshes=patched.meshes;
+ for(const mesh of meshes)partMeasurements.delete(mesh);
+ selected=meshes.find(mesh=>mesh.userData.id===oldSelected)||null;
+ disposeTree(dimGroup);labelRoot.replaceChildren();labels=[];
+ for(const d of data.dimensions){
+  const a=vec(d.start),b=vec(d.end),line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:'#577367'}));dimGroup.add(line);
+  for(const pt of [a,b])dimGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([pt.clone().add(new THREE.Vector3(-1,1,0)),pt.clone().add(new THREE.Vector3(1,-1,0))]),new THREE.LineBasicMaterial({color:'#577367'})));
+  const el=document.createElement('span');el.className='dimension';el.textContent=`${d.label} ${feet(d.inches)}`;labelRoot.append(el);labels.push({el,point:a.clone().lerp(b,.5),start:a,end:b});
+ }
+ const names=[...new Set(data.parts.map(part=>part.assembly))];
+ $('partcount').textContent=data.parts.length;$('assemblycount').textContent=names.length;document.title=`stud – ${data.name}`;
+ $('materials').innerHTML=data.materials.map(r=>`<tr><td>${escape(r.name)}<small>${escape(r.basis)}</small></td><td>${r.parts}</td><td>${escape(r.purchase)}<small>${escape(r.status)}</small></td><td>Not selected</td></tr>`).join('');
+ renderValidation({revision,...data.validation_results});
+ buildAnimation.rebase(()=>applyDisplay(),performance.now());
+ if(assemblyReview)openAssemblyDrawing(assemblyReview.assembly,assemblyReview.view);
+ renderList();select(selected);if(!camera)setView();renderComments();$('loading').hidden=true;
+ const modelBounds=bounds(),center=modelBounds.getCenter(new THREE.Vector3());
+ if(!modelBounds.isEmpty())grid.position.set(center.x,modelBounds.min.y-.5,center.z);
+ const liveAddition=wasLive&&animate&&data.cad.presentation==='live'&&!assemblyReview;
+ if(liveAddition)buildAnimation.append(patched.additions,performance.now(),reducedMotion.matches);
+ if(liveAddition&&(patched.additions.length||patched.changed.length))buildCamera.follow(bounds(),camera,controls,performance.now(),reducedMotion.matches);
+ const incomplete=data.cad.completion.geometry!=='complete';
+ const failed=data.cad.latest_status==='generation_failed';
+ $('error').hidden=!incomplete&&!failed&&data.cad.presentation!=='history';
+ if(data.cad.presentation==='history')$('error').textContent=`Viewing saved checkpoint ${data.cad.checkpoint?.slice(0,12)||''}. Use Versions to return to the current design.`;
+ if(incomplete)$('error').textContent=`Partial model · ${data.parts.length} completed parts${patched.contextCount?' · pale parts are previous context':''}. ${failed?'Generation failed; completed parts remain inspectable.':''}`;
+ else if(failed)$('error').textContent=`Showing previous model ${data.cad.build_id.slice(-8)}. The latest generation failed.`;
+ if(data.cad.reproduction==='differs_from_saved_evidence'){$('error').hidden=false;$('error').textContent='This regenerated model differs from the saved checkpoint. The original reports remain in version history.';}
+ cadTiming={build_id:data.cad.build_id,parts:data.parts.length,asset_prepare_ms:assetsPrepared-started,scene_update_ms:performance.now()-assetsPrepared,total_ms:performance.now()-started};
+}
 reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches){buildAnimation.finish();buildCamera.cancel();}});
 function applyDisplay(){
  buildAnimation.finish();
@@ -321,7 +364,7 @@ function select(mesh){
  renderPartComments();
  if(!selected){$('inspector').innerHTML='<h2>Every piece,<br>accounted for.</h2><p>Select a part to inspect its dimensions.</p>';renderList();return;}
  selected.material.emissive.set('#68400f');const p=selected.userData,s=model.stocks[p.stock],fabrication=partMeasurement(selected);
- $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><span class="badge">${escape(p.status.toUpperCase())}</span><details class="parttechnical"><summary>Details</summary><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd></dl></details>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
+ $('inspector').innerHTML=`<h2 class="partname">${escape(partLabel(p))}</h2><p class="partmaterial">${escape(s.name)}</p><div class="size">${fabrication.spec.kind==='part'?p.size.map(inches).join(' × '):escape(fabrication.spec.text)}</div><p>${placementText([fabrication],designBaseElevation())} above design base</p><span class="badge">${escape(p.status.toUpperCase())}</span><details class="parttechnical"><summary>Details</summary><div class="partid">${escape(p.id)}</div><dl><dt>Dimensions</dt><dd>${p.size.map(inches).join(" × ")}</dd><dt>Assembly</dt><dd>${escape(p.assembly)}</dd><dt>Origin (in.)</dt><dd>${p.origin.map(n=>Number(n.toFixed(2))).join(', ')}</dd><dt>Rotation (deg.)</dt><dd>${p.rotation.map(n=>Number(n.toFixed(2))).join(', ')}</dd>${p.cad?.provenance?`<dt>Source</dt><dd>${escape(p.cad.provenance.file||'')} : ${p.cad.provenance.line||'—'}</dd>`:''}</dl></details>${p.profile?.layers?`<p>Scribed profile: ${p.profile.layers.length} depth layers; one stock blank.</p>`:p.profile?.bands?`<p>Notched profile: ${p.profile.bands.length} connected depth bands; one stock blank.</p>`:p.profile?`<p>Profile front → rear: bottom ${p.profile.bottom.map(inches).join(" → ")}; top ${p.profile.top.map(inches).join(" → ")}.</p>`:""}${p.outline?`<p>Cut profile: ${p.outline.length} straight-edge Y/Z vertices; one stock blank.</p>`:''}${p.blank_size?`<p>Stock blank: ${p.blank_size.map(inches).join(" × ")}</p>`:""}${p.note?`<p>${escape(p.note)}</p>`:''}${safeLink(s.url)?`<a target="_blank" rel="noopener" href="${safeLink(s.url)}">Material candidate ↗</a>`:''}`;renderList();
 }
 const expandedAssemblies=new Set();
 function partMeasurement(mesh){
@@ -378,7 +421,10 @@ function drawAssemblyInstructions(records,view,frame){
  for(const group of groups){
   const candidates=group.records.map(record=>{
    const a=new THREE.Vector3(),b=new THREE.Vector3();
-   if(record.spec.axis>=0){a.setComponent(record.spec.axis,-record.part.size[record.spec.axis]/2);b.setComponent(record.spec.axis,record.part.size[record.spec.axis]/2);}
+   if(record.spec.axis>=0){
+    if(record.part.cad){const {min,max}=record.part.cad.local_bounds;a.fromArray(min.map((v,i)=>(v+max[i])/2/25.4));b.copy(a);a.setComponent(record.spec.axis,min[record.spec.axis]/25.4);b.setComponent(record.spec.axis,max[record.spec.axis]/25.4);}
+    else{a.setComponent(record.spec.axis,-record.part.size[record.spec.axis]/2);b.setComponent(record.spec.axis,record.part.size[record.spec.axis]/2);}
+   }
    a.applyMatrix4(record.matrix);b.applyMatrix4(record.matrix);
    const alongHorizontal=Math.abs(b[horizontal]-a[horizontal])>=Math.abs(b[vertical]-a[vertical]);
    const center=record.box.getCenter(new THREE.Vector3());
@@ -439,7 +485,7 @@ function openAssemblyDrawing(name,view,level){
  if(innerWidth<1000){setModelPanel(false);$('modeltoggle').focus({preventScroll:true});}
 }
 function partLabel(part){
- return part.name || part.id.split(/[._-]+/).join(' ');
+ return (part.mark?part.mark+' · ':'')+(part.name || part.id.split(/[._-]+/).join(' '));
 }
 function renderList(){
  if(!model)return;
@@ -506,7 +552,7 @@ widePartsLayout.addEventListener('change',restorePartsPanel);
 $('closeinspector').onclick=()=>{select(null); $('modeltoggle').focus();};
 $('page-select').onchange=()=>{ location.hash=$('page-select').value; };
 function showPage(id) {
- const page = ['materials-section','costs'].includes(id) ? id : 'workspace';
+ const page = ['materials-section','costs','design-versions'].includes(id)&&$(id) ? id : 'workspace';
  $('page-select').value=page;
  $('workspace').hidden = page !== 'workspace';
  $('reports').hidden = page === 'workspace';
@@ -553,30 +599,71 @@ new ResizeObserver(()=>{
   camera.updateProjectionMatrix();
  }
 }).observe(viewport);
-let modelRequest = null;
+let modelRequest = null,modelRefreshQueued=false,snapshotRefresh=false;
 function loadModel() {
  if (modelRequest) return modelRequest;
  modelRequest = (async () => {
   try {
    const response = await fetch('/api/model', {cache:'no-store', signal:AbortSignal.timeout(25000)});
    const data = await response.json();
-   if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+   if (!response.ok) {
+    if(data.error?.category==='build_pending'){$('error').hidden=true;return null;}
+    throw new Error(data.error?.message || data.error || `HTTP ${response.status}`);
+   }
    if (data.schema_version !== 1 || data.units !== 'in' || !Array.isArray(data.parts)) throw new Error('Unsupported model');
-   if (data.revision !== revision) install(data);
-   $('error').hidden=true;
+   if(data.engine==='cadquery')installVersions({showWorkspace,refreshModel:async()=>{snapshotRefresh=true;await loadModel();refreshFromEvent();}});
+   if (data.revision !== revision||data.cad?.presentation!==model?.cad?.presentation||data.cad?.checkpoint!==model?.cad?.checkpoint||data.cad?.latest_build_id!==model?.cad?.latest_build_id||data.cad?.latest_status!==model?.cad?.latest_status) {const animate=!snapshotRefresh;snapshotRefresh=false;await install(data,{animate});}
+   if(data.engine!=='cadquery')$('error').hidden=true;
    return data;
   } catch (error) {
    $('error').hidden=false;$('error').textContent=`${model?'Keeping last good model.':'Unable to load model.'} ${error.message}`;
    throw error;
-  } finally { modelRequest = null; }
+  } finally { modelRequest = null;if(modelRefreshQueued){modelRefreshQueued=false;queueMicrotask(()=>loadModel().catch(()=>{}));} }
  })();
  return modelRequest;
 }
 async function refresh(){try{await loadModel();}catch{}finally{setTimeout(refresh,2000);}}
+function refreshFromEvent(){if(modelRequest)modelRefreshQueued=true;else void loadModel().catch(()=>{});}
+let focusTask=null,applyingFocus=false;
+async function applyFocusTask(){
+ if(!focusTask||applyingFocus)return;
+ applyingFocus=true;
+ const jobId=focusTask;
+ try{
+  const response=await fetch(`/api/v1/jobs/${encodeURIComponent(jobId)}`,{cache:'no-store'});
+  if(!response.ok)throw new Error('The requested view is unavailable.');
+  const job=await response.json();
+  if(job.status!=='waiting_viewer'){if(focusTask===jobId)focusTask=null;return;}
+  await loadModel();
+  if(focusTask!==jobId)return;
+  if(model?.cad?.build_id!==job.build_id)throw new Error('The model changed before the requested view could be shown.');
+  displayShow({part_ids:job.objects,region:job.region?{min:job.region.min.map(v=>v/25.4),max:job.region.max.map(v=>v/25.4)}:undefined});
+  const ack=await fetch('/api/v1/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+   operation:'acknowledge_show',key:`${jobId}:viewer`,arguments:{job_id:jobId,build_id:job.build_id,
+    camera:{position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),target:controls.target?.toArray(),units:'viewer inches'}}})});
+  if(!ack.ok){const error=await ack.json();throw new Error(error.error?.message||'The view could not be acknowledged.');}
+  if(focusTask===jobId)focusTask=null;
+ }catch(error){$('error').hidden=false;$('error').textContent=error.message;}
+ finally{applyingFocus=false;if(focusTask&&focusTask!==jobId)queueMicrotask(()=>void applyFocusTask());}
+}
+const projectEvents=new ProjectEvents({onReset:snapshot=>{snapshotRefresh=true;cadScene.invalidate();refreshFromEvent();
+ window.dispatchEvent(new Event('studprojectchange'));
+ if(snapshot.focus_job){focusTask=snapshot.focus_job;void applyFocusTask();}
+},onEvent:event=>{
+ if(['build_started','request_canceled'].includes(event.type)||(event.type==='build_ended'&&['canceled','superseded'].includes(event.status)))cadScene.invalidate();
+ if(['part_batch','geometry_complete','checks_updated','build_ended','checkpoint_created'].includes(event.type))refreshFromEvent();
+ if(['history_displayed','live_displayed','option_activated'].includes(event.type)){snapshotRefresh=true;cadScene.invalidate();refreshFromEvent();}
+ if(['checkpoint_created','history_displayed','live_displayed','option_created','option_activated','record_saved','comparison_complete','plans_complete'].includes(event.type))window.dispatchEvent(new Event('studprojectchange'));
+ if(event.type==='show_requested'){focusTask=event.job_id;void applyFocusTask();}
+}});
+void projectEvents.connect().catch(()=>{});
 
 function animate(){requestAnimationFrame(animate);if(!camera)return;buildCamera.update(camera,controls,performance.now());controls.update();buildAnimation.update(performance.now());for(const l of [...labels,...drawingLabels]){const p=l.point.clone().project(camera);const a=l.start.clone().project(camera),b=l.end.clone().project(camera);l.el.hidden=p.z< -1||p.z>1||Math.hypot((a.x-b.x)*viewport.clientWidth,(a.y-b.y)*viewport.clientHeight)<12;const margin=l.drawing?Math.max(20,(l.vertical?l.el.offsetHeight:l.el.offsetWidth)/2+8):65;l.el.style.left=`${Math.max(margin,Math.min(viewport.clientWidth-margin,(p.x*.5+.5)*viewport.clientWidth))}px`;l.el.style.top=`${(-p.y*.5+.5)*viewport.clientHeight}px`;}occupiedAnnotations=[];updateWarningPositions();updateCommentMarkers();updateEditorPosition();renderer.render(scene,camera);}animate();refresh();
 // Small read-only diagnostics surface for automated verification.
-window.stud=window.clubhouse={get model(){return model},get selected(){return selected?.userData.id},get visibleCount(){return meshes.filter(m=>m.visible).length},get view(){return currentView}};
+window.stud=window.clubhouse={get model(){return model},get selected(){return selected?.userData.id},get visibleCount(){return meshes.filter(m=>m.visible).length},get view(){return currentView},
+ get camera(){return camera?{position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),target:controls.target?.toArray()}:null},
+ get animation(){return buildAnimation.entries.map(entry=>({id:entry.mesh.userData.id,start:entry.start,targetY:entry.targetY,y:entry.mesh.position.y}))},
+ get assets(){return {cached:cadScene.assets.size,geometries:renderer.info.memory.geometries}},get performance(){return cadTiming}};
 
 let comments=[];
 function renderPartComments(){
@@ -590,22 +677,36 @@ function renderComments(){
  renderPartComments();
 }
 async function commentRequest(payload){
+ if(payload&&model?.cad){
+  const original=comments.find(comment=>comment.id===payload.id);
+  const update=payload.action&&payload.action!=='add';
+  payload={...(update||payload.build_id?{}:model.cad),...payload,
+   client_key:payload.client_key||(update?JSON.stringify([payload.id,original?.prompt_revision,payload.action,payload.text,payload.resolved]):payload.id),
+   ...(update?{expected_revision:original?.prompt_revision}:{}),
+   camera:payload.camera||(camera?{position:camera.position.toArray(),target:controls?.target?.toArray(),view:currentView}:null)};
+ }
  const r=await fetch('/api/comments',{method:payload?'POST':'GET',headers:payload?{'Content-Type':'application/json'}:{},body:payload?JSON.stringify(payload):undefined,cache:'no-store',signal:AbortSignal.timeout(10000)});
- const d=await r.json();if(!r.ok)throw new Error(d.error||'Comments unavailable');comments=d.comments.filter(c=>!c.deleted);$('commentstatus').hidden=true;renderComments();
+ const d=await r.json();if(!r.ok)throw new Error(d.error?.message||d.error||'Comments unavailable');comments=d.comments.filter(c=>!c.deleted);$('commentstatus').hidden=true;renderComments();
 }
 async function refreshComments(){try{await commentRequest();}catch(e){$('commentstatus').textContent='Comments unavailable: '+e.message;$('commentstatus').hidden=false;}finally{setTimeout(refreshComments,5000);}}
 refreshComments();
 
 let estimate=null;
 const priceEdits=new Map(),priceTimers=new Map();let priceQueue=Promise.resolve();
-const money=v=>v===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(v));
+const money=v=>v===null||v===undefined?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:estimate?.currency||'USD'}).format(Number(v));
 const fields=['quantity','unit_price','source','observed_on','note'];
 const today=()=>new Date().toLocaleDateString('en-CA');
 function priceValues(r){const q=r.quote;return {quantity:q?.quantity??'',unit_price:q?.unit_price??'',source:q?.source||'Manual entry',observed_on:q?.observed_on||today(),note:q?.note||'',url:q?.url||''};}
 function priceRow(key){return [...$('pricerows').children].find(tr=>tr.dataset.key===key);}
 function rowStatus(key,message,error=false){const el=priceRow(key)?.querySelector('.savestate');if(el){el.textContent=message;el.classList.toggle('saveerror',error);}}
 function summary(data){
+ document.querySelector('#costs h2 small').textContent=data.currency||'USD';
  const b=data.budget;
+ if(data.context){
+  $('costsummary').textContent=data.complete?`${money(data.total)} estimated total`:`${money(data.subtotal)} known subtotal · incomplete quantities or prices`;
+  $('costbreakdown').textContent=`Materials ${money(data.subtotal)} + tax ${money(data.tax)} + contingency ${money(data.contingency)}. ${data.priced_lines} priced lines; ${data.unpriced_lines} unpriced.`;
+  $('costcategories').textContent=data.context;return;
+ }
  $('costsummary').textContent=b?`${money(b.grand_total)} planned total · ${money(b.over_target)} over ${money(b.target)} budget${b.complete?'':' · incomplete pricing'}`:`${money(data.subtotal)} saved subtotal`;
  $('costbreakdown').textContent=b?`Items ${money(data.subtotal)} + estimated tax ${money(b.sales_tax)} + 10% contingency ${money(b.contingency)}. ${data.price_kinds.source.lines} sourced prices, ${data.price_kinds.manual.lines} manual prices, ${data.price_kinds.estimate.lines} estimates; ${data.unpriced_lines} unpriced.`:'';
  $('costcategories').innerHTML=Object.entries(data.categories||{}).map(([name,total])=>`<span>${escape(name)}: <b>${money(total)}</b></span>`).join(' · ');
@@ -613,6 +714,7 @@ function summary(data){
 
 function renderPrices(data){
  estimate=data;summary(data);
+ if(data.context){document.querySelector('#costs > .sub').textContent=data.editable===false?data.context+' Return to the current design to edit project quotes.':'Edit prices or paste from a spreadsheet. Changes save automatically.';}
  const live=new Set(data.rows.map(r=>r.key));
  for(const tr of [...$('pricerows').children])if(!live.has(tr.dataset.key)&&!priceEdits.has(tr.dataset.key))tr.remove();
  for(const r of data.rows){
@@ -634,6 +736,7 @@ function renderPrices(data){
    tr.querySelector('.retryprice').onclick=()=>schedulePrice(r.key,0);
    tr.querySelector('.clearprice').onclick=()=>{clearTimeout(priceTimers.get(r.key));const edit={values:priceValues(r),version:Symbol()};priceEdits.set(r.key,edit);enqueuePrice(r.key,{key:r.key,action:'clear_manual'},edit.version);};
   }
+  tr.querySelectorAll('input,button').forEach(input=>input.disabled=data.editable===false);
   tr.querySelector('.qtybasis').textContent=`Model: ${r.model_quantity??'specify lot count'}`;
   tr.querySelector('[data-field="quantity"]').placeholder=r.model_quantity??'Required';
   tr.querySelector('.lineamount').textContent=money(r.total);
@@ -651,6 +754,7 @@ function editPrice(tr){
 }
 function schedulePrice(key,delay){clearTimeout(priceTimers.get(key));priceTimers.set(key,setTimeout(()=>savePriceRow(key),delay));}
 function savePriceRow(key){
+ if(estimate?.editable===false){rowStatus(key,'Quote draft retained; return to the current design to save.',true);return;}
  const edit=priceEdits.get(key);if(!edit)return;
  const v=edit.values,r=estimate.rows.find(r=>r.key===key);
  if(!r){rowStatus(key,'Material removed; copy your draft.',true);return;}
@@ -662,6 +766,7 @@ function savePriceRow(key){
  enqueuePrice(key,{key,kind:'manual',...v,quantity:v.quantity?Number(v.quantity):null},edit.version);
 }
 function enqueuePrice(key,payload,version){
+ if(model?.cad)payload={...payload,client_key:crypto.randomUUID()};
  rowStatus(key,'Saving…');
  priceQueue=priceQueue.then(async()=>{
   // A newer edit supersedes an unsent save.
@@ -674,7 +779,7 @@ function enqueuePrice(key,payload,version){
  });
 }
 async function priceRequest(payload){
- const r=await fetch('/api/pricing',{method:payload?'POST':'GET',headers:payload?{'Content-Type':'application/json'}:{},body:payload?JSON.stringify(payload):undefined,cache:'no-store',signal:AbortSignal.timeout(25000)});const d=await r.json();if(!r.ok)throw new Error(d.error||'Could not load prices');return d;
+ const r=await fetch('/api/pricing',{method:payload?'POST':'GET',headers:payload?{'Content-Type':'application/json'}:{},body:payload?JSON.stringify(payload):undefined,cache:'no-store',signal:AbortSignal.timeout(25000)});const d=await r.json();if(!r.ok)throw new Error(d.error?.message||d.error||'Could not load prices');return d;
 }
 function pastePrices(e,tr,input){
  const text=e.clipboardData.getData('text');if(!text.includes('\t')&&!text.includes('\n'))return;
@@ -751,11 +856,16 @@ const showTool=createShowTool({loadModel,display:displayShow});
 registerShowTool(document.modelContext,showTool).catch(error=>console.warn('stud show tool could not register:',error));
 
 $('closeareaimage').onclick=()=>$('areaimageview').close();
-installAreaCapture({viewport,selectedPart:()=>selected?.userData.id,capture:()=>{
+installAreaCapture({viewport,selectedPart:()=>selected?.userData.id,context:()=>model?.cad?{...model.cad}:{} ,capture:()=>{
  if(!model||!camera)throw new Error('Load a design before capturing an area.');
  buildAnimation.finish();
  renderer.render(scene,camera);
- return {canvas:snapshotViewer(renderer.domElement,assemblyReview?$('assembly-labels'):labelRoot),revision};
+ const frozenCamera=camera.clone(),frozenMeshes=meshes.filter(mesh=>mesh.visible).map(mesh=>mesh.clone()),frozenCenter=bounds().getCenter(new THREE.Vector3());
+ const rayAt=(x,y)=>{const box=renderer.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((x-box.left)/box.width*2-1,-(y-box.top)/box.height*2+1),frozenCamera);return ray;};
+ return {canvas:snapshotViewer(renderer.domElement,assemblyReview?$('assembly-labels'):labelRoot),revision,
+  context:model.cad?{...model.cad,camera:{position:camera.position.toArray(),target:controls?.target?.toArray(),view:currentView}}:{},
+  selectPart:(x,y)=>rayAt(x,y).intersectObjects(frozenMeshes,false)[0]?.object.userData.id,
+  anchorAt:(x,y)=>{const ray=rayAt(x,y);return (ray.intersectObjects(frozenMeshes,false)[0]?.point||ray.ray.at(frozenCamera.position.distanceTo(frozenCenter),new THREE.Vector3())).toArray();}};
 },save:commentRequest,anchorAt:(x,y)=>{
  const box=renderer.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();
  ray.setFromCamera(new THREE.Vector2((x-box.left)/box.width*2-1,-(y-box.top)/box.height*2+1),camera);

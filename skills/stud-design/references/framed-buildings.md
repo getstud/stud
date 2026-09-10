@@ -2,6 +2,8 @@
 
 Use this branch for sheds, clubhouses and similar framed structures. Design physical construction assemblies and their load-path interfaces. Interior use informs clearances; decorating and furnishing need an explicit request.
 
+Apply these construction criteria to the project's format. The `WallFrame`, `wall_enclosure`, `select_rafter_size`, `asphalt_roof` and boxed-overhang APIs referenced below belong to the retained legacy model. For current CadQuery projects, read `docs/cadquery.md` and `stud.buildings`; use a project-owned CadQuery function for details those native helpers do not implement. Do not mix inch-based legacy parts with a millimeter manifest.
+
 ## Decisions before geometry
 
 Reuse the user's existing choices. Otherwise ask for wall stock and roof form together using the host's question tool. Offer gable, hip, shed or another requested style; a gable is a useful starting recommendation for a simple conventional clubhouse. Ask about pitch and overhang where they materially affect form. Confirm the site/support assumptions and whether interior walls will be finished. An unfinished interior does not need an invented drywall package.

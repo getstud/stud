@@ -41,7 +41,7 @@ export function snapshotViewer(source, labels) {
   ctx.restore();return canvas;
 }
 
-export function installAreaCapture({viewport, capture, save, onSaved, selectPart, selectedPart, anchorAt}) {
+export function installAreaCapture({viewport, capture, save, onSaved, selectPart, selectedPart, anchorAt, context=()=>({})}) {
   const $ = id => document.getElementById(id);
   const overlay = $('areaoverlay'), marquee = $('areamarquee'), dialog = $('areacomment');
   let frozen = null, start = null, draft = null, saving = false;
@@ -85,7 +85,7 @@ export function installAreaCapture({viewport, capture, save, onSaved, selectPart
     if(event.detail===0) {
       const partId=selectedPart?.();
       if(partId) {
-        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId};
+        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId,...context()};
         openCommentModal();return;
       }
       $('commentstatus').textContent='Select a part in Parts, then press Comment to add a note.';
@@ -128,9 +128,9 @@ export function installAreaCapture({viewport, capture, save, onSaved, selectPart
     start = null;overlay.releasePointerCapture(event.pointerId);
     if(clicked) {
       marquee.hidden = true;
-      const partId=selectPart?.(event.clientX, event.clientY);
+      const partId=frozen.selectPart?frozen.selectPart(event.clientX,event.clientY):selectPart?.(event.clientX, event.clientY);
       if(partId) {
-        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId};
+        draft={action:'add',kind:'part',id:crypto.randomUUID(),part_id:partId,...frozen.context};
         stopCapture();openCommentModal();
       }
       return;
@@ -139,7 +139,7 @@ export function installAreaCapture({viewport, capture, save, onSaved, selectPart
     const pixels = cropPixels(rect, box, frozen.canvas);
     const image = document.createElement('canvas');image.width = pixels.width;image.height = pixels.height;
     image.getContext('2d').drawImage(frozen.canvas, pixels.x, pixels.y, pixels.width, pixels.height, 0, 0, pixels.width, pixels.height);
-    draft = {action:'add',kind:'area',id:crypto.randomUUID(),revision:frozen.revision,anchor:anchorAt?.(box.left+rect.x+rect.width/2,box.top+rect.y+rect.height/2),image:image.toDataURL('image/png')};
+    draft = {action:'add',kind:'area',id:crypto.randomUUID(),revision:frozen.revision,...frozen.context,anchor:(frozen.anchorAt||anchorAt)?.(box.left+rect.x+rect.width/2,box.top+rect.y+rect.height/2),image:image.toDataURL('image/png')};
     stopCapture();openCommentModal();
   });
   $('areatext').addEventListener('keydown',event=>{

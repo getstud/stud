@@ -1,0 +1,14 @@
+{
+  "darwin-arm64": {
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.53.0-4/dugite-native-v2.53.0-4098283-macOS-arm64.tar.gz",
+    "sha256": "f9dc64635a5b62fbd7ad95db73268bbb8912255ac516d65d37bf7af22fcb8ffe"
+  },
+  "darwin-x64": {
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.53.0-4/dugite-native-v2.53.0-4098283-macOS-x64.tar.gz",
+    "sha256": "ae6686718aa34f4140424db16b92a47dcffd6d1f312eb8b5f3b267f7404e2680"
+  },
+  "win32-x64": {
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.53.0-4/dugite-native-v2.53.0-4098283-windows-x64.tar.gz",
+    "sha256": "7b76bc5c32c0d7c5984efdc2a8a32697cf1e8a43bc55176fbf9869c0ee995130"
+  }
+}

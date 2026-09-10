@@ -6,7 +6,7 @@ from build import compile_project, parts_csv
 
 from pathlib import Path
 import tempfile
-from stud_cli import init_project
+from stud_cli import init_legacy_project as init_project
 
 class ModelTests(unittest.TestCase):
     def setUp(self):
