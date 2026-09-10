@@ -2,6 +2,11 @@ name: Native worker diagnostics
 
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/cadquery-project-workflow]
+    paths:
+      - .github/workflows/native-worker-diagnostics.yml
+      - scripts/diagnose-native-workers.py
 
 permissions:
   contents: read
