@@ -3,7 +3,7 @@ import {OptionComparison,createComparisonTools} from '/option-comparison.js';
 export function installOptionTabs(adapter){
  const root=document.createElement('div');root.id='option-comparison';
  root.innerHTML=`<button id="optiontoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="option-menu"><span class="option-current">Current version</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
- <div id="option-menu" role="dialog" aria-label="Design options" hidden><div class="option-menu-heading">Switch option</div><div class="option-list" role="listbox" aria-label="Design options"></div><button class="option-new" type="button">＋ Create new option</button><form class="option-create" hidden><label for="option-name">Option name</label><input id="option-name" name="name" required maxlength="120" autocomplete="off" placeholder="e.g. Wider porch"><p class="option-base"></p><div class="option-create-actions"><button class="option-cancel" type="button">Cancel</button><button type="submit">Create option</button></div></form><span class="option-message" role="status"></span></div>`;
+ <div id="option-menu" role="dialog" aria-label="Design options" hidden><div class="option-menu-heading">Switch option</div><div class="option-list" role="listbox" aria-label="Design options"></div><button class="option-new" type="button">＋ Create new option</button><form class="option-create" hidden><input id="option-name" name="name" aria-label="Option name" required maxlength="120" autocomplete="off" placeholder="Option name"><div class="option-create-actions"><button class="option-cancel" type="button">Cancel</button><button type="submit">Create option</button></div></form><span class="option-message" role="status"></span></div>`;
  document.querySelector('.stage').prepend(root);
  const toggle=root.querySelector('#optiontoggle'),menu=root.querySelector('#option-menu'),list=root.querySelector('.option-list'),message=root.querySelector('.option-message'),form=root.querySelector('form'),name=root.querySelector('input'),newButton=root.querySelector('.option-new');
  let error=null,creating=false,base=null;
@@ -44,7 +44,6 @@ export function installOptionTabs(adapter){
   const state=controller.state(),source=state.displayed.mode==='live'?state.options.find(option=>option.id===state.editing.option_id):state.options.find(option=>option.id===state.displayed.option_id);
   base=state.displayed.mode==='live'?source?.head:state.displayed.checkpoint;
   if(!base){error='Save a checkpoint before creating an option.';render(state);return;}
-  root.querySelector('.option-base').textContent=`Starts from ${source?.label||'this version'}${state.displayed.mode==='live'?"’s latest saved checkpoint":' at the displayed checkpoint'}.`;
   form.hidden=false;newButton.hidden=true;name.value='';name.focus();
  };
  root.querySelector('.option-cancel').onclick=()=>{form.hidden=true;newButton.hidden=false;newButton.focus();};

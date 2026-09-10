@@ -1,6 +1,6 @@
 # Comparing design options
 
-The centered version pill shows the currently displayed option. Open it to switch options, return to the live editing preview, or create a new option. New options start from the displayed saved checkpoint (or the live option's latest saved checkpoint); the inline form identifies the source. Creating an option displays it without changing the active editing request. Click outside or press Escape to close the menu.
+The centered version pill shows the currently displayed option. Open it to switch options, return to the live editing preview, or create a new option. New options start from the displayed saved checkpoint (or the live option's latest saved checkpoint). Creating an option displays it without changing the active editing request. Click outside or press Escape to close the menu.
 
 Move to a detail, orbit or pan, and zoom before switching options. The same camera remains in use: position, orientation, target, zoom, projection, orthographic frustum and view offset stay unchanged. Plan, front and side assembly drawings keep their viewpoint too. Existing assembly visibility and part selection are retained where the referenced part exists in the other option.
 
