@@ -527,28 +527,15 @@ body > #error { position: static; flex: 0 0 auto; margin: 0; max-height: 160px; 
 #commentstatus { position: absolute; bottom: 56px; left: 12px; max-width: calc(100% - 24px); padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); z-index: 7; }
 #view-comment-image { text-decoration: underline; font-size: 12px; padding: 8px 0; }
 
-/* Saved design alternatives share one canvas and one unchanging viewpoint. */
-#option-comparison{display:flex;align-items:center;gap:4px;width:max-content;max-width:calc(100% - 40px);position:absolute;top:66px;left:20px;right:20px;z-index:3;pointer-events:none}
-.option-tabs{pointer-events:auto;display:flex;gap:2px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--overlay);width:max-content;max-width:100%;scrollbar-width:thin;box-shadow:0 3px 14px #00000006}
-.option-tabs button{position:relative;flex:0 0 auto;padding:5px 10px;line-height:18px;white-space:nowrap;max-width:260px;text-overflow:ellipsis;overflow:hidden;border-radius:3px;font-size:11px;color:var(--muted);transition:background-color 100ms,color 100ms}
-.option-tabs button[aria-selected=true]{background:var(--ink);color:var(--on-ink);font-weight:500}
-.option-tabs button:first-child{border-right:1px solid var(--line);border-radius:3px 0 0 3px}
-.option-tabs button.is-editing::before{content:'';display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' d='m10 3 3 3M3 10l7.5-7.5a2.1 2.1 0 0 1 3 3L6 13l-4 1z'/%3E%3C/svg%3E") center/contain no-repeat}
-.option-tabs button.is-pending::after{content:'';position:absolute;left:10px;right:10px;bottom:2px;height:2px;background:var(--accent);animation:option-pulse 700ms ease-in-out infinite alternate}
-.option-message{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.option-message.has-error{top:calc(100% + 6px);left:0;width:max-content;max-width:100%;height:auto;margin:0;padding:6px 9px;clip-path:none;color:var(--danger);pointer-events:auto;white-space:normal;background:var(--paper);border:1px solid var(--line);border-radius:4px;font-size:11px}
-@keyframes option-pulse{to{opacity:.25}}
-@media(prefers-reduced-motion:reduce){.option-tabs button{transition:none}.option-tabs button.is-pending::after{animation:none}}
-@media(max-width:650px){#option-comparison{left:10px;right:10px;top:61px}.option-tabs button{max-width:200px}}
-#workspace:has(#option-comparison:not([hidden])) #modelpanel,#workspace:has(#option-comparison:not([hidden])) #inspectorpanel{top:114px;max-height:calc(100dvh - 194px)}
-#workspace:has(#option-comparison:not([hidden])) #viewport > #validation-toggle{top:max(25dvh,160px)}
-@media(max-width:650px){#workspace:has(#option-comparison:not([hidden])) #modelpanel,#workspace:has(#option-comparison:not([hidden])) #inspectorpanel{top:109px;max-height:calc(100dvh - 185px)}}
-
-.workspace-tools > #optiontoggle{display:inline-flex;align-items:center;justify-content:center;width:40px;padding:10px}
-#optiontoggle[aria-expanded=true]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
-.option-history,.option-close{pointer-events:auto;flex-shrink:0;background:var(--overlay);border:1px solid var(--line);border-radius:5px;color:var(--muted)}
-.option-history{padding:8px;font-size:10px;white-space:nowrap}
-.option-close{width:30px;height:32px;font-size:18px}
-.option-tabs{min-width:0}
-@media(max-width:650px){#option-comparison{max-width:calc(100% - 20px)}}
-@media(max-width:450px){.workspace-tools > #modeltoggle{width:40px;justify-content:center;padding:10px}.workspace-tools > #modeltoggle span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.workspace-tools{gap:6px}.canvashead{gap:6px}}
+/* A centered version picker keeps saved alternatives close to the canvas. */
+#option-comparison{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:6;max-width:calc(100% - 32px)}
+#optiontoggle{display:flex;align-items:center;justify-content:center;gap:10px;height:38px;max-width:240px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--overlay);color:var(--ink);box-shadow:0 2px 10px #00000008;font-size:12px}
+.option-current{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#optiontoggle svg{flex-shrink:0}#optiontoggle[aria-expanded=true]{background:var(--paper);border-color:var(--muted)}#optiontoggle[aria-expanded=true] svg{transform:rotate(180deg)}
+#option-menu{position:absolute;top:46px;left:50%;transform:translateX(-50%);width:280px;max-width:calc(100vw - 32px);padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 12px 40px #0003}
+.option-menu-heading{padding:9px 10px 7px;font-size:10px;color:var(--muted)}
+.option-list{max-height:35dvh;overflow-y:auto}.option-list button{position:relative;display:block;width:100%;padding:10px 32px 10px 10px;text-align:left;border-radius:6px;font-size:12px;overflow-wrap:anywhere;color:var(--ink)}
+.option-list button:hover,.option-list button:focus-visible{background:var(--surface)}.option-list button[aria-selected=true]{background:var(--surface);font-weight:500}.option-list button[aria-selected=true]::after{content:'✓';position:absolute;right:12px;top:10px}
+.option-new{display:block;width:100%;margin-top:5px;padding:12px 10px;border-top:1px solid var(--line);text-align:left;font-size:12px;color:var(--ink)}
+.option-create{padding:12px 8px 8px;border-top:1px solid var(--line);margin-top:5px}.option-create label{display:block;font-size:11px;margin-bottom:7px}.option-create input{box-sizing:border-box;width:100%;padding:9px 10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:inherit;font-size:12px}.option-base{font-size:10px;line-height:1.5;color:var(--muted);margin:9px 0 12px}.option-create-actions{display:flex;justify-content:flex-end;gap:8px}.option-create-actions button{padding:8px 10px;border-radius:6px;font-size:11px}.option-create-actions button[type=submit]{background:var(--ink);color:var(--on-ink)}
+.option-message{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.option-message.has-error{position:static;display:block;width:auto;height:auto;margin:6px 8px;padding:8px 0;clip-path:none;color:var(--danger);white-space:normal;font-size:11px;line-height:1.5}#optiontoggle.is-pending{opacity:.65}
+@media(max-width:760px){#option-comparison{top:66px}#workspace:has(#option-comparison) #modelpanel,#workspace:has(#option-comparison) #inspectorpanel{top:116px}}
