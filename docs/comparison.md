@@ -4,7 +4,7 @@ Saved Git design options appear as named tabs above the stud canvas. Open **Mana
 
 Move to a detail, orbit or pan, and zoom before switching tabs. The same camera remains in use: position, orientation, target, zoom, projection, orthographic frustum and view offset stay unchanged. Plan, front and side assembly drawings keep their viewpoint too. Existing assembly visibility and part selection are retained where the referenced part exists in the other option.
 
-Tabs use the original geometry and colors. They do not activate a Git option, alter source files, or change the agent's editing request. The **Editing:** label identifies the editing target separately from the displayed tab. Choose **Live design** to return to the latest preview at the same viewpoint. Explicit editing-target activation remains a separate action in Versions.
+Tabs use the original geometry and colors. They do not activate a Git option, alter source files, or change the agent's editing request. A small pencil marks the editing option separately from the selected tab; its tooltip and accessible label identify the editing target. Choose **Live** to return to the latest preview at the same viewpoint. Explicit editing-target activation remains a separate action in Versions.
 
 Use Left/Right arrow keys to move between tabs, or Home/End for the first/last tab. Long option lists scroll horizontally. A loading underline identifies the requested option while the previous design remains visible. Geometry is prepared before an atomic swap; repeated switches reuse mesh assets. Missing geometry and stale branch heads produce an error rather than a partial or silently substituted design.
 
