@@ -1,6 +1,6 @@
 # Comparing design options
 
-Saved Git design options appear as named tabs above the stud canvas. Open **Manage** to create or rename options in Versions. The **Live design** tab shows the current editing preview, including an unfinished request; each named tab shows that option's saved head.
+The branching **Options & checkpoints** toolbar button reveals saved design options as named tabs above the stud canvas. The row starts collapsed; toggle the button, press Escape within the row, or use its close button to dismiss it without changing the displayed design. Open **Checkpoints ↗** to manage options and checkpoints in Versions. Voice comparison commands reveal the row automatically. The **Live** tab shows the current editing preview, including an unfinished request; each named tab shows that option's saved head.
 
 Move to a detail, orbit or pan, and zoom before switching tabs. The same camera remains in use: position, orientation, target, zoom, projection, orthographic frustum and view offset stay unchanged. Plan, front and side assembly drawings keep their viewpoint too. Existing assembly visibility and part selection are retained where the referenced part exists in the other option.
 
