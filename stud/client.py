@@ -36,7 +36,7 @@ class Client:
         flags = {'start_new_session': True} if os.name != 'nt' else {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS}
         resources = ENGINE_ROOT.parent
         launcher = resources / ('stud.exe' if os.name == 'nt' else '../MacOS/stud')
-        command = [str(launcher), 'serve', str(self.root), '--port', '0', '--no-open'] if (resources / 'runtime-info.json').is_file() and launcher.is_file() else [sys.executable, '-B', '-E', '-s', '-m', 'stud.session_http', '--project', str(self.root)]
+        command = [str(launcher), 'serve', str(self.root), '--port', '0', '--no-open'] if (resources / 'runtime-info.json').is_file() and launcher.is_file() else [sys.executable, '-X', 'utf8', '-B', '-E', '-s', '-m', 'stud.session_http', '--project', str(self.root)]
         with log.open('ab') as output:
             process = subprocess.Popen(command,
                 cwd=ENGINE_ROOT, stdin=subprocess.DEVNULL, stdout=output, stderr=output, **flags)

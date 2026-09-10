@@ -6,7 +6,7 @@ Current projects use `stud.json` with `engine: cadquery`, millimeters, and Pytho
 
 Source development requires Python 3.13, Git and Node.js. Create a virtual environment and install `requirements.lock` with `pip install --require-hashes -r requirements.lock`. Set `STUD_PYTHON` to that environment's interpreter when using the npm launcher. `stud doctor` reports the actual runtime and missing dependencies. Desktop preparation bundles checksum-pinned Python, Git and the locked CAD/PDF packages; see [desktop.md](desktop.md) for release gates.
 
-Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint` and `shed`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
+Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `shed` and `mansion`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
 
 ```sh
 stud begin PATH --expected-head COMMIT --intent "Widen the workbench" --key unique-client-key
@@ -47,6 +47,8 @@ X/Y are horizontal, Z is up. Locations compose from parent assembly to part. Nam
 
 Object IDs identify authored physical parts across edits. Mesh shape keys identify cached immutable assets. Use physical station or role keys for repeated members; inserting a member must not rename unrelated ones. Register a replacement with `replace=True`; re-declare its named references. A batch publishes a coherent completed group and rolls back its metadata if the group fails.
 
+The first completed geometry publishes immediately. A bounded writer coalesces subsequent previews so large designs do not serialize the entire model after every member. These previews contain completed geometry and named measurements; purchasing, checks, steps and drawings remain pending until their complete result is available. Finalization flushes the latest preview before retaining the full immutable result. A hard native crash preserves the last coherent geometry with interrupted-stage status.
+
 `stud.json` declares source patterns and inputs. Frozen source excludes `records`, quotes, estimates, exports and session state. Runtime fingerprints include Python, all locked package versions, engine source, units and build settings. Retained native archives are queried only under a compatible runtime; historical meshes and saved estimates remain inspectable without re-executing them.
 
 ## Native geometric evidence
@@ -66,11 +68,15 @@ Set meaningful thresholds, units and tolerances. `support` accepts `direction=[x
 
 Findings distinguish passed, failed, unresolved, unsupported and operation failures. Coverage is explicit; no requirements or uncovered parts do not imply a pass. Geometry availability is separate from checks and quantities. Structural analysis, automatic code compliance and a general constraint solver are outside this engine's scope.
 
+Deterministic native queries can reuse exact evidence from `.stud/query_cache/`. Keys include native solid digests, applicable placements, query kind, targets, thresholds, policy, units, tolerance and the full runtime fingerprint. Stock-fit results use the local blank frame; neighboring support/contact queries include world placements. Corrupt or incompatible entries become cache misses. `stud evaluate PATH --request REQUEST_ID --source SOURCE_ID --full-checks --wait` repeats every native query; source Python executes fully in both modes. Price-only changes do not run CAD.
+
 ## Reusable construction
 
 `stud.construction` supplies the workbench, rotated opening with a mirrored drilled corner sample, and a rafter bearing joint. `stud.buildings` supplies `framed_wall`, `floor_frame`, `gable_roof`, and `shed`.
 
 Walls generate individual plates/studs, opening framing, cut sheets, support references, stock demands and steps from one definition. Opening `x`, `sill`, `width` and `height` specify the clear rough opening. `exceptions` targets a persistent member key for an intentional bore. Missing exception targets fail instead of silently discarding the exception. Floor frames support explicit stair openings. Gable rafters retain true rectangular stock coordinates and measured birdsmouth seats; roof and gable sheets retain their physical cuts/backing.
+
+Walls, floors and roofs accept a parent assembly and rigid local placement. Their drawing directions and dimension references follow the complete parent transform. `gable_roof(..., gable_ends=[...])` selects exterior gables when composing adjacent roof modules. The [courtyard residence workload](../examples/cadquery-mansion/README.md) exercises these placements and several levels of shared parameters in ordinary Python.
 
 These helpers exercise detailed fabrication geometry. Read the authored notes and unresolved connections. The shed does not include site foundations, selected structural loads, roofing, flashing, cladding or installed door/window products. Use a project-owned CadQuery function for another construction method, with its own checks and fabrication data. [The shed example](../examples/cadquery-shed/README.md) describes its bounded scope.
 

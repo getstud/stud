@@ -129,4 +129,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--job', type=Path, required=True)
     args = parser.parse_args()
-    raise SystemExit(run(read_json(args.job)))
+    status = run(read_json(args.job))
+    if os.name == 'nt':
+        # Results are durable before run returns. The pinned native stack crashes
+        # during Windows interpreter teardown; preserve the actual worker status.
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(status)
+    raise SystemExit(status)

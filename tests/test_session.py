@@ -56,6 +56,25 @@ class ProjectFixture(unittest.TestCase):
 
 
 class SourceAndHistoryTests(ProjectFixture):
+    def test_workspaces_preserve_committed_source_bytes_with_git_line_endings(self):
+        history=self.session.history
+        history.git('config','core.autocrlf','true')
+        option=self.session.snapshot()['option']
+        exact={
+            'design.py':DESIGN.encode('utf-8'),
+            'helper.py':b'VALUE = 7\r\n',
+            '.gitattributes':b'*.py text eol=crlf\n*.json text eol=crlf\n',
+        }
+        head=history.commit(option['head'],exact,[],'Commit exact source bytes',history.author(),1700000000)
+        history.advance(option['ref'],head,option['head'])
+        request=self.begin()
+        workspace=Path(request['workspace'])
+        for name in ('design.py','helper.py','stud.json'):
+            self.assertEqual((workspace/name).read_bytes(),history.read_file(head,name),name)
+        result=self.finish(request,self.session.source(request['id'])['source_id'])
+        self.assertTrue(result['no_change'],result)
+        self.assertEqual(result['checkpoint'],head)
+
     def test_finish_retains_complete_geometry_when_native_checks_crash(self):
         request=self.begin()
         source=self.edit(request,DESIGN+"\nimport os, stud.checks\nstud.checks.measure_requirement=lambda *args: os._exit(7)\n")

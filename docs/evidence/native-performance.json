@@ -1,0 +1,643 @@
+{
+  "initial": {
+    "cases": [
+      {
+        "name": "workbench",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/workbench",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/workbench/.stud/builds/build_ba9d511687ee4b09876f826e613eee7e",
+            "assets": 5,
+            "build_id": "build_ba9d511687ee4b09876f826e613eee7e",
+            "checkpoint": "a37d0d78de65308088bc42cc7355df7599034d05",
+            "checks": {
+              "complete": true,
+              "evaluated": 31,
+              "requested": 31,
+              "uncovered_objects": []
+            },
+            "estimate_id": "419f911880912d3cbbb603afae13d93061631f54d1b0093297f7fe91b6d2c51a",
+            "estimate_seconds": 0.0003488750080578029,
+            "evaluate_seconds": 2.0196489579975605,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.601778666023165,
+            "historical_read_seconds": 0.15857808402506635,
+            "label": "baseline",
+            "manifest_bytes": 43990,
+            "mesh_bytes": 14408,
+            "parts": 12,
+            "peak_memory_bytes": 476708864,
+            "plan_pages": 4,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/workbench/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 1.9055806249962188,
+            "source_capture_seconds": 0.0018738750368356705,
+            "source_id": "29a90d08f6eebda10e4444d3f89b92964bbb5c3c4fbf54de136991969e9499c5",
+            "stages": {
+              "archive_seconds": 0.0014993749209679663,
+              "execution_seconds": 0.1994225830421783,
+              "fabrication_audit_seconds": 8.054100908339024e-05,
+              "solid_queries_seconds": 0.35487491695676,
+              "tessellation_seconds": 0.09692316607106477
+            },
+            "total_seconds": 4.8693253340316005,
+            "worker_seconds": 1.8294288750039414
+          }
+        ]
+      },
+      {
+        "name": "shed",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/shed",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/shed/.stud/builds/build_df69b37b154b4a829e6a9ea5e5fdb42b",
+            "assets": 62,
+            "build_id": "build_df69b37b154b4a829e6a9ea5e5fdb42b",
+            "checkpoint": "4bb5e9d4f490fb7b99bfacd59610a9c4150f4fcd",
+            "checks": {
+              "complete": true,
+              "evaluated": 377,
+              "requested": 377,
+              "uncovered_objects": []
+            },
+            "estimate_id": "859eb1a13d9b131eb3f9483aaee3a244fde77e02534b4d5426e83b5076ee244e",
+            "estimate_seconds": 0.0029375829617492855,
+            "evaluate_seconds": 11.048208584019449,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.6907211249927059,
+            "historical_read_seconds": 0.1682111250120215,
+            "label": "baseline",
+            "manifest_bytes": 600217,
+            "mesh_bytes": 43904,
+            "parts": 181,
+            "peak_memory_bytes": 484392960,
+            "plan_pages": 14,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/shed/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.431393541977741,
+            "source_capture_seconds": 0.0018105420167557895,
+            "source_id": "07f164a7b5b235f0f13700b6c634da96ea6551210d5c1c8ee6834f759580d3c8",
+            "stages": {
+              "archive_seconds": 0.02050450415117666,
+              "execution_seconds": 2.734395375009626,
+              "fabrication_audit_seconds": 0.0006059170118533075,
+              "solid_queries_seconds": 6.984336792025715,
+              "tessellation_seconds": 1.1764009218313731
+            },
+            "total_seconds": 14.493488000007346,
+            "worker_seconds": 10.850912790978327
+          }
+        ]
+      },
+      {
+        "name": "framing",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/framing",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/framing/.stud/builds/build_7e7df984dbe348e7b609c4c05eac9652",
+            "assets": 2,
+            "build_id": "build_7e7df984dbe348e7b609c4c05eac9652",
+            "checkpoint": "1f0de0eac5e0e7f234158351dcaddc353af0b0dd",
+            "checks": {
+              "complete": true,
+              "evaluated": 384,
+              "requested": 384,
+              "uncovered_objects": []
+            },
+            "estimate_id": "b8fc9994492b443d6e6ea5f5bbad2cb59aa3a800d43d79d38db4a58f19b2f781",
+            "estimate_seconds": 0.009293666982557625,
+            "evaluate_seconds": 4.248898083984386,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 0.6006696249824017,
+            "historical_read_seconds": 0.15751220798119903,
+            "label": "baseline",
+            "manifest_bytes": 611969,
+            "mesh_bytes": 896,
+            "parts": 360,
+            "peak_memory_bytes": 482869248,
+            "plan_pages": 14,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/framing/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": "full packet",
+            "plan_seconds": 2.6916842909995466,
+            "source_capture_seconds": 0.0018751249881461263,
+            "source_id": "99676a79fe3d3d50f0d41d2db88cb8fa9202068da41966f42326fd028d38ea71",
+            "stages": {
+              "archive_seconds": 0.035253374895546585,
+              "execution_seconds": 2.1760367499664426,
+              "fabrication_audit_seconds": 0.0011592080118134618,
+              "solid_queries_seconds": 0.753853915957734,
+              "tessellation_seconds": 0.03551145794335753
+            },
+            "total_seconds": 7.860306999995373,
+            "worker_seconds": 4.067768084001727
+          }
+        ]
+      },
+      {
+        "name": "mansion",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/mansion",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/mansion/.stud/builds/build_68ad83f5758947338c476bd5333c92c8",
+            "assets": 114,
+            "build_id": "build_68ad83f5758947338c476bd5333c92c8",
+            "checkpoint": "88bdbac68474c78b0251df9ccfbceab4c4284f0b",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "estimate_id": "2525e819120ff294e40ca6440c96aea596bffeb9be6dfd367902f6a63f4692c2",
+            "estimate_seconds": 0.6032147079822607,
+            "evaluate_seconds": 434.83556008402957,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.8699831249541603,
+            "historical_read_seconds": 0.3742286670021713,
+            "label": "baseline",
+            "manifest_bytes": 20902224,
+            "mesh_bytes": 68640,
+            "parts": 6630,
+            "peak_memory_bytes": 1369767936,
+            "plan_pages": 1,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh/mansion/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": {
+              "include_lists": false,
+              "views": [
+                "house.floor_overview",
+                "house.west.level1.kitchen.front.elevation",
+                "house.west.level2.kitchen.roof.bearing_detail"
+              ]
+            },
+            "plan_seconds": 9.600070707965642,
+            "source_capture_seconds": 0.002326167013961822,
+            "source_id": "d3b2b04d9a9a6dea81f1cb7fbec1a78f37e14d58fb9b26f1bb93451a47a4c305",
+            "stages": {
+              "archive_seconds": 0.8581476256949827,
+              "execution_seconds": 212.20049820799613,
+              "fabrication_audit_seconds": 0.12119183404138312,
+              "solid_queries_seconds": 220.67170954099856,
+              "tessellation_seconds": 2.1983286270406097
+            },
+            "total_seconds": 446.83962008397793,
+            "worker_seconds": 434.24406408297364
+          }
+        ]
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "root": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-byx72wsh"
+  },
+  "optimized": {
+    "cases": [
+      {
+        "name": "mansion",
+        "project": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion",
+        "runs": [
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_39a5b6dae9ab400198df4472a51d53ca",
+            "assets": 114,
+            "build_id": "build_39a5b6dae9ab400198df4472a51d53ca",
+            "checkpoint": "67f686ffe5bcac6df1cea8bf39d72cb054839880",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "estimate_id": "c0d7ad8aa86542dee18aa2d376c3f9e6adce981fe978a4e53e300de195bb90be",
+            "estimate_seconds": 0.5488477499457076,
+            "evaluate_seconds": 358.96934187499573,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.039526292006485,
+            "historical_read_seconds": 0.43342833302449435,
+            "label": "baseline",
+            "manifest_bytes": 20904364,
+            "mesh_bytes": 68640,
+            "parts": 6630,
+            "peak_memory_bytes": 931856384,
+            "plan_pages": 1,
+            "plan_pdf": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/exports/plans_439ae0478127afc28bb014db6be0fcec/plans.pdf",
+            "plan_scope": {
+              "include_lists": false,
+              "views": [
+                "house.floor_overview",
+                "house.west.level1.kitchen.front.elevation",
+                "house.west.level2.kitchen.roof.bearing_detail"
+              ]
+            },
+            "plan_seconds": 10.44779337500222,
+            "preview_bytes": 444934581,
+            "preview_count": 144,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 38.08682687859982
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.007263920910190791
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 153.90623464400414
+              },
+              "stock_fit": {
+                "cache_hits": 6516,
+                "count": 6630,
+                "elapsed_seconds": 0.5176870231516659
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 30.62335638824152
+              }
+            },
+            "source_capture_seconds": 0.0022871250403113663,
+            "source_id": "fe0fca21718477d3c48c46759e04c78e1f9bf2dffee9773a8c4acfa6dccb7e4a",
+            "stages": {
+              "archive_seconds": 1.4229177160887048,
+              "execution_seconds": 133.66349891602295,
+              "fabrication_audit_seconds": 0.1348259579972364,
+              "preview_publication": {
+                "coalesced": 1239,
+                "published": 144,
+                "snapshot_seconds": 4.149410036276095,
+                "write_seconds": 16.75875008426374
+              },
+              "solid_queries_seconds": 223.18456033302937,
+              "tessellation_seconds": 2.5180422482080758
+            },
+            "total_seconds": 372.04275849997066,
+            "worker_seconds": 358.29769325000234
+          },
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_693f1a77e5fe4eb8924219297e2cbc5b",
+            "assets": 114,
+            "build_id": "build_693f1a77e5fe4eb8924219297e2cbc5b",
+            "checkpoint": "d93b01f59d6bbb780fb597e6032f3177ecacf99a",
+            "checks": {
+              "complete": true,
+              "evaluated": 11332,
+              "requested": 11332,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_0acd33d17490008095e662e2c45bc82d",
+            "comparison_seconds": 5.079179082997143,
+            "estimate_id": "3a3c8f181420ac31549069b40c65e96e329e9d4096be811ac465924824265e5c",
+            "estimate_seconds": 0.5238831249880604,
+            "evaluate_seconds": 77.40127295796992,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.9324858750333078,
+            "historical_read_seconds": 0.3760550420265645,
+            "independent_full_evaluation_agrees": true,
+            "label": "local_opening",
+            "manifest_bytes": 20899729,
+            "mesh_bytes": 68640,
+            "parts": 6628,
+            "peak_memory_bytes": 1035386880,
+            "preview_bytes": 246911138,
+            "preview_count": 96,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.014626678021159023
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.0033962137531489134
+              },
+              "panel_edge_support": {
+                "cache_hits": 1096,
+                "count": 1100,
+                "elapsed_seconds": 0.8417157506919466
+              },
+              "stock_fit": {
+                "cache_hits": 6620,
+                "count": 6628,
+                "elapsed_seconds": 0.09178203786723316
+              },
+              "support": {
+                "cache_hits": 2102,
+                "count": 2104,
+                "elapsed_seconds": 0.047327034233603626
+              }
+            },
+            "source_capture_seconds": 0.002509124984499067,
+            "source_id": "7fcb2a4030e3f870c46a2fc3ed5816b70eda578b583ae2f2a990c125b3b3745e",
+            "stages": {
+              "archive_seconds": 0.7039200818981044,
+              "execution_seconds": 74.31455083296169,
+              "fabrication_audit_seconds": 0.1211988750146702,
+              "preview_publication": {
+                "coalesced": 1286,
+                "published": 96,
+                "snapshot_seconds": 2.418645999918226,
+                "write_seconds": 6.270112790924031
+              },
+              "solid_queries_seconds": 1.0433560840319842,
+              "tessellation_seconds": 2.119529960094951
+            },
+            "total_seconds": 356.27749820798635,
+            "worker_seconds": 76.73718391702278
+          },
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_022af1f3f82441398e75872a1f493e85",
+            "assets": 113,
+            "build_id": "build_022af1f3f82441398e75872a1f493e85",
+            "checkpoint": "a70088f079a26512c83923f7a20debb032002c38",
+            "checks": {
+              "complete": true,
+              "evaluated": 11497,
+              "requested": 11497,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_02b20b6b1b5b90f14c0934ef0781df88",
+            "comparison_seconds": 5.469527166977059,
+            "estimate_id": "de76328e5d57ff55898117fc2c545b7f4e4085733f171c27214b6a68cdfd2e2d",
+            "estimate_seconds": 0.6176777080399916,
+            "evaluate_seconds": 127.86262025003089,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.0295041669742204,
+            "historical_read_seconds": 0.36209358397172764,
+            "independent_full_evaluation_agrees": true,
+            "label": "shared_windows",
+            "manifest_bytes": 21328480,
+            "mesh_bytes": 68192,
+            "parts": 6793,
+            "peak_memory_bytes": 947994624,
+            "preview_bytes": 254620456,
+            "preview_count": 98,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.013883040519431233
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.005177623243071139
+              },
+              "panel_edge_support": {
+                "cache_hits": 880,
+                "count": 1100,
+                "elapsed_seconds": 46.06730824604165
+              },
+              "stock_fit": {
+                "cache_hits": 6786,
+                "count": 6793,
+                "elapsed_seconds": 0.10554355999920517
+              },
+              "support": {
+                "cache_hits": 1994,
+                "count": 2104,
+                "elapsed_seconds": 1.1221859183278866
+              }
+            },
+            "source_capture_seconds": 0.0022502500214613974,
+            "source_id": "6c5073186dc0c808d5ce917d235cef5f77f0c35a1a318d246dcb8342a871210e",
+            "stages": {
+              "archive_seconds": 0.7604512354009785,
+              "execution_seconds": 78.30643300001975,
+              "fabrication_audit_seconds": 0.12481449998449534,
+              "preview_publication": {
+                "coalesced": 1339,
+                "published": 98,
+                "snapshot_seconds": 2.4717196873389184,
+                "write_seconds": 7.309811334591359
+              },
+              "solid_queries_seconds": 47.364776792004704,
+              "tessellation_seconds": 2.0971165449591354
+            },
+            "total_seconds": 417.1726885420503,
+            "worker_seconds": 127.20554933301173
+          },
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_696546a83cfe4d32b281f3598c2d2695",
+            "assets": 113,
+            "build_id": "build_696546a83cfe4d32b281f3598c2d2695",
+            "checkpoint": "fd3df70838915851e87d172e090cc1477649c5d2",
+            "checks": {
+              "complete": true,
+              "evaluated": 11497,
+              "requested": 11497,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_541879f70b82c307dc4baf83c20d3f6a",
+            "comparison_seconds": 5.365473375015426,
+            "estimate_id": "88de78dd88a93c740f5aaa007f44982aa12eeb3859aac211b432fadd5bcd8178",
+            "estimate_seconds": 0.61607470898889,
+            "evaluate_seconds": 319.2097052910249,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.1193675419781357,
+            "historical_read_seconds": 0.38433470798190683,
+            "independent_full_evaluation_agrees": true,
+            "label": "whole_building_rotation",
+            "manifest_bytes": 21879693,
+            "mesh_bytes": 68192,
+            "parts": 6793,
+            "peak_memory_bytes": 1073463296,
+            "preview_bytes": 294201886,
+            "preview_count": 104,
+            "query_types": {
+              "contact": {
+                "count": 1288,
+                "elapsed_seconds": 36.71282919147052
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.0066731993574649096
+              },
+              "panel_edge_support": {
+                "count": 1100,
+                "elapsed_seconds": 163.42325389484176
+              },
+              "stock_fit": {
+                "cache_hits": 6793,
+                "count": 6793,
+                "elapsed_seconds": 0.15013453841675073
+              },
+              "support": {
+                "count": 2104,
+                "elapsed_seconds": 30.47716537414817
+              }
+            },
+            "source_capture_seconds": 0.0022969580022618175,
+            "source_id": "750ec4781ad8b6275d181454c0c584d3cf7057acbb4baccd28f4c5dc0cba2a13",
+            "stages": {
+              "archive_seconds": 0.6854000310413539,
+              "execution_seconds": 86.15774716599844,
+              "fabrication_audit_seconds": 0.12278445798438042,
+              "preview_publication": {
+                "coalesced": 1333,
+                "published": 104,
+                "snapshot_seconds": 2.3415640355087817,
+                "write_seconds": 9.079384622862563
+              },
+              "solid_queries_seconds": 230.9408766250126,
+              "tessellation_seconds": 2.1640676641254686
+            },
+            "total_seconds": 612.1830542079988,
+            "worker_seconds": 318.5340278329677
+          },
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_e8a7492d8ff349d4b79ee23eea0226e8",
+            "assets": 114,
+            "build_id": "build_e8a7492d8ff349d4b79ee23eea0226e8",
+            "checkpoint": "1cfba48cb4b2a73b99dc7311b6fd42d70b19abff",
+            "checks": {
+              "complete": true,
+              "evaluated": 10543,
+              "requested": 10543,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_dcece62214c70b74c2326f33c9b1c42f",
+            "comparison_seconds": 5.018563084013294,
+            "estimate_id": "3b19d1c2eaeae7d0df20b54551326d226be5fc393c4e76f72b51aea215e2d618",
+            "estimate_seconds": 0.4550748330075294,
+            "evaluate_seconds": 130.8429013749701,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 1.9043050829786807,
+            "historical_read_seconds": 0.346079999988433,
+            "independent_full_evaluation_agrees": true,
+            "label": "remove_module_and_change_roof",
+            "manifest_bytes": 19450261,
+            "mesh_bytes": 68640,
+            "parts": 6169,
+            "peak_memory_bytes": 925237248,
+            "preview_bytes": 202339929,
+            "preview_count": 88,
+            "query_types": {
+              "contact": {
+                "cache_hits": 624,
+                "count": 1196,
+                "elapsed_seconds": 13.697359624202363
+              },
+              "length": {
+                "count": 196,
+                "elapsed_seconds": 0.0031577108311466873
+              },
+              "panel_edge_support": {
+                "cache_hits": 702,
+                "count": 1030,
+                "elapsed_seconds": 26.92258662043605
+              },
+              "stock_fit": {
+                "cache_hits": 6130,
+                "count": 6169,
+                "elapsed_seconds": 0.18965875514550135
+              },
+              "support": {
+                "cache_hits": 184,
+                "count": 1952,
+                "elapsed_seconds": 20.85526607540669
+              }
+            },
+            "source_capture_seconds": 0.0022863749763928354,
+            "source_id": "82d8bb325d966a5cf2dcfce256b7183186228dfd6c6995f38dc9592bf1508755",
+            "stages": {
+              "archive_seconds": 0.6110943370731547,
+              "execution_seconds": 67.10824591701385,
+              "fabrication_audit_seconds": 0.10098808398470283,
+              "preview_publication": {
+                "coalesced": 1206,
+                "published": 88,
+                "snapshot_seconds": 1.8823971984675154,
+                "write_seconds": 5.677602665731683
+              },
+              "solid_queries_seconds": 61.76895258296281,
+              "tessellation_seconds": 2.0876533709233627
+            },
+            "total_seconds": 386.63494958297815,
+            "worker_seconds": 130.25829733302817
+          },
+          {
+            "artifact_path": "/private/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw/mansion/.stud/builds/build_9a57c18b9124473abe7722067ea33c2b",
+            "assets": 114,
+            "build_id": "build_9a57c18b9124473abe7722067ea33c2b",
+            "checkpoint": "3e4d2a0fc4e82b6f04ae683ffce589a94939b4ea",
+            "checks": {
+              "complete": true,
+              "evaluated": 11334,
+              "requested": 11334,
+              "uncovered_objects": []
+            },
+            "comparison_job": "comparison_af7d82a652ecd754cf4bd4bf0ce38932",
+            "comparison_seconds": 5.218753417022526,
+            "estimate_id": "da68cda54d7a857ffa9f0d65abf1c326a93e3b6296b3f43042b0cd1d19980bfc",
+            "estimate_seconds": 0.526219499995932,
+            "evaluate_seconds": 75.00866858300287,
+            "fabrication_findings": [],
+            "failed_requirements": [],
+            "finish_seconds": 2.0241198749863543,
+            "historical_read_seconds": 0.3627220829948783,
+            "independent_full_evaluation_agrees": true,
+            "label": "restore_defaults",
+            "manifest_bytes": 20904421,
+            "mesh_bytes": 68640,
+            "parts": 6630,
+            "peak_memory_bytes": 1043185664,
+            "preview_bytes": 241903895,
+            "preview_count": 94,
+            "query_types": {
+              "contact": {
+                "cache_hits": 1288,
+                "count": 1288,
+                "elapsed_seconds": 0.014386177121195942
+              },
+              "length": {
+                "count": 212,
+                "elapsed_seconds": 0.003549131564795971
+              },
+              "panel_edge_support": {
+                "cache_hits": 1100,
+                "count": 1100,
+                "elapsed_seconds": 0.03960787446703762
+              },
+              "stock_fit": {
+                "cache_hits": 6630,
+                "count": 6630,
+                "elapsed_seconds": 0.07493464334402233
+              },
+              "support": {
+                "cache_hits": 2104,
+                "count": 2104,
+                "elapsed_seconds": 0.02646505436860025
+              }
+            },
+            "source_capture_seconds": 0.002348250010982156,
+            "source_id": "fe0fca21718477d3c48c46759e04c78e1f9bf2dffee9773a8c4acfa6dccb7e4a",
+            "stages": {
+              "archive_seconds": 0.7089574952842668,
+              "execution_seconds": 72.7756348749972,
+              "fabrication_audit_seconds": 0.1305659999488853,
+              "preview_publication": {
+                "coalesced": 1289,
+                "published": 94,
+                "snapshot_seconds": 2.1866115363081917,
+                "write_seconds": 6.092231587274
+              },
+              "solid_queries_seconds": 0.21107316599227488,
+              "tessellation_seconds": 2.059869919437915
+            },
+            "total_seconds": 348.65938908298267,
+            "worker_seconds": 74.34360854199622
+          }
+        ]
+      }
+    ],
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "root": "/var/folders/0q/7rkmsvds32vflh4fv3f1yg1m0000gn/T/stud-performance-hgfoq_vw"
+  }
+}

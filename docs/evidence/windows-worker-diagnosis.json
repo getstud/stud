@@ -1,0 +1,1016 @@
+{
+  "run": "https://github.com/getstud/stud/actions/runs/34432913888",
+  "interpretation": "Native crashes occur after run returned its actual status and after the atexit marker. Fast exit retains genuine operation failures. Exact native destructor/DLL is not identified.",
+  "workers": [
+    {
+      "worker": "native_worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "direct",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "direct",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 1,
+      "exit_u32_hex": "0x00000001",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 1
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 1
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": {
+        "category": "unresolved_reference",
+        "current": null,
+        "expected": null,
+        "message": "Named reference is missing: beam:deleted",
+        "references": [
+          "beam:deleted"
+        ],
+        "retryable": false
+      }
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 1,
+      "exit_u32_hex": "0x00000001",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 1
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 1
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": {
+        "category": "unresolved_reference",
+        "current": null,
+        "expected": null,
+        "message": "Named reference is missing: beam:deleted",
+        "references": [
+          "beam:deleted"
+        ],
+        "retryable": false
+      }
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "fast",
+      "exit_code": 0,
+      "exit_u32_hex": "0x00000000",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "fast",
+          "status": 0
+        }
+      ],
+      "native_exception": [],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "native_worker.py",
+      "mode": "normal",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\native_worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": null,
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221226356,
+      "exit_u32_hex": "0xC0000374",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: code 0xc0000374"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    },
+    {
+      "worker": "worker.py",
+      "mode": "normal",
+      "exit_code": 3221225477,
+      "exit_u32_hex": "0xC0000005",
+      "markers": [
+        {
+          "phase": "before_import",
+          "worker": "D:\\a\\stud\\stud\\stud\\worker.py"
+        },
+        {
+          "phase": "before_run"
+        },
+        {
+          "phase": "run_returned",
+          "status": 0
+        },
+        {
+          "phase": "before_exit",
+          "mode": "normal",
+          "status": 0
+        },
+        {
+          "phase": "atexit_marker"
+        }
+      ],
+      "native_exception": [
+        "Windows fatal exception: access violation"
+      ],
+      "completion": {
+        "checks": "complete",
+        "estimates": "pending",
+        "geometry": "complete",
+        "plans": "pending",
+        "quantities": "complete"
+      },
+      "result_error": null
+    }
+  ]
+}

@@ -362,7 +362,7 @@ class Session:
                 job['status'] = 'running'
                 self._save_job(job)
                 with (directory / 'stderr.log').open('w') as diagnostics:
-                    process = subprocess.Popen([sys.executable, '-B', '-E', '-s', str(ENGINE_ROOT / 'stud/worker.py'),
+                    process = subprocess.Popen([sys.executable, '-X', 'utf8', '-B', '-E', '-s', str(ENGINE_ROOT / 'stud/worker.py'),
                                                 '--job', str(self._job_path(job['id']))],
                                                cwd=execution, stdout=subprocess.PIPE,
                                                stderr=diagnostics, text=True,
@@ -397,7 +397,7 @@ class Session:
                            else 'generation_failed', elapsed_seconds=time.perf_counter() - started,
                            manifest=str(directory / 'manifest.json') if result else None)
                 if code:
-                    job['diagnostics'] = (directory / 'stderr.log').read_text()[-12000:]
+                    job['diagnostics'] = (directory / 'stderr.log').read_text(encoding='utf-8',errors='replace')[-12000:]
                 if result:job.setdefault('manifest_hashes',{})['manifest.json']=digest((directory/'manifest.json').read_bytes())
                 if job['kind']=='historical_evaluate' and result and result['completion']['geometry']=='complete':
                     from .source import evaluated_identity

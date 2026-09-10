@@ -35,6 +35,28 @@ await fs.rm(resources, { recursive: true, force: true });
 await fs.mkdir(resources, { recursive: true });
 await fs.cp(path.join(extracted, 'python'), path.join(resources, 'runtime'), { recursive: true, verbatimSymlinks: true });
 const python = path.join(resources, process.platform === 'win32' ? 'runtime/python.exe' : 'runtime/bin/python3');
+if (process.platform === 'darwin') {
+  // NumPy publishes both Accelerate/macOS14 and older-OS wheels at the same
+  // version. Select the compatible locked wheel before pip considers host tags.
+  const lock = await fs.readFile(path.join(root, 'requirements.lock'), 'utf8');
+  const numpy = lock.match(/^numpy==[^\n]*(?:\n[ \t]+[^\n]*)*/m)?.[0];
+  if (!numpy) throw new Error('The dependency lock must pin NumPy');
+  const selection = path.join(cache, 'numpy-platform.lock');
+  const wheels = path.join(cache, 'numpy-compatible');
+  await fs.writeFile(selection, numpy + '\n');
+  await fs.rm(wheels, { recursive: true, force: true });
+  await fs.mkdir(wheels, { recursive: true });
+  const download = spawnSync(python, ['-B', '-E', '-s', '-m', 'pip', 'download', '--disable-pip-version-check',
+    '--only-binary=:all:', '--no-deps', '--require-hashes', '--platform',
+    process.arch === 'arm64' ? 'macosx_11_0_arm64' : 'macosx_10_13_x86_64',
+    '--dest', wheels, '-r', selection], { stdio: 'inherit' });
+  if (download.status !== 0) throw new Error('Could not obtain the locked NumPy wheel for supported macOS versions');
+  const selected = (await fs.readdir(wheels)).filter(name => name.endsWith('.whl'));
+  if (selected.length !== 1) throw new Error('Expected exactly one verified NumPy wheel');
+  const install = spawnSync(python, ['-B', '-E', '-s', '-m', 'pip', 'install', '--disable-pip-version-check',
+    '--no-compile', '--no-user', '--no-deps', path.join(wheels, selected[0])], { stdio: 'inherit' });
+  if (install.status !== 0) throw new Error('Could not install the compatible NumPy wheel');
+}
 const dependencies = spawnSync(python, ['-B', '-E', '-s', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-compile', '--no-user',
   '--require-hashes', '--cache-dir', path.join(cache, 'pip'), '-r', path.join(root, 'requirements.lock')], { stdio: 'inherit' });
 if (dependencies.status !== 0) throw new Error('Could not install the pinned CAD/PDF dependencies into the bundled runtime');
@@ -51,6 +73,13 @@ if (!gitData || digest(gitData) !== gitRuntime.sha256) {
 await fs.mkdir(path.join(resources, 'git'), { recursive: true });
 const extractGit = spawnSync('tar', ['-xzf', gitArchive, '-C', path.join(resources, 'git')], { stdio: 'inherit' });
 if (extractGit.status !== 0) throw new Error('Could not extract bundled Git');
+if (process.platform === 'darwin') {
+  const config = JSON.parse(await fs.readFile(path.join(root, 'src-tauri/tauri.conf.json'), 'utf8'));
+  const floor = spawnSync(python, ['-B', '-E', '-s', path.join(root, 'scripts/verify-macos-floor.py'),
+    '--minimum', config.bundle.macOS.minimumSystemVersion, '--json', path.join(resources, 'macos-deployment.json'),
+    path.join(resources, 'runtime'), path.join(resources, 'git')], { stdio: 'inherit' });
+  if (floor.status !== 0) throw new Error('Bundled native dependencies exceed the advertised macOS minimum');
+}
 await fs.copyFile(path.join(root, 'desktop/THIRD_PARTY_NOTICES.md'), path.join(resources, 'THIRD_PARTY_NOTICES.md'));
 await copyDesignResources(root, resources);
 const engine = path.join(resources, 'engine');

@@ -84,16 +84,15 @@ Supported targets:
 
 | Build target | Native build host | Installer |
 | --- | --- | --- |
-| `darwin-arm64` | Apple Silicon macOS | `.app`, `.dmg` |
-| `darwin-x64` | Intel macOS | `.app`, `.dmg` |
+| `darwin-arm64` | Apple Silicon macOS | `.app`, `.dmg` (macOS 12+) |
+| `darwin-x64` | Intel macOS | `.app`, `.dmg` (macOS 12+) |
 | `win32-x64` | Windows x64 | NSIS `.exe` |
 
 Use `npm run desktop:build -- --target darwin-x64` on a matching host, or use the
-GitHub Actions matrix. A local Windows cross-build is also available on macOS
-with MinGW-w64, NSIS, and Rust's `x86_64-pc-windows-gnu` target:
-`npm run desktop:build -- --target win32-x64 --rust-target x86_64-pc-windows-gnu`.
-Cross-built installers still require testing on Windows; production CI uses the
-native MSVC toolchain. Outputs are under
+GitHub Actions matrix. Staging now requires the matching native host so the CAD
+libraries execute during preparation; Windows CI uses the native MSVC toolchain.
+macOS staging selects NumPy's compatible wheel explicitly instead of allowing a
+newer build host to select a wheel requiring macOS 14. Outputs are under
 `src-tauri/target/<rust-target>/release/bundle/`. `npm run desktop:dev` prepares
 resources and launches Tauri in development mode.
 
@@ -219,7 +218,9 @@ The smoke test uses only the app's Python, creates an external project with spac
 and Unicode in its name, builds and validates it, serves all viewer assets, saves
 a comment, and checks that CLI sessions and updates exclude each other. The CI
 Windows job installs the actual NSIS artifact before running that smoke test,
-then uninstalls it. Test a signed old-to-new update on both platforms before the
+then uninstalls it. macOS jobs mount the DMG, copy the application to a separate
+installation directory, unmount the image, and smoke that installed application.
+Test a signed old-to-new update on both platforms before the
 first public release.
 
 References: [Tauri v2 updater](https://v2.tauri.app/plugin/updater/),

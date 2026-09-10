@@ -127,14 +127,14 @@ class Operations:
                 session._save_job(job)
                 engine=Path(__file__).resolve().parents[1]
                 with (directory/'stderr.log').open('w') as diagnostics:
-                    process=subprocess.Popen([sys.executable,'-B','-E','-s',str(engine/'stud/native_worker.py'),'--request',str(directory/'request.json')],
+                    process=subprocess.Popen([sys.executable,'-X','utf8','-B','-E','-s',str(engine/'stud/native_worker.py'),'--request',str(directory/'request.json')],
                         stdout=diagnostics,stderr=diagnostics,**({'start_new_session':True} if os.name!='nt' else {}))
                 session.processes[job['id']]=process
                 session._emit('job_started',job_id=job['id'],operation=job['kind'],build_id=build['id'])
             code=process.wait()
             if session.closed:return
             result=read_json(directory/'result.json')
-            if not result:raise StudError('native_operation_failed',(directory/'stderr.log').read_text()[-12000:])
+            if not result:raise StudError('native_operation_failed',(directory/'stderr.log').read_text(encoding='utf-8',errors='replace')[-12000:])
             if code or result.get('error'):
                 error=result.get('error',{})
                 raise StudError(error.get('category','native_operation_failed'),error.get('message','Native operation failed.'),references=error.get('references'))

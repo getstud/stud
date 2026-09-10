@@ -51,7 +51,7 @@ fn run() -> Result<i32, Box<dyn std::error::Error>> {
         .map_err(|_| "stud is being updated. Try again when the update finishes.")?;
     let mut command = Command::new(python);
     command
-        .args(["-B", "-E", "-s"])
+        .args(["-B", "-E", "-s", "-X", "utf8"])
         .arg(script)
         .args(env::args_os().skip(1))
         .env_remove("PYTHONHOME")

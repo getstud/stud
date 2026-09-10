@@ -599,7 +599,7 @@ new ResizeObserver(()=>{
   camera.updateProjectionMatrix();
  }
 }).observe(viewport);
-let modelRequest = null,modelRefreshQueued=false,snapshotRefresh=false;
+let modelRequest = null,modelRefreshQueued=false,snapshotRefresh=false,modelLoadFailed=false;
 function loadModel() {
  if (modelRequest) return modelRequest;
  modelRequest = (async () => {
@@ -614,15 +614,21 @@ function loadModel() {
    if(data.engine==='cadquery')installVersions({showWorkspace,refreshModel:async()=>{snapshotRefresh=true;await loadModel();refreshFromEvent();}});
    if (data.revision !== revision||data.cad?.presentation!==model?.cad?.presentation||data.cad?.checkpoint!==model?.cad?.checkpoint||data.cad?.latest_build_id!==model?.cad?.latest_build_id||data.cad?.latest_status!==model?.cad?.latest_status) {const animate=!snapshotRefresh;snapshotRefresh=false;await install(data,{animate});}
    if(data.engine!=='cadquery')$('error').hidden=true;
+   modelLoadFailed=false;
    return data;
   } catch (error) {
+   modelLoadFailed=true;
    $('error').hidden=false;$('error').textContent=`${model?'Keeping last good model.':'Unable to load model.'} ${error.message}`;
    throw error;
   } finally { modelRequest = null;if(modelRefreshQueued){modelRefreshQueued=false;queueMicrotask(()=>loadModel().catch(()=>{}));} }
  })();
  return modelRequest;
 }
-async function refresh(){try{await loadModel();}catch{}finally{setTimeout(refresh,2000);}}
+async function refresh(){try{
+ // Ordered native events deliver revisions. Poll only as a connection/error
+ // fallback, so an idle building does not resend its complete model every 2s.
+ if(model?.engine!=='cadquery'||!projectEvents.connected||modelLoadFailed)await loadModel();
+}catch{}finally{setTimeout(refresh,2000);}}
 function refreshFromEvent(){if(modelRequest)modelRefreshQueued=true;else void loadModel().catch(()=>{});}
 let focusTask=null,applyingFocus=false;
 async function applyFocusTask(){
@@ -653,7 +659,7 @@ const projectEvents=new ProjectEvents({onReset:snapshot=>{snapshotRefresh=true;c
  if(['build_started','request_canceled'].includes(event.type)||(event.type==='build_ended'&&['canceled','superseded'].includes(event.status)))cadScene.invalidate();
  if(['part_batch','geometry_complete','checks_updated','build_ended','checkpoint_created'].includes(event.type))refreshFromEvent();
  if(['history_displayed','live_displayed','option_activated'].includes(event.type)){snapshotRefresh=true;cadScene.invalidate();refreshFromEvent();}
- if(['checkpoint_created','history_displayed','live_displayed','option_created','option_activated','record_saved','comparison_complete','plans_complete'].includes(event.type))window.dispatchEvent(new Event('studprojectchange'));
+ if(['checkpoint_created','history_displayed','live_displayed','option_created','option_activated','records_saved','comparison_complete','plans_complete'].includes(event.type))window.dispatchEvent(new Event('studprojectchange'));
  if(event.type==='show_requested'){focusTask=event.job_id;void applyFocusTask();}
 }});
 void projectEvents.connect().catch(()=>{});
@@ -843,6 +849,7 @@ function renderValidation(report){
 }
 async function refreshValidation(){
  try{
+  if(model?.engine==='cadquery')return; // Findings arrive with the same native model revision.
   const response=await fetch('/api/validation',{cache:'no-store',signal:AbortSignal.timeout(25000)});
   if(!response.ok)throw new Error(`HTTP ${response.status}`);
   const report=await response.json(),signature=JSON.stringify(report)+revision;
