@@ -352,7 +352,7 @@ class Session:
         if self.state.get('view_mode')!='history':
             self.state['live_displayed_build']=self.state['displayed_build']
         self.state.update(view_mode='history',view_checkpoint=checkpoint,
-                          displayed_build=build_id,history_pending=None)
+                          displayed_build=build_id,history_pending=None,view_option=None)
 
     def _accepts(self, job):
         if job.get('request_id') is None:

@@ -1,6 +1,7 @@
 """Branch alternatives and comparisons, independent of the active source writer."""
 import json
 from pathlib import Path
+import re
 import time
 
 from .contracts import StudError, digest, encoded, identifier, read_json, write_json
@@ -179,6 +180,50 @@ class Versions:
             session._emit('history_loading',checkpoint=checkpoint,build_id=job['id'],archived_report=report)
             return job
 
+    def _option_checkpoint(self, option_id):
+        # The tab path needs one branch head, not the labels/records of every
+        # option. Validate the ID before constructing a Git reference.
+        if not isinstance(option_id,str) or not re.fullmatch(r'[A-Za-z0-9_-]+',option_id):
+            raise StudError('unknown_option','Choose an available option ID.')
+        try:return self.session.history.head(f'refs/heads/stud/{option_id}')
+        except StudError as error:
+            if error.category!='unknown_checkpoint':raise
+            raise StudError('unknown_option','The option is no longer available.') from error
+
+    def prepare_option(self, *, key, option_id, expected_head):
+        """Materialize immutable comparison evidence without selecting a writer or view."""
+        head=self._option_checkpoint(option_id)
+        if head!=expected_head:
+            raise StudError('changed_head','This option changed; reload its saved checkpoint.',current=head)
+        return self.compare(key=key,left=expected_head,right=expected_head)
+
+    def inspect_option(self, *, key, option_id, expected_head, comparison_id):
+        session=self.session
+        with session.mutex:
+            head=self._option_checkpoint(option_id)
+            if head!=expected_head:
+                raise StudError('changed_head','This option changed; reload its saved checkpoint.',current=head)
+            prepared=session.job(comparison_id)
+            result=prepared.get('result',{})
+            view=(result.get('views') or [None])[0]
+            if prepared.get('kind')!='compare' or prepared['status']!='complete' or result.get('left_checkpoint')!=expected_head or not view:
+                raise StudError('unavailable_artifact','Prepare this option before displaying it.')
+            # A receipt retry must never undo a newer display selection.
+            payload=dict(option_id=option_id,expected_head=expected_head,comparison_id=comparison_id)
+            receipt=session.local/'option_view_receipts'/f'{digest(key.encode())}.json'
+            saved=read_json(receipt)
+            if saved:
+                if saved['payload']!=payload:raise StudError('idempotency_conflict','Option view key has different inputs.')
+                return saved['result']
+            session._display_history(view['cad']['build_id'],expected_head)
+            session.state['view_option']=option_id
+            session._emit('history_displayed',checkpoint=expected_head,option_id=option_id,build_id=view['cad']['build_id'])
+            active=session._request(session.state['active_request']) if session.state['active_request'] else None
+            response=dict(status='complete',option_id=option_id,checkpoint=expected_head,
+                editing=dict(option_id=session.state['active_option'],request_id=active['id'] if active else None,intent=active['intent'] if active else None))
+            write_json(receipt,dict(payload=payload,result=response))
+            return response
+
     def live(self, *, key):
         session=self.session
         with session.mutex:
@@ -186,7 +231,7 @@ class Versions:
             saved=read_json(receipt)
             if saved:return saved
             if session.state.get('view_mode')=='history':session.state['displayed_build']=session.state.get('live_displayed_build')
-            session.state.update(view_mode='live',history_pending=None,view_checkpoint=None)
+            session.state.update(view_mode='live',history_pending=None,view_checkpoint=None,view_option=None)
             session._emit('live_displayed',build_id=session.state['displayed_build'])
             result=dict(status='complete',build_id=session.state['displayed_build'])
             write_json(receipt,result);return result
@@ -219,6 +264,8 @@ class Versions:
             manifests=[(report or {}).get('evaluated_manifest') for report in reports]
             views=[];view_errors=[]
             for index,side in enumerate(('left','right')):
+                if index and args['left']==args['right']:
+                    manifests[1]=manifests[0];reports[1]=reports[0];views.append(views[0]);continue
                 manifest=manifests[index];report=reports[index];checkpoint=args[side]
                 candidate=None
                 if report:

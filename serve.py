@@ -99,6 +99,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(file.read_bytes(), kind)
             routes={'/build-camera.js':'web/build-camera.js','/assembly-instructions.js':'web/assembly-instructions.js','/annotation-layout.js':'web/annotation-layout.js','/camera-transition.js':'web/camera-transition.js','/fly-controls.js':'web/fly-controls.js','/profile-geometry.js':'web/profile-geometry.js','/theme.js':'web/theme.js','/build-animation.js':'web/build-animation.js','/environment.js':'web/environment.js','/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             routes.update({'/cad-scene.js':'web/cad-scene.js','/project-events.js':'web/project-events.js',
+                           '/option-comparison.js':'web/option-comparison.js','/option-tabs.js':'web/option-tabs.js',
                            '/versions.js':'web/versions.js','/versions.css':'web/versions.css',
                            '/comparison-scene.js':'web/comparison-scene.js'})
             if path not in routes: return self.send(b'Not found','text/plain',status=404)
