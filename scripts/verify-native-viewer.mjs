@@ -29,7 +29,7 @@ try{
  const source=`import time\nimport cadquery as cq\nfrom stud.cad import Model\nfrom workbench import workbench\nmodel=Model('Workbench with setup blocks',units='in')\nworkbench(model,width=84)\nmodel.assembly('bench.fixtures','Setup blocks',parent='bench')\nblocks=[]\nfor index in range(2):\n    time.sleep(.8)\n    part='bench.fixture.'+str(index)\n    with model.batch():\n        model.part(part,cq.Workplane('XY').box(1.5,3.5,4,centered=(False,False,False)),parent='bench.fixtures',material='lumber.2x4',location=cq.Location(cq.Vector(8+8*index,12,36)),blank={'size':[1.5,3.5,4],'cut_length':4,'operations':[{'kind':'square_cut','finished_length':4}]})\n        model.requirement(part+'.blank','stock_fit',[part])\n        blocks.append(part)\nmodel.demand('fixture.stock',product_id='lumber.2x4',specification={'material':'softwood','section':[1.5,3.5],'grade':'construction'},object_ids=blocks,purchase_unit='board',unit='in',stock_lengths=[96],cuts=[{'object_id':part,'length':4} for part in blocks],kerf=.125)\nmodel.step('fixtures','Place the two loose setup blocks on the bench.',parts=blocks)\n`;
  await page.evaluate(()=>{window.nativeSamples=[];window.nativeSampleTimer=setInterval(()=>window.nativeSamples.push({count:window.stud.visibleCount,animation:window.stud.animation,camera:window.stud.camera,selected:window.stud.selected,build:window.stud.model?.cad.build_id}),35);});
  await writeFile(path.join(info.active.workspace,'design.py'),source);
- // The project's file watcher should evaluate the content without an evaluate command.
+ await command('evaluate',{request_id:info.active.id});
  await page.waitForFunction(()=>window.stud.visibleCount===14&&window.stud.model.cad.completion.geometry==='complete',null,{timeout:45000});
  await page.waitForTimeout(1300);
  const samples=await page.evaluate(()=>{clearInterval(window.nativeSampleTimer);return window.nativeSamples;});
@@ -88,6 +88,7 @@ try{
   camera:await page.evaluate(()=>window.stud.camera),screenshot:'data:image/png;base64,'+(await page.screenshot()).toString('base64')});
  await command('update_prompt',{prompt_id:promptId,expected_revision:0,action:'resolve',addressing_request:info.active.id});
  await writeFile(path.join(info.active.workspace,'design.py'),source.replace('range(2)','range(1)')+'\nraise RuntimeError("Intentional partial-build acceptance failure")\n');
+ await command('evaluate',{request_id:info.active.id});
  await page.waitForFunction(()=>window.stud.model?.cad.latest_status==='generation_failed'&&window.stud.model.cad.completion.geometry==='partial'&&window.stud.model.parts.length===13,null,{timeout:45000});
  assert((await page.locator('#error').innerText()).includes('completed parts remain inspectable'));
  await page.screenshot({path:path.join(evidence,'native-partial-failure.png')});
@@ -97,11 +98,13 @@ try{
   source_id:partial.source_id,manifest_version:partial.manifest_version,object_id:'bench.fixture.0'});
  const deletedSource="from stud.cad import Model\nfrom workbench import workbench\nmodel=Model('Workbench after removing setup blocks',units='in')\nworkbench(model,width=84)\n";
  await writeFile(path.join(info.active.workspace,'design.py'),deletedSource);
+ await command('evaluate',{request_id:info.active.id});
  await page.waitForFunction(()=>window.stud.model?.parts.length===12&&window.stud.model.cad.completion.geometry==='complete'&&window.stud.model.name==='Workbench after removing setup blocks',null,{timeout:45000});
  const prompts=await api('/api/v1/prompts'),resolved=prompts.find(prompt=>prompt.id===promptId),orphan=prompts.find(prompt=>prompt.id===partialPromptId);
  assert.equal(resolved.target_resolution,'unresolved');assert.equal(resolved.resolved,true);assert.equal(resolved.original_target.id,'bench.fixture.0');
  assert.equal(resolved.source_id,savedPrompt.source_id);assert.equal(orphan.source_id,partial.source_id);assert.equal(orphan.target_resolution,'unresolved');
  await writeFile(path.join(info.active.workspace,'design.py'),'raise RuntimeError("Intentional failure before Model creation")\n');
+ await command('evaluate',{request_id:info.active.id});
  await page.waitForFunction(()=>window.stud.model?.cad.latest_status==='generation_failed'&&document.getElementById('error').textContent.includes('Showing previous model'),null,{timeout:45000});
  assert.equal(await page.evaluate(()=>window.stud.model.parts.length),12);
  await page.screenshot({path:path.join(evidence,'native-early-failure.png')});
@@ -109,6 +112,7 @@ try{
  const changedSource=source.replace('width=84','width=85');
  assert.notEqual(changedSource,source,'Missing-asset recovery requires a distinct source and mesh');
  await writeFile(path.join(info.active.workspace,'design.py'),changedSource);
+ await command('evaluate',{request_id:info.active.id});
  await page.waitForFunction(()=>document.getElementById('error').textContent.includes('Mesh asset unavailable'),null,{timeout:45000});
  assert.equal(await page.evaluate(()=>window.stud.model.parts.length),12,'Missing new geometry keeps the last display intact');
  await page.unroute('**/*.mesh');
@@ -116,6 +120,7 @@ try{
  const reconnectSelection=await page.evaluate(()=>window.stud.selected);
  await context.setOffline(true);
  await writeFile(path.join(info.active.workspace,'design.py'),source);
+ await command('evaluate',{request_id:info.active.id});
  // Wait for the real coordinator to finish while browser delivery is offline.
  let offlineBuild;
  for(let i=0;i<450;i++){const state=await api('/api/v1/status');const candidate=state.latest_build?await api('/api/v1/jobs/'+state.latest_build):null;if(candidate?.status==='complete'&&candidate.source_id!== (await page.evaluate(()=>window.stud.model.cad.source_id))){offlineBuild=candidate;break;}await page.waitForTimeout(100);}

@@ -23,7 +23,7 @@ stud evaluate /path/to/project --request REQUEST_ID --source SOURCE_ID --wait
 stud finish /path/to/project --request REQUEST_ID --source SOURCE_ID --summary "Wider bench" --wait
 ```
 
-A repeated key returns the existing operation. Capture source again after an edit; a source ID covers the entry point, declared Python helpers and inputs, not quotes. `finish` freezes matching source and records and saves exactly one changed checkpoint. Read its job outcome; a saved generation failure is not a successful model.
+A repeated key returns the existing operation. Capture source again after an edit; a source ID covers the entry point, declared Python helpers and inputs, not quotes. `finish` freezes matching source and records and saves exactly one changed checkpoint. Evaluate and wait before finishing; `evaluation_required` means the current source has no completed evaluation. Read the findings before retrying. A saved generation failure is not a successful model.
 
 `stud job --id JOB_ID --wait` follows an operation. `stud cancel --request REQUEST_ID` stops acceptance of its builds and preserves the workspace. `stud stop` closes the project's detached coordinator. A status read never executes geometry.
 

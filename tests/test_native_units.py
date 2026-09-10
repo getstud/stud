@@ -59,6 +59,7 @@ class NativeUnitsTests(unittest.TestCase):
                         project_manifest['evaluation']={'deterministic':False}
                         write_json(project_file,project_manifest)
                         source=session.source(request['id'])['source_id']
+                        session.wait(session.evaluate(request['id'],source)['id'],timeout=120)
                         result=session.wait(session.finish(request['id'],expected_source=source,summary='Exact stock')['id'],timeout=60)
                         self.assertEqual(result['status'],'complete',result)
                         build=session.job(result['build_id']);archive=Path(build['artifact_path'])

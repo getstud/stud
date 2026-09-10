@@ -36,6 +36,7 @@ with Session(root) as session:
     draft=session.begin(key='wide-design',expected_head=alternative['head'],intent='Widen the workbench')
     (Path(draft['workspace'])/'design.py').write_text(design(84))
     source=session.source(draft['id'])['source_id']
+    session.wait(session.evaluate(draft['id'],source)['id'],timeout=600)
     wider=session.wait(session.finish(draft['id'],expected_source=source,summary='Seven foot workbench')['id'])
     if wider['status']!='complete':raise RuntimeError(wider)
     active=session.begin(key='interactive-edit',expected_head=wider['checkpoint'],intent='Add two loose setup blocks')

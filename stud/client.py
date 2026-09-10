@@ -70,13 +70,13 @@ class Client:
         except HTTPError as response:
             try:
                 error = json.load(response)['error']
-                if isinstance(error, dict):
-                    raise StudError(error['category'], error['message'], expected=error.get('expected'),
-                                    current=error.get('current'), references=error.get('references'),
-                                    retryable=error.get('retryable', False))
-            except (ValueError, KeyError):
-                pass
-            raise StudError('transport_error', f'Project server returned HTTP {response.code}.')
+                category, message = error['category'], error['message']
+            except (ValueError, KeyError, TypeError):
+                raise StudError('transport_error', f'Project server returned HTTP {response.code}.') from response
+            # StudError is a ValueError; raise it outside the JSON parsing guard.
+            raise StudError(category, message, expected=error.get('expected'),
+                            current=error.get('current'), references=error.get('references'),
+                            retryable=error.get('retryable', False))
         except (URLError, TimeoutError) as error:
             raise StudError('transport_error', f'Cannot contact the project coordinator: {error}', retryable=True) from error
 

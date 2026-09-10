@@ -57,7 +57,7 @@ def init_project(destination, name=None, example=None, units="in"):
         raise ValueError(f'Destination already exists: {destination}. Choose a new directory.')
     destination.mkdir(parents=True)
     title=name or destination.name
-    (destination/'design.py').write_text(f'''"""Edit in the workspace returned by stud begin, then stud finish the request."""
+    (destination/'design.py').write_text(f'''"""Edit in the workspace returned by stud begin, evaluate, inspect the result, then finish."""
 import cadquery as cq
 from stud.cad import Model
 

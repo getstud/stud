@@ -94,9 +94,18 @@ try {
   const request = JSON.parse(command('begin', project, '--intent', 'Installed native workflow', '--expected-head', state.option.head, '--key', 'installed-edit'));
   await fs.mkdir(path.join(request.workspace, 'inputs'));
   await fs.writeFile(path.join(request.workspace, 'helper.py'), "from pathlib import Path\nTITLE=Path('inputs/title.txt').read_text()\n");
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  assert.equal(JSON.parse(command('status', project)).request.latest_build, null, 'Saving a helper must not evaluate');
   await fs.writeFile(path.join(request.workspace, 'inputs/title.txt'), 'External project');
   await fs.appendFile(path.join(request.workspace, 'design.py'), '\nimport helper\nmodel.name = helper.TITLE\n');
   const source = JSON.parse(command('source', project, '--request', request.id));
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  assert.equal(JSON.parse(command('status', project)).request.latest_build, null, 'Saving the design must not evaluate');
+  const premature = await fetch(url + '/api/v1/command', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ operation: 'finish', key: crypto.randomUUID(), arguments: {
+      request_id: request.id, expected_source: source.source_id, summary: 'Must evaluate first' } }) });
+  assert.equal(premature.ok, false);
+  assert.equal((await premature.json()).error.category, 'evaluation_required');
   const build = JSON.parse(command('evaluate', project, '--request', request.id, '--source', source.source_id, '--wait'));
   assert.equal(build.status, 'complete', JSON.stringify(build));
   const manifest = await (await fetch(url + `/api/v1/builds/${build.id}/manifest.json`)).json();
@@ -109,6 +118,7 @@ try {
     expected_build: build.id });
   const saved = JSON.parse(command('finish', project, '--request', request.id, '--source', source.source_id, '--summary', 'Installed native workflow', '--wait'));
   assert.equal(saved.status, 'complete', JSON.stringify(saved));
+  assert.equal(saved.build_id, build.id, 'Finish must reuse the explicitly evaluated build');
   assert.equal(JSON.parse(command('finish', project, '--request', request.id, '--source', source.source_id, '--summary', 'Installed native workflow', '--wait')).checkpoint, saved.checkpoint);
   assert.equal(JSON.parse(command('validate', project, '--json')).all_passed, true);
   const packet = JSON.parse(command('plans', project, '--checkpoint', saved.checkpoint, '--wait'));

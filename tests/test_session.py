@@ -49,6 +49,7 @@ class ProjectFixture(unittest.TestCase):
         return self.session.source(request['id'])['source_id']
 
     def finish(self, request, source):
+        self.session.wait(self.session.evaluate(request['id'], source)['id'], timeout=60)
         job = self.session.finish(request['id'], expected_source=source, summary='Resize beam')
         result = self.session.wait(job['id'], timeout=60)
         self.assertEqual(result['status'], 'complete', result)
@@ -166,6 +167,51 @@ class SourceAndHistoryTests(ProjectFixture):
 
 @unittest.skipUnless(runtime_fingerprint()['packages']['cadquery'], 'Requires the pinned CadQuery runtime')
 class EvaluationAndFinishTests(ProjectFixture):
+    def test_served_file_saves_wait_for_explicit_evaluation(self):
+        import time
+        from unittest.mock import MagicMock
+        from stud.session_http import serve_project
+        request = self.begin()
+        server = MagicMock(server_port=8765)
+        def edit_while_serving():
+            for length in ('700', '800'):
+                self.edit(request, DESIGN.replace('600', length))
+                # Span the former poll/debounce window on each coherent save.
+                time.sleep(.8)
+                self.assertIsNone(self.session.snapshot()['latest_build'])
+            build = self.session.wait(self.session.evaluate(request['id'])['id'])
+            manifest = read_json(build['manifest'])
+            self.assertTrue(manifest['checks']['all_passed'])
+            self.assertAlmostEqual(manifest['objects'][0]['volume'], 800 * 38 * 89)
+        server.serve_forever.side_effect = edit_while_serving
+        with patch('stud.session_http.Session', return_value=self.session), patch('serve.ViewerServer', return_value=server):
+            serve_project(self.root)
+
+    def test_finish_requires_current_completed_evaluation_without_side_effects(self):
+        request = self.begin()
+        source = self.edit(request)
+        def rejected():
+            before = set((self.session.local / 'jobs').glob('*.json'))
+            with self.assertRaises(StudError) as error:
+                self.session.finish(request['id'], expected_source=source, summary='Save')
+            self.assertEqual(error.exception.category, 'evaluation_required')
+            self.assertEqual(set((self.session.local / 'jobs').glob('*.json')), before)
+            self.assertEqual(self.session._request(request['id'])['status'], 'editing')
+            self.assertFalse((self.session.local / 'finalizing' / request['id']).exists())
+        rejected()
+        # A queued evaluation is not yet evidence the agent can inspect.
+        with patch.object(self.session.workers, 'submit'):
+            pending = self.session.evaluate(request['id'], source)
+        rejected()
+        self.session._run_build(pending)
+        # A completed evaluation of older Python cannot finalize newer edits.
+        source = self.edit(request, DESIGN.replace('600', '800'))
+        rejected()
+        current = self.session.wait(self.session.evaluate(request['id'], source)['id'])
+        finished = self.session.wait(self.session.finish(request['id'], expected_source=source, summary='Save')['id'])
+        self.assertEqual(finished['build_id'], current['id'])
+        self.assertEqual(finished['status'], 'complete')
+
     def test_nested_unrelated_python_and_ignored_collisions_are_preserved(self):
         (self.root/'tools').mkdir()
         (self.root/'tools/personal.py').write_text('unrelated = True\n')
@@ -264,6 +310,7 @@ class EvaluationAndFinishTests(ProjectFixture):
     def test_crash_between_commit_and_ref_publication_recovers_same_commit(self):
         request = self.begin()
         source = self.edit(request)
+        self.session.wait(self.session.evaluate(request['id'], source)['id'])
         with patch.object(self.session.history, 'advance', side_effect=StudError('simulated_crash', 'Crash before publication')):
             job = self.session.finish(request['id'], expected_source=source, summary='Resize beam')
             self.assertEqual(self.session.wait(job['id'])['status'], 'failed')
@@ -293,6 +340,7 @@ class EvaluationAndFinishTests(ProjectFixture):
     def test_finish_recovery_reconstructs_missing_job_and_runs_frozen_source(self):
         request = self.begin()
         source = self.edit(request)
+        self.session.wait(self.session.evaluate(request['id'], source)['id'])
         original_submit = self.session.executor.submit
         with patch.object(self.session.executor, 'submit'):
             job = self.session.finish(request['id'], expected_source=source, summary='Frozen source')

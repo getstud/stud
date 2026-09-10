@@ -102,7 +102,7 @@ Save incoming review and pricing changes durably before acknowledging them. Duri
 
 **4. Request and checkpoint interface**
 
-The agent must explicitly begin and finish a design-changing request. File watching detects opportunities to rebuild; it cannot reliably infer that a conversation request is complete. Update the agent integration around this lifecycle.
+The agent explicitly begins a design-changing request, edits Python, evaluates the completed edits, inspects the result and finishes the request. File saves do not start builds. Finalization requires a completed evaluation of the current source.
 
 | Operation | Required input | Result and contract |
 | --- | --- | --- |
