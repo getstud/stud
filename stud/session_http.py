@@ -205,6 +205,9 @@ def make_handler(session):
                 if not isinstance(payload, dict):
                     raise StudError('invalid_request', 'Expected a JSON object.')
                 path = urlsplit(self.path).path
+                if path == '/api/render-references':
+                    from .render_references import save_render_reference
+                    return self.json(save_render_reference(session.root, payload))
                 if path == '/api/v1/command':
                     return self.json(api.command(payload))
                 if path == '/api/comments':

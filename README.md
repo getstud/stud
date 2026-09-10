@@ -173,7 +173,7 @@ stud --version                     print the installed version
 
 The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. New projects use inches by default; `stud init PATH --units mm` creates a metric project. Geometry and stock use those native units with Z up, and units remain fixed across project edits. An imperial 2×4 uses its actual 1.5 × 3.5 inch section. Legacy models retain their existing API.
 
-The browser viewer uses Three.js. In a compatible browser, the WebMCP tools let an agent navigate, inspect, measure, review versions, correct estimates and deliver plans hands-free. See the [voice viewer guide](docs/voice-viewer.md). Browsers without WebMCP still support the normal viewer interface. Named design options preserve the viewpoint while keeping the editing target separate; see [comparing options](docs/comparison.md).
+The browser viewer uses Three.js. In a compatible browser, WebMCP tools let an agent navigate, inspect, measure, review versions, correct estimates and deliver plans hands-free. See the [voice viewer guide](docs/voice-viewer.md). Named design options preserve the viewpoint while keeping the editing target separate; see [comparing options](docs/comparison.md). Agents can also capture untextured references for [realistic images in chat](docs/hd-rendering.md), using their available image-generation tool while the interactive viewer stays available. Browsers without WebMCP still support the normal viewer interface.
 
 See the [workshop guide](docs/workshop.md) for modeling, comments, pricing, exports, and viewer integration, or [framed assemblies](docs/assemblies.md) for reusable wall and opening builders.
 
