@@ -2,7 +2,7 @@
 
 **Use ChatGPT to design your next construction project. See it in 3D. Get a real materials estimate.**
 
-https://github.com/user-attachments/assets/68dee375-f2f9-40a0-b1fd-adf1e74ac998
+https://github.com/user-attachments/assets/2aedbf39-16dc-435e-a77b-a2402d585306
 
 Describe what you want to build: a garage workbench, storage shelves, or a framed wall with an opening. stud gives your AI a workshop for turning that conversation into a design you can inspect, revise, and price. You bring the idea and the measurements; the AI creates the model, and you decide what needs to change.
 
