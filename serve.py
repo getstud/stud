@@ -99,6 +99,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(file.read_bytes(), kind)
             routes={'/build-camera.js':'web/build-camera.js','/assembly-instructions.js':'web/assembly-instructions.js','/annotation-layout.js':'web/annotation-layout.js','/camera-transition.js':'web/camera-transition.js','/fly-controls.js':'web/fly-controls.js','/profile-geometry.js':'web/profile-geometry.js','/theme.js':'web/theme.js','/build-animation.js':'web/build-animation.js','/environment.js':'web/environment.js','/':'web/index.html','/app.js':'web/app.js','/updates.js':'web/updates.js','/show.js':'web/show.js','/area-capture.js':'web/area-capture.js','/style.css':'web/style.css', '/vendor/three.js':'node_modules/three/build/three.module.js','/vendor/three.core.js':'node_modules/three/build/three.core.js','/vendor/OrbitControls.js':'node_modules/three/examples/jsm/controls/OrbitControls.js'}
             routes.update({'/sequence-player.js':'web/sequence-player.js','/viewer-tools.js':'web/viewer-tools.js','/viewer-operations.js':'web/viewer-operations.js','/project-operations.js':'web/project-operations.js','/cad-scene.js':'web/cad-scene.js','/project-events.js':'web/project-events.js',
+                           '/render-reference.js':'web/render-reference.js',
                            '/option-comparison.js':'web/option-comparison.js','/option-tabs.js':'web/option-tabs.js',
                            '/versions.js':'web/versions.js','/versions.css':'web/versions.css',
                            '/comparison-scene.js':'web/comparison-scene.js'})
@@ -107,7 +108,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(file.read_bytes(),mimetypes.guess_type(str(file))[0] or 'application/octet-stream')
         except Exception as e: return self.send(json.dumps({'error':str(e)}).encode(),'application/json',status=500)
     def do_POST(self):
-        if urlsplit(self.path).path not in ('/api/comments','/api/pricing'):
+        if urlsplit(self.path).path not in ('/api/comments','/api/pricing','/api/render-references'):
             return self.send(b'Not found','text/plain',status=404)
         # JSON and same-origin checks prevent unrelated websites writing local notes.
         allowed={f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}'}
@@ -118,10 +119,13 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(b'Expected JSON','text/plain',status=415)
         try:
             length=int(self.headers.get('Content-Length','0'))
-            limit = 8 * 1024 * 1024 if urlsplit(self.path).path == '/api/comments' else 32768
+            limit = 32768 if urlsplit(self.path).path == '/api/pricing' else 8 * 1024 * 1024
             if not 0 < length <= limit: raise ValueError('Invalid request size')
             payload=json.loads(self.rfile.read(length))
             if not isinstance(payload,dict): raise ValueError('Expected an object')
+            if urlsplit(self.path).path=='/api/render-references':
+                from stud.render_references import save_render_reference
+                return self.send(json.dumps(save_render_reference(PROJECT,payload)).encode(),'application/json')
             if urlsplit(self.path).path=='/api/pricing':
                 return self.send(json.dumps(prices.update(payload,model())).encode(),'application/json')
             needs_model = payload.get('action','add') == 'add' and payload.get('kind','part') == 'part'

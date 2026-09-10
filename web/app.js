@@ -16,6 +16,7 @@ import {CadScene,viewerFactor} from '/cad-scene.js';
 import {ProjectEvents} from '/project-events.js';
 import {installVersions} from '/versions.js';
 import {installOptionTabs} from '/option-tabs.js';
+import {createRenderReferenceTool,captureUntextured,assertAssembledMeshes} from '/render-reference.js';
 const buildCamera=new BuildCamera();
 const buildAnimation=new BuildAnimation();
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -715,7 +716,9 @@ const projectEvents=new ProjectEvents({onReset:snapshot=>{snapshotRefresh=true;c
  if(snapshot.focus_job){focusTask=snapshot.focus_job;void applyFocusTask();}
 },onEvent:event=>{
  if(['build_started','request_canceled'].includes(event.type)||(event.type==='build_ended'&&['canceled','superseded'].includes(event.status)))cadScene.invalidate();
- if(['part_batch','geometry_complete','checks_updated','build_ended','checkpoint_created'].includes(event.type))refreshFromEvent();
+ // Refresh readiness immediately; a new build may take time to publish its
+ // first mesh, and connected native sessions do not poll the model.
+ if(['build_started','request_canceled','part_batch','geometry_complete','checks_updated','build_ended','checkpoint_created'].includes(event.type))refreshFromEvent();
  if(['history_displayed','live_displayed','option_activated'].includes(event.type)){snapshotRefresh=true;cadScene.invalidate();refreshFromEvent();}
  if(['request_started','request_canceled','checkpoint_created','history_displayed','live_displayed','option_created','option_activated','records_saved','comparison_complete','plans_complete'].includes(event.type))window.dispatchEvent(new CustomEvent('studprojectchange',{detail:event}));
  if(event.type==='show_requested'){focusTask=event.job_id;void applyFocusTask();}
@@ -936,7 +939,7 @@ function stopViewerMotion(){
  if(!camera)return;
  const target=controls.target?.clone(),position=camera.position.clone(),orientation=camera.quaternion.clone();controls.dispose();
  if(currentView==='firstperson')controls=new FlyControls(camera,renderer.domElement);
- else{controls=new OrbitControls(camera,renderer.domElement);if(target)controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=currentView==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();camera.position.copy(position);camera.quaternion.copy(orientation);}
+ else{controls=new OrbitControls(camera,renderer.domElement);if(target)controls.target.copy(target);controls.enableDamping=true;controls.enableRotate=currentView==='perspective';controls.minDistance=.01;controls.maxDistance=Infinity;controls.update();if(target)controls.target.copy(target);camera.position.copy(position);camera.quaternion.copy(orientation);}
  controls.enabled=!document.body?.classList.contains('viewer-controlled');
 }
 function assertViewerAvailable(){if(!$('areaoverlay').hidden||document.querySelector('dialog[open]'))throw new Error('Finish the open capture or dialog before controlling the viewer.');}
@@ -1016,6 +1019,22 @@ viewport.tabIndex=-1;
 function registerControlledTools(tools){return registerViewerTools(document.modelContext,tools.map(tool=>wrapViewerTool(tool)));}
 const viewerToolDescriptors=createViewerTools({...viewerBridge,activity:viewerActivity,wrap:wrapViewerTool});
 registerViewerTools(document.modelContext,[wrapViewerTool(showTool),...viewerToolDescriptors]).catch(error=>console.warn('stud viewer tools could not register:',error));
+
+const renderReferenceTool=createRenderReferenceTool({
+ readViewer:()=>({model,camera:viewerCamera(),visible_part_ids:meshes.filter(mesh=>mesh.visible).map(mesh=>mesh.userData.id),
+  busy:Boolean(modelRequest||optionComparison?.controller.pending||!$('areaoverlay').hidden||document.querySelector('dialog[open]')),
+  exploded:$('explode').checked,assemblyReview:Boolean(assemblyReview),loadFailed:modelLoadFailed}),
+ capture:()=>{
+  if(!viewport.clientWidth||!viewport.clientHeight)throw new Error('Show the workspace before capturing a reference.');
+  const scale=2048/Math.max(viewport.clientWidth,viewport.clientHeight);
+  return buildAnimation.atRest(()=>{
+   const visible=meshes.filter(mesh=>mesh.visible);assertAssembledMeshes(visible);
+   return captureUntextured({THREE,meshes:visible,camera,
+    width:Math.max(1,Math.round(viewport.clientWidth*scale)),height:Math.max(1,Math.round(viewport.clientHeight*scale))});
+  });
+ },
+});
+registerControlledTools([renderReferenceTool]).catch(error=>console.warn('stud render reference tool could not register:',error));
 
 $('closeareaimage').onclick=()=>$('areaimageview').close();
 installAreaCapture({viewport,selectedPart:()=>selected?.userData.id,context:()=>model?.cad?{...model.cad}:{} ,capture:()=>{

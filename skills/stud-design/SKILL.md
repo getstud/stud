@@ -1,6 +1,6 @@
 ---
 name: stud-design
-description: Create, revise, and check physical designs in Stud using CadQuery, versioned project requests, material purchases, and drawing packets. Use for furniture and construction projects, viewer navigation and guided presentations, estimates, saved versions, and plan delivery.
+description: Create, revise, check, and realistically visualize physical designs in stud using CadQuery, versioned requests, material purchases, and drawing packets. Use for furniture and construction projects, viewer navigation and guided presentations, estimates, saved versions, and plan delivery.
 ---
 
 # Stud design
@@ -49,6 +49,8 @@ Declare measurable intent: lengths, clearance, collisions, stock fit, bearing di
 Record actual stock lengths/kerf and explicit sheet layouts. Give every physical part a purchasing basis; distinguish purchased packs from installed quantities. Preserve quote supplier, source, date, currency and purchase unit. Missing prices remain missing. Price-only changes use the records interface and do not rebuild geometry.
 
 ## Review, compare and deliver
+
+For realistic images or finished-appearance requests, read [HD rendering](references/hd-rendering.md). Combined requests such as “Show me how this would look with cedar siding” require a design material change through the request workflow, followed by an untextured reference capture and actual image generation in the conversation. A visualization-only request uses the displayed design and leaves the editing target unchanged.
 
 For viewer navigation, part inspection, cost questions, saved-version review, plan delivery, or a guided presentation, read [WebMCP viewer control](references/stud-integration.md#webmcp-viewer-control). Discover the tools in the existing viewer tab and use their current schemas. Start from `viewer_context` to resolve the displayed revision and exact part IDs. Use individual controls for immediate requests and `sequence` for a prepared walkthrough; let the user start playback when ready. User navigation or camera takeover interrupts the presentation.
 

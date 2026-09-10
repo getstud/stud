@@ -81,6 +81,11 @@ def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,che
     factor=convert(1,manifest['units'],'in')
     assemblies={a['id']:a['label'] for a in manifest['assemblies']}
     demands={d['product_id']:d for d in manifest['demands']}
+    part_specs={}
+    for demand in manifest['demands']:
+        for object_id in demand['object_ids']:
+            specs=part_specs.setdefault((object_id,demand['product_id']),[])
+            if demand['specification'] not in specs:specs.append(demand['specification'])
     stocks={}
     for obj in manifest['objects']:
         material=obj.get('material') or 'unspecified'
@@ -98,6 +103,7 @@ def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,che
         blank=obj.get('blank') or {}
         part=dict(id=obj['id'],name=obj['label'],mark=obj['mark'],assembly=assemblies.get(obj['parent'],obj['parent'] or 'Parts'),
             assembly_id=obj['parent'],stock=obj.get('material') or 'unspecified',size=size,origin=origin,
+            material_specifications=part_specs.get((obj['id'],obj.get('material')),[]),
             rotation=_rotation(obj['placement']),status='modeled',note='',color=obj.get('color'),
             blank_size=[v*factor for v in blank['size']] if blank.get('size') else None,
             cut_length=blank.get('cut_length',0)*factor or None,

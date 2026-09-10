@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "kind": "stud-render-reference",
+  "project_name": "Shed appearance study \u2014 10 \u00d7 8 feet",
+  "revision": "build_61de69f4a7824ede9f4faa04536eef18:final",
+  "displayed": {
+    "project_id": "project_465519f10d624ce390aeee80c7da72b2",
+    "build_id": "build_61de69f4a7824ede9f4faa04536eef18",
+    "source_id": "d269dc6fe314116bd62a4b0f8daf40e356820737f9e5fe3bd06227452bf845d0",
+    "option_id": null,
+    "checkpoint": "b6d1a8908f80402df1dccf2c05d6e24ac62c1503",
+    "manifest_version": null,
+    "completion": {
+      "checks": "incomplete",
+      "estimates": "pending",
+      "geometry": "complete",
+      "plans": "pending",
+      "quantities": "incomplete"
+    },
+    "latest_build_id": "build_61de69f4a7824ede9f4faa04536eef18",
+    "latest_status": "complete",
+    "diagnostics": null,
+    "reproduction": null,
+    "presentation": "live"
+  },
+  "camera": {
+    "position": [
+      60,
+      65.75000000000004,
+      479.9999999999999
+    ],
+    "quaternion": [
+      -2.691449756667047e-17,
+      -6.728624391667617e-18,
+      -1.8109754481657763e-34,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "target": [
+      60.00000000000001,
+      65.75000000000001,
+      -47.999999999999986
+    ],
+    "zoom": 1,
+    "projection": "orthographic",
+    "projection_matrix": [
+      0.01197730466459996,
+      0,
+      0,
+      0,
+      0,
+      0.012466496291217351,
+      0,
+      0,
+      0,
+      0,
+      -0.0002000020000200002,
+      0,
+      0,
+      0,
+      -1.0000200002000021,
+      1
+    ],
+    "near": 0.1,
+    "far": 10000,
+    "left": -83.49123847167328,
+    "right": 83.49123847167328,
+    "top": 80.21500000000002,
+    "bottom": -80.21500000000002,
+    "view_offset": null,
+    "view": "front",
+    "units": "viewer inches"
+  },
+  "geometry_units": "in",
+  "visible_part_ids": [
+    "slab",
+    "siding.front",
+    "siding.back",
+    "siding.left",
+    "siding.right",
+    "door",
+    "door.trim.left",
+    "door.trim.right",
+    "door.trim.head",
+    "door.handle",
+    "window.front.glass",
+    "window.front.left",
+    "window.front.right",
+    "window.front.sill",
+    "window.front.head",
+    "window.front.vertical",
+    "window.front.horizontal",
+    "window.right.glass",
+    "window.right.left",
+    "window.right.right",
+    "window.right.sill",
+    "window.right.head",
+    "window.right.vertical",
+    "window.right.horizontal",
+    "roof.left",
+    "fascia.left",
+    "roof.right",
+    "fascia.right",
+    "eave.left",
+    "eave.right"
+  ],
+  "hidden_part_ids": [],
+  "materials": [
+    {
+      "id": "concrete",
+      "name": "Concrete",
+      "specification": {},
+      "parts": [
+        {
+          "id": "slab",
+          "name": "Concrete plinth",
+          "assembly": "Shed",
+          "color": "#aaa9a4"
+        }
+      ]
+    },
+    {
+      "id": "siding.cedar",
+      "name": "Siding Cedar",
+      "specification": {
+        "finish": "clear matte sealant over western red cedar",
+        "length_unit": "in",
+        "material": "cedar",
+        "profile": "horizontal lap siding, 6 inch exposure"
+      },
+      "parts": [
+        {
+          "id": "siding.front",
+          "name": "Front gable siding, door left and window right",
+          "assembly": "Siding",
+          "color": "#af7748"
+        },
+        {
+          "id": "siding.back",
+          "name": "Rear gable siding",
+          "assembly": "Siding",
+          "color": "#af7748"
+        },
+        {
+          "id": "siding.left",
+          "name": "Left wall siding",
+          "assembly": "Siding",
+          "color": "#af7748"
+        },
+        {
+          "id": "siding.right",
+          "name": "Right wall siding with one centered window",
+          "assembly": "Siding",
+          "color": "#af7748"
+        }
+      ]
+    },
+    {
+      "id": "painted_wood",
+      "name": "Painted_Wood",
+      "specification": {},
+      "parts": [
+        {
+          "id": "door",
+          "name": "Single flush charcoal door",
+          "assembly": "Door and windows",
+          "color": "#343839"
+        }
+      ]
+    },
+    {
+      "id": "white_trim",
+      "name": "White_Trim",
+      "specification": {},
+      "parts": [
+        {
+          "id": "door.trim.left",
+          "name": "White door casing left",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "door.trim.right",
+          "name": "White door casing right",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "door.trim.head",
+          "name": "White door casing head",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.left",
+          "name": "front white window left",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.right",
+          "name": "front white window right",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.sill",
+          "name": "front white window sill",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.head",
+          "name": "front white window head",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.vertical",
+          "name": "front white window vertical",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.front.horizontal",
+          "name": "front white window horizontal",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.left",
+          "name": "right white window left",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.right",
+          "name": "right white window right",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.sill",
+          "name": "right white window sill",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.head",
+          "name": "right white window head",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.vertical",
+          "name": "right white window vertical",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "window.right.horizontal",
+          "name": "right white window horizontal",
+          "assembly": "Door and windows",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "fascia.left",
+          "name": "White front rake fascia left",
+          "assembly": "Roof and fascia",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "fascia.right",
+          "name": "White front rake fascia right",
+          "assembly": "Roof and fascia",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "eave.left",
+          "name": "White eave fascia left",
+          "assembly": "Roof and fascia",
+          "color": "#eeeeea"
+        },
+        {
+          "id": "eave.right",
+          "name": "White eave fascia right",
+          "assembly": "Roof and fascia",
+          "color": "#eeeeea"
+        }
+      ]
+    },
+    {
+      "id": "black_steel",
+      "name": "Black_Steel",
+      "specification": {},
+      "parts": [
+        {
+          "id": "door.handle",
+          "name": "Vertical black door pull",
+          "assembly": "Door and windows",
+          "color": "#1c2023"
+        }
+      ]
+    },
+    {
+      "id": "clear_glass",
+      "name": "Clear_Glass",
+      "specification": {},
+      "parts": [
+        {
+          "id": "window.front.glass",
+          "name": "front window glazing",
+          "assembly": "Door and windows",
+          "color": "#b1c5ce"
+        },
+        {
+          "id": "window.right.glass",
+          "name": "right window glazing",
+          "assembly": "Door and windows",
+          "color": "#b1c5ce"
+        }
+      ]
+    },
+    {
+      "id": "charcoal_metal",
+      "name": "Charcoal_Metal",
+      "specification": {},
+      "parts": [
+        {
+          "id": "roof.left",
+          "name": "Charcoal standing seam roof left",
+          "assembly": "Roof and fascia",
+          "color": "#343839"
+        },
+        {
+          "id": "roof.right",
+          "name": "Charcoal standing seam roof right",
+          "assembly": "Roof and fascia",
+          "color": "#343839"
+        }
+      ]
+    }
+  ],
+  "finishes": "Western red cedar horizontal lap siding, 6 inch exposure, natural warm honey/brown tone with clear matte sealant. White satin painted fascia and door/window trim. Charcoal painted wood door and charcoal standing seam metal roof. Clear window glass with subtle neutral reflections. Gray concrete plinth.",
+  "lighting": "Soft neutral daylight with gentle directional shadows. Plain light gray studio background.",
+  "prompt": "Use case: sketch-to-render\nCreate a realistic high-resolution visualization of the stud design from the attached untextured geometry reference.\nImage 1 is the authoritative geometry and camera reference. Preserve its silhouette, proportions, dimensions, openings, part count, joints, roof pitch, placement and exact viewpoint, framing and projection. Keep the same image aspect ratio.\nDesign: Shed appearance study \u2014 10 \u00d7 8 feet.\nMaterial Concrete (concrete): {}. Applies to Shed: Concrete plinth.\nMaterial Siding Cedar (siding.cedar): {\"finish\":\"clear matte sealant over western red cedar\",\"length_unit\":\"in\",\"material\":\"cedar\",\"profile\":\"horizontal lap siding, 6 inch exposure\"}. Applies to Siding: Front gable siding, door left and window right; Siding: Rear gable siding; Siding: Left wall siding; Siding: Right wall siding with one centered window.\nMaterial Painted_Wood (painted_wood): {}. Applies to Door and windows: Single flush charcoal door.\nMaterial White_Trim (white_trim): {}. Applies to Door and windows: White door casing left; Door and windows: White door casing right; Door and windows: White door casing head; Door and windows: front white window left; Door and windows: front white window right; Door and windows: front white window sill; Door and windows: front white window head; Door and windows: front white window vertical; Door and windows: front white window horizontal; Door and windows: right white window left; Door and windows: right white window right; Door and windows: right white window sill; Door and windows: right white window head; Door and windows: right white window vertical; Door and windows: right white window horizontal; Roof and fascia: White front rake fascia left; Roof and fascia: White front rake fascia right; Roof and fascia: White eave fascia left; Roof and fascia: White eave fascia right.\nMaterial Black_Steel (black_steel): {}. Applies to Door and windows: Vertical black door pull.\nMaterial Clear_Glass (clear_glass): {}. Applies to Door and windows: front window glazing; Door and windows: right window glazing.\nMaterial Charcoal_Metal (charcoal_metal): {}. Applies to Roof and fascia: Charcoal standing seam roof left; Roof and fascia: Charcoal standing seam roof right.\nFinishes: Western red cedar horizontal lap siding, 6 inch exposure, natural warm honey/brown tone with clear matte sealant. White satin painted fascia and door/window trim. Charcoal painted wood door and charcoal standing seam metal roof. Clear window glass with subtle neutral reflections. Gray concrete plinth.\nLighting: Soft neutral daylight with gentle directional shadows. Plain light gray studio background.\nBackdrop: plain neutral studio background. Only the design is the subject; preserve visible construction details and openings. No added landscaping, furnishings, props, people, text, dimensions, interface, watermark or surroundings photo.\nApply appearance to existing surfaces. Do not add, remove, move, resize or redesign geometry. A realistic visualization is an appearance study; the 3D design remains the dimensional authority.",
+  "reference_id": "f4e106f732a649af9b86c8a1e7d25663",
+  "created_at": "2026-09-10T19:35:26.397309+00:00",
+  "image": {
+    "width": 2048,
+    "height": 1968,
+    "mime_type": "image/png",
+    "sha256": "d5f12957be20cf4b4fb404281f81548d50b1d17e768d45f3f96dde4de979b4c1"
+  }
+}

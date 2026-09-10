@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {setup} from './helpers/viewer-fixture.mjs';
 import {createViewerOperations} from '../web/viewer-operations.js';
+import {createRenderReferenceTool,assertAssembledMeshes} from '../web/render-reference.js';
+import {createControlActivity,createViewerToolRunner} from '../web/viewer-tools.js';
 function fixture(){
  const c=setup();let page='workspace',view='front',camera=new THREE.OrthographicCamera(-50,50,40,-40,.1,10000),controls={target:new THREE.Vector3(30,20,0),update(){}};
  camera.position.set(30,20,100);camera.lookAt(controls.target);const changes=[];
@@ -94,4 +96,28 @@ test('inspect rejects competing checkpoint and option targets before dispatch',a
  const f=fixture();f.c.model.cad={build_id:'build'};f.a.optionComparison={switchOption:()=>assert.fail('Ambiguous target was dispatched')};
  await assert.rejects(f.operations.versions({action:'inspect',checkpoint:'checkpoint',option_id:'option'}),/Specify one/);
  assert.equal(f.changes.length,0);
+});
+
+test('HD capture refuses displaced tour geometry after pause, stop, or dismiss and succeeds after reset',async t=>{
+ let frame,clock=0;
+ globalThis.requestAnimationFrame=callback=>{frame=callback;return 1};globalThis.cancelAnimationFrame=()=>{frame=null};
+ t.after(()=>{delete globalThis.requestAnimationFrame;delete globalThis.cancelAnimationFrame;});t.mock.method(performance,'now',()=>clock);
+ for(const action of ['pause','stop','dismiss']){
+  const f=fixture();f.a.setView('perspective');f.operations.viewer({action:'explode',enabled:true});
+  f.c.model.parts=f.a.meshes.map(mesh=>mesh.userData);
+  f.operations.sequence({action:'prepare',title:'Assemble',steps:[{label:'Assemble',reset:true,duration:2,hold:2}]});
+  f.operations.sequence({action:'play'});clock+=1000;frame(clock);
+  assert.equal(f.a.exploded,false);
+  assert(f.a.meshes.some(m=>m.position.distanceToSquared(m.userData.basePosition)>1));
+  f.operations.sequence({action});
+  let saved=0;
+  const capture=createRenderReferenceTool({readViewer:()=>({model:f.a.model,camera:f.context().camera,exploded:f.a.exploded,visible_part_ids:f.a.meshes.filter(m=>m.visible).map(m=>m.userData.id)}),
+   capture:()=>{assertAssembledMeshes(f.a.meshes.filter(m=>m.visible));return 'png';},save:async()=>{saved++;return {reference_path:'reference.png'};}});
+  const runner=createViewerToolRunner({context:f.context,activity:createControlActivity(()=>{},()=>Promise.resolve()),before:()=>f.sequence.pause()});
+  const wrapped=runner(capture),before=f.context().camera;
+  const result=await wrapped.execute({expected_revision:f.a.model.revision});
+  assert.equal(result.error.code,'ASSEMBLED_VIEW_REQUIRED');assert.equal(saved,0);assert.deepEqual(f.context().camera,before);
+  f.operations.viewer({action:'reset'});
+  assert.equal((await wrapped.execute({expected_revision:f.a.model.revision})).ok,true);assert.equal(saved,1);
+ }
 });
