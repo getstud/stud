@@ -29,6 +29,7 @@ initial=initialize(root,units=units)
 with Session(root) as session:
     request=session.begin(key='board',expected_head=initial['checkpoint'],intent='Inspect native stock')
     source=session.source(request['id'])['source_id']
+    session.wait(session.evaluate(request['id'],source)['id'],timeout=600)
     result=session.wait(session.finish(request['id'],expected_source=source,summary='Exact native stock')['id'])
     if result['status']!='complete':raise RuntimeError(result)
 serve_project(root,ready=lambda endpoint:print('READY '+json.dumps(dict(root=str(root),units=units,**endpoint)),flush=True))

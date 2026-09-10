@@ -53,7 +53,6 @@ class Session:
         self.workers = ThreadPoolExecutor(max_workers=1, thread_name_prefix='stud-geometry')
         self.history_workers = ThreadPoolExecutor(max_workers=1, thread_name_prefix='stud-history-geometry')
         self.closed = False
-        self.watcher = None
         self.state = read_json(self.local / 'state.json')
         if not self.state:
             options = self.history.options()
@@ -145,7 +144,6 @@ class Session:
             self._save_state()
 
     def close(self):
-        if self.watcher:self.watcher.close()
         with self.mutex:
             self.closed = True
             for process in list(self.processes.values()):
@@ -157,11 +155,6 @@ class Session:
         self.history_workers.shutdown(wait=True,cancel_futures=True)
         self.operations.executor.shutdown(wait=True,cancel_futures=True)
         self.process_lock.close()
-
-    def watch(self):
-        from .watching import SourceWatcher
-        with self.mutex:
-            if not self.watcher:self.watcher=SourceWatcher(self)
 
     def __enter__(self):
         return self
@@ -560,6 +553,13 @@ class Session:
             if option['head'] != request['expected_head']:
                 raise StudError('changed_head', 'The option changed before finalization.',
                                 expected=request['expected_head'], current=option['head'])
+            current = self.job(request['latest_build']) if request['latest_build'] else None
+            if not current or current['source_id'] != expected_source or current['status'] not in ('complete', 'generation_failed'):
+                raise StudError('evaluation_required',
+                                'Evaluate the current source and wait for its result before finishing.',
+                                expected=expected_source,
+                                current=dict(build_id=current['id'], source_id=current['source_id'], status=current['status']) if current else None,
+                                retryable=True)
             prompts={prompt['id']:prompt for prompt in self.records.prompts()}
             for prompt_id in addressed_prompt_ids or []:
                 if prompt_id not in prompts:
@@ -573,10 +573,6 @@ class Session:
                 atomic_write(confined(frozen, name), body)
             estimating = encoded(self.records.inputs(request=request)) + b'\n'
             atomic_write(frozen / 'estimating.json', estimating)
-            current = self.job(request['latest_build']) if request['latest_build'] else None
-            if not current or current['source_id'] != expected_source or current['status'] in ('interrupted', 'canceled', 'superseded'):
-                current = self._schedule_build(request, source)
-                request = self._request(request_id)
             job_id = identifier('job')
             job = dict(schema_version=1, id=job_id, kind='finish', project_id=self.manifest['project_id'],
                        request_id=request_id, status='queued', source_id=expected_source, build_id=current['id'])

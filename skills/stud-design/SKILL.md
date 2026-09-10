@@ -23,10 +23,10 @@ For every design-changing request:
 
 1. Inspect `stud status`. Read the active option ID and head; reuse an existing active request only when it belongs to this work.
 2. Call `stud begin` with the expected head, intent, and a stable client key. Edit only the returned isolated workspace.
-3. Save runnable source in coherent construction stages. File watching evaluates those stages; explicit `source` and `evaluate` commands provide exact source/build identities. Read job state and match it to the displayed build.
+3. Complete a coherent set of Python edits across the needed files, then capture `source` and call `evaluate --source SOURCE_ID --wait`. Saving files does not start a build. Inspect that result before correcting the source or delivering the design; evaluate again after corrections. Builds still stream completed geometry to the viewer.
 4. After the requested revision is ready, capture the final source ID and call `stud finish` with that ID, a summary, and any addressed prompt IDs. Wait for the job and report its checkpoint and outcome. Reuse the same request/key on retries.
 
-Watching files does not finalize conversation requests. A checkpoint may honestly record failed checks or generation. Cancellation retains the unfinished workspace; it does not discard source. Late writes belong to the canceled workspace and must not be copied over another option.
+`finish` requires a completed evaluation of the current source; if it reports `evaluation_required`, evaluate that source and inspect the result before retrying. A checkpoint may honestly record failed checks or generation. Cancellation retains the unfinished workspace; it does not discard source. Late writes belong to the canceled workspace and must not be copied over another option.
 
 Let the existing addition animation and camera tracking present coherent stages. User camera interaction takes precedence. Reserve deliberate camera control for review after a build stage. Native CLI `show` takes the displayed build ID; browser WebMCP uses `expected_revision` from `viewer_context`. A waiting native focus job needs a real viewer acknowledgement before claiming the camera moved.
 
@@ -36,13 +36,15 @@ Use ordinary CadQuery operations, then register completed shapes with `stud.cad.
 
 Read the installed `docs/cadquery.md` before first use of registration, native requirements, estimating demands, or drawings. Use `stud.buildings` framing helpers and `stud.construction` stock-frame operations when their documented scope fits. Specific models belong in project-owned Python: `stud init --example NAME` copies the example and its helpers into the project. Edit those copied files or write focused functions for the requested design; do not add specific models to the construction API. CadQuery is the geometry language; Stud does not require every operation to use a custom primitive.
 
-Keep one specification for outside/finished dimensions, actual stock, clear openings, datums, and accepted choices. Derive mating surfaces and their dependent members from that specification. Model each physical part once, including notches and bores. Record its original stock frame, blank size, operations, and material demand separately from its finished shape.
+Keep one specification for outside/finished dimensions, actual stock, clear openings, datums, and accepted choices. Derive mating surfaces, dependent members and expected measurements from that specification; display bounds may include kernel padding and are unsuitable for exact bearing-area thresholds. Model each physical part once, including notches and bores. Record its original stock frame, blank size, operations, and material demand separately from its finished shape.
 
 For a new building or a change affecting site, member sizing, foundations, roof form, enclosure or ties, read [Framed buildings](references/framed-buildings.md). Apply its intake to the requested construction scope and preserve existing answers. Examples are fabrication studies; their native geometry checks do not supply site loads or structural approval.
 
 Build support assemblies before covering them. Use `model.batch()` for coherent groups and explicit `replace=True` for a replacement. Regenerate named references after replacement; unresolved references must remain visible. Use one opening definition for displaced framing and sheet cuts. Preserve deliberate per-instance exceptions in the owning parameters.
 
-Declare measurable intent: lengths, clearance, collisions, stock fit, bearing direction and area, and continuous support behind actual panel edges. A contact is not a fastening specification. Declare connections, hardware, and unresolved evidence. A pass count alone does not establish complete coverage.
+Before repeating a new or uncertain joint, author and check one representative instance with its mating parts, covering clearance, edge backing and original stock. Inspect its native findings and fabrication evidence, correct the shared definition, then repeat it. Reuse established details where applicable; this is a focused probe of an uncertain interface, not an extra gate for every part.
+
+Declare measurable intent: lengths, clearance, collisions, stock fit, bearing direction and area, and continuous support behind actual panel edges. When adding a requirement kind, consult the target/units table and runnable bearing example in installed `docs/cadquery.md`. A contact is not a fastening specification. Declare connections, hardware, and unresolved evidence. A pass count alone does not establish complete coverage.
 
 Record actual stock lengths/kerf and explicit sheet layouts. Give every physical part a purchasing basis; distinguish purchased packs from installed quantities. Preserve quote supplier, source, date, currency and purchase unit. Missing prices remain missing. Price-only changes use the records interface and do not rebuild geometry.
 
@@ -51,6 +53,8 @@ Record actual stock lengths/kerf and explicit sheet layouts. Give every physical
 For viewer navigation, part inspection, cost questions, saved-version review, plan delivery, or a guided presentation, read [WebMCP viewer control](references/stud-integration.md#webmcp-viewer-control). Discover the tools in the existing viewer tab and use their current schemas. Start from `viewer_context` to resolve the displayed revision and exact part IDs. Use individual controls for immediate requests and `sequence` for a prepared walkthrough; let the user start playback when ready. User navigation or camera takeover interrupts the presentation.
 
 Inspect affected geometry and native findings in the same build. Partial current geometry and a previous complete model have different identities; do not claim a previous result proves the current edit. Match measurements and review prompts to source/build/checkpoint context. Retain original captures and unresolved/deleted targets; resolve a prompt only after addressing its request.
+
+Start with a compact result summary: source/build identity, job status, check counts and coverage, fabrication findings, and artifact paths. Inspect specific non-passing requirements and affected parts next, paging large lists until the relevant findings are accounted for. Use documented fields and explicit field selection when reading JSON; retrieve full projections or inventories only when needed for the current review. Keep unresolved evidence visible in the final summary.
 
 Use Versions to inspect original saved estimates, compare geometry under historical or common prices, create alternatives, and restore an older design as a new request. Inspection and comparison do not retarget the active editing workspace. Finish or cancel an active writer before activating another option.
 

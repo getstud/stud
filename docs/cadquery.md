@@ -18,7 +18,7 @@ Use `stud init PATH --example workbench` to create an independent project. Avail
 stud begin PATH --expected-head COMMIT --intent "Widen the workbench" --key unique-client-key
 ```
 
-Edit the returned workspace, not the project's checkout. `stud source PATH --request REQUEST_ID` captures the exact declared source. `stud evaluate PATH --request REQUEST_ID --source SOURCE_ID --wait` evaluates it. Runnable edits also rebuild while the viewer is running. Finish with `stud finish PATH --request REQUEST_ID --source SOURCE_ID --summary "Wider bench" --wait`; it freezes final source and records into one checkpoint. Repeated requests/finishes are idempotent. A saved source error is reported as such and never borrows the previous build's estimate.
+Edit the returned workspace, not the project's checkout. `stud source PATH --request REQUEST_ID` captures the exact declared source. `stud evaluate PATH --request REQUEST_ID --source SOURCE_ID --wait` evaluates it. File saves do not trigger builds. Complete a coherent set of edits, then evaluate explicitly; completed geometry still streams into the viewer during that build. Finish with `stud finish PATH --request REQUEST_ID --source SOURCE_ID --summary "Wider bench" --wait`; it requires a completed evaluation of that source, then freezes final source and records into one checkpoint. If `evaluation_required` is returned, evaluate the current source, wait and inspect its findings before retrying. Repeated requests/finishes are idempotent. A saved source error is reported as such and never borrows the previous build's estimate.
 
 Status reads do not rebuild. `stud cancel` preserves the draft. Historical inspection and comparisons are read-only; they do not change an active request. Option activation requires finishing or canceling that writer. A restored design starts a new request and preserves current project-wide quotes and prompts.
 
@@ -59,18 +59,48 @@ The first completed geometry publishes immediately. A bounded writer coalesces s
 
 ## Native geometric evidence
 
-| Requirement | Meaning |
-| --- | --- |
-| `length`, `point_distance` | Distance between two named points equals the threshold. |
-| `solid_valid` | OCCT validity of the named solids. |
-| `stock_fit` | Finished local solid minus its rectangular stock blank has negligible volume. |
-| `collision`, `collision_free` | Native overlapping volume for a pair or an explicit group. |
-| `distance`, `clearance` | Minimum native solid distance equals or exceeds the threshold. |
-| `contact` | Shared area of opposing planar faces, including a nonzero-area condition. |
-| `support` | Opposing contact projected perpendicular to the bearing direction; default world direction is down. |
-| `panel_edge_support` | Actual panel perimeter, including cutouts, remaining after subtracting opposing backing contact. |
+| Requirement | Targets | Threshold / measured units |
+| --- | --- | --- |
+| `length`, `point_distance` | Exactly two named points or coordinate triples | Distance equals threshold; length. |
+| `solid_valid` | One or more part IDs | All native solids valid; boolean (threshold unused). |
+| `stock_fit` | Exactly one part ID | Finished local solid outside its original rectangular blank is within tolerance; volume (threshold unused). |
+| `collision` | Exactly two part IDs | Overlap volume at most threshold; volume. |
+| `collision_free` | One or more part IDs, checking pairs within that group | Total overlap volume at most threshold; volume. |
+| `distance`, `clearance` | Exactly two part IDs | Minimum native distance equals (`distance`) or is at least (`clearance`) threshold; length. |
+| `contact` | Exactly two part IDs | Opposing planar contact area is nonzero and at least threshold; area. |
+| `support` | Exactly two part IDs: supported part, bearing part | Projected opposing contact area is nonzero and at least threshold; area. Default bearing direction is world down. |
+| `panel_edge_support` | Panel ID followed by one or more backing part IDs | Actual unbacked perimeter, including cutouts, at most threshold; length. |
 
 Set meaningful thresholds and tolerances in project units. Requirements derive their length, area or volume units from the project; an explicit unit must match. `support` accepts `direction=[x,y,z]` in world coordinates. `panel_edge_support` requires `direction_local=[x,y,z]` toward its backing and names the panel followed by supporting parts. Nearby or side-only contact is not vertical bearing.
+
+Length, area and volume units are `in`, `in2`, `in3` in inch projects and `mm`, `mm2`, `mm3` in metric projects. The query tolerance is a length: contact/support compare with its square, and stock/collision volume checks use its cube. Derive expected dimensions and areas from the shared design specification or stock frame, rather than display bounds that may include kernel padding. Correct the geometry or expected value when a check fails; preserve the intended tolerance.
+
+This runnable geometric fixture demonstrates a panel fully backed by a block. It checks one interface before replication; it supplies no connection or structural-capacity evidence.
+
+```python
+import cadquery as cq
+from stud.cad import Model
+
+model = Model('Bearing interface probe', units='in')
+length, width, base_height, panel_thickness = 12, 3.5, 1.5, .75
+for part_id, height, z in [('base', base_height, 0),
+                           ('panel', panel_thickness, base_height)]:
+    model.part(part_id,
+        cq.Workplane('XY').box(length, width, height, centered=(False, False, False)),
+        location=cq.Location(cq.Vector(0, 0, z)),
+        blank={'size': [length, width, height]})
+    model.requirement(part_id + '.blank', 'stock_fit', [part_id])
+
+model.requirement('panel.bearing', 'support', ['panel', 'base'],
+    threshold=length * width, direction=[0, 0, -1])
+model.requirement('panel.contact', 'contact', ['panel', 'base'],
+    threshold=length * width)
+model.requirement('panel.edges', 'panel_edge_support', ['panel', 'base'],
+    threshold=0, direction_local=[0, 0, -1])
+model.requirement('parts.interference', 'collision_free', ['panel', 'base'], threshold=0)
+```
+
+For a member bearing on several supports, declare a separate `support` requirement per pair with its own expected bearing area. `panel_edge_support` instead accepts multiple backing parts in one requirement. Preserve the original stock dimensions when cutting a part; finished cut dimensions do not redefine its purchasing blank.
 
 Findings distinguish passed, failed, unresolved, unsupported and operation failures. Coverage is explicit; no requirements or uncovered parts do not imply a pass. Geometry availability is separate from checks and quantities. Structural analysis, automatic code compliance and a general constraint solver are outside this engine's scope.
 

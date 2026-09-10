@@ -246,7 +246,6 @@ def serve_project(root, port=0, *, open_browser=False, ready=None):
                 client.get('/api/v1/status')
         except (KeyboardInterrupt, StudError):
             return
-    session.watch()
     try:
         server = ViewerServer(('127.0.0.1', port), make_handler(session))
         session.shutdown_server = server.shutdown

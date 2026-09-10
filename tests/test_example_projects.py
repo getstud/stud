@@ -26,6 +26,7 @@ class ExampleProjectTests(unittest.TestCase):
                             helper.write_text(helper.read_text().replace('    imperial_model(model)\n','    imperial_model(model)\n    width += 1\n'),encoding='utf-8')
                         source=session.source(request['id'])
                         self.assertEqual((Path(source['path'])/'files'/module).read_bytes(),helper.read_bytes())
+                        session.wait(session.evaluate(request['id'],source['source_id'])['id'],timeout=120)
                         result=session.wait(session.finish(request['id'],expected_source=source['source_id'],summary='Save project-owned example')['id'],timeout=120)
                         self.assertEqual(result['status'],'complete',result)
                         build=session.job(result['build_id']);manifest=read_json(Path(build['artifact_path'])/'manifest.json')

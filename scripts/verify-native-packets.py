@@ -28,6 +28,7 @@ def main():
             for source_file in (ENGINE/'examples'/('cadquery-'+name)).glob('*.py'):
                 (Path(request['workspace'])/source_file.name).write_bytes(source_file.read_bytes())
             source=session.source(request['id'])['source_id']
+            session.wait(session.evaluate(request['id'],source)['id'],timeout=600)
             finished=session.wait(session.finish(request['id'],expected_source=source,summary='Generate '+name+' fabrication evidence')['id'],timeout=600)
             if finished['status']!='complete':raise RuntimeError(finished)
             build=session.job(finished['build_id']);manifest=read_json(Path(build['artifact_path'])/'manifest.json')
