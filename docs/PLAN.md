@@ -344,7 +344,7 @@ Workers provide fault isolation and cancellable execution. Keep local server acc
 
 **12. Integration with the existing application**
 
-Preserve behavior selectively, then remove superseded paths. Existing legacy projects retain their established workflow; the old parts representation does not become the new model contract. Migration is outside the corrected scope.
+Preserve behavior selectively, then remove superseded paths. Project loading and authoring are CadQuery-only. Unsupported folders are rejected before Python executes; migration is outside scope.
 
 | Existing area | Implementation action |
 | --- | --- |

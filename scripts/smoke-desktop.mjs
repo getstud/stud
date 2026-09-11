@@ -52,9 +52,9 @@ let installerLockNamespaceVerified;
 try {
   for (const file of ['skills/stud-design/SKILL.md', 'skills/stud-design/agents/openai.yaml',
     'skills/stud-design/references/stud-integration.md', 'engine/README.md',
-    'engine/docs/workshop.md', 'engine/docs/assemblies.md', 'engine/docs/validation.md',
-    'engine/docs/environment.md', 'engine/examples/environment/assets/tree.js', 'engine/examples/framed-shed/design.py',
-    'engine/examples/framed-shed/README.md']) {
+    'engine/docs/cadquery.md', 'engine/docs/comparison.md', 'engine/docs/hd-rendering.md',
+    'engine/docs/environment.md', 'engine/examples/environment/assets/tree.js', 'engine/examples/cadquery-shed/design.py',
+    'engine/examples/cadquery-shed/README.md']) {
     assert.ok((await fs.readFile(path.join(resources, file), 'utf8')).length, `Missing bundled skill resource: ${file}`);
   }
   assert.match(command('--version'), /^stud \d+\.\d+\.\d+/);
@@ -130,10 +130,11 @@ try {
   assert.equal(originalEstimate.total, '8.50');
   assert.equal(originalEstimate.unpriced_lines, 0);
   const example = path.join(temporary, 'Adaptable shed example');
-  await fs.cp(path.join(resources, 'engine/examples/framed-shed'), example, { recursive: true });
+  command('init', example, '--example', 'shed');
   command('build', example);
   const exampleReport = JSON.parse(command('validate', example, '--json'));
-  assert.equal(exampleReport.counts.FAIL ?? 0, 0);
+  assert.equal(exampleReport.counts.failed ?? 0, 0);
+  command('stop', example);
   for (const route of ['/', '/app.js', '/cad-scene.js', '/project-events.js', '/show.js', '/area-capture.js', '/updates.js', '/api/update', '/vendor/three.js', '/vendor/three.core.js', '/vendor/OrbitControls.js', '/api/model', '/api/v1/checkpoints', '/api/v1/prompts']) {
     const response = await fetch(url + route);
     assert.equal(response.status, 200, route);
@@ -199,7 +200,7 @@ try {
   assert.deepEqual(await bundleFiles(), beforeFiles, 'CLI commands must not write caches into the installed app');
   if(updateEvidence) await fs.writeFile(process.env.STUD_UPDATE_EVIDENCE||path.join(temporary,'update-evidence.json'),
     JSON.stringify({...updateEvidence,preserved:{project:true,checkpoint:true,prompt:true,prices:true,pdf:true,unrelated_file:true},smoke_passed:true},null,2)+'\n');
-  console.log('Installed-app smoke test passed: pinned CAD/PDF/Git runtime, native geometry, request save/retry, quotes, prompts, vector plans, full-folder reopen, catalog, legacy project and update locking.');
+  console.log('Installed-app smoke test passed: pinned CAD/PDF/Git runtime, native geometry, request save/retry, quotes, prompts, vector plans, full-folder reopen, catalog, native shed example and update locking.');
 } finally {
   if (server) await stop(server);
   if (blocker) await stop(blocker, false);

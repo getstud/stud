@@ -7,13 +7,13 @@ export const renderReferenceSchema={type:'object',properties:{
 },required:['expected_revision'],additionalProperties:false};
 
 export function renderBrief(model,partIds,camera,input){
+ if(!model.cad)throw fail('UNSUPPORTED_MODEL','A CadQuery model is required for a render reference.');
  const parts=model.parts.filter(part=>partIds.includes(part.id));
  const assignments=new Map();
  for(const part of parts){
   const id=part.stock,stock=model.stocks[id];
-  // Native demands belong to object IDs, even when their product ID is shared.
-  // Only older model adapters fall back to a stock-level specification.
-  const specifications=part.material_specifications??[stock?.specification||{}];
+  // Material demands belong to object IDs, even when the product ID is shared.
+  const specifications=part.material_specifications??[];
   const key=JSON.stringify([id,specifications]);
   if(!assignments.has(key))assignments.set(key,{id,name:stock?.name||id,specifications,parts:[]});
   assignments.get(key).parts.push({id:part.id,name:part.name,assembly:part.assembly,color:part.color||stock?.color});
@@ -35,7 +35,7 @@ export function renderBrief(model,partIds,camera,input){
   'Respect omissions in the reference: do not invent corner boards, extra trim, hardware, frame subdivisions or structural parts. Material grain and surface seams may enrich existing faces only.',
  ].join('\n');
  return {schema_version:1,kind:'stud-render-reference',project_name:model.name,revision:model.revision,
-  displayed:model.cad?structuredClone(model.cad):{presentation:'legacy'},
+  displayed:structuredClone(model.cad),
   camera:structuredClone(camera),geometry_units:'in',visible_part_ids:partIds,
   hidden_part_ids:model.parts.filter(part=>!partIds.includes(part.id)).map(part=>part.id),
   materials:structuredClone(materials),finishes,lighting,prompt};

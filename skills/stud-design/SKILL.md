@@ -11,7 +11,7 @@ Use the installed Stud app for physical design projects. Keep the installation s
 
 Locate `stud`, verify `stud --version` and `stud doctor`, and identify the target folder. Use `stud projects --json` when the location is unknown. Read [Stud integration](references/stud-integration.md) for the request commands and installed documentation.
 
-A current project has `stud.json` with `engine: cadquery` and ordinary Python exporting `model = Model(...)`. Older projects exporting `project` through the legacy parts API retain their existing workflow. Inspect the manifest before choosing the API or coordinate units; do not reinterpret legacy coordinates or records as native CadQuery data.
+A project requires `stud.json` with `engine: cadquery` and ordinary Python exporting `model = Model(...)`. Verify the manifest before serving or evaluating. A folder without it is an incomplete or unsupported project, not an invitation to select another authoring API. Recover initialization or use the valid project folder before continuing; keep its declared units fixed.
 
 Read the existing source, saved assumptions, current status and prompts before revising it. Keep stable object IDs and deliberate local exceptions. Execute designs only from trusted sources.
 

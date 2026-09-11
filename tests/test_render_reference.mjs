@@ -9,7 +9,7 @@ import {createRenderReferenceTool,captureUntextured,renderBrief} from '../web/re
 
 function fixture(){
  const model={name:'Shed',revision:'cedar:final',units:'in',stocks:{cedar:{name:'Cedar siding',specification:{species:'western red cedar',finish:'clear matte'}}},
-  parts:[{id:'front',name:'Front siding',stock:'cedar',assembly:'Exterior',color:'#bd8050'},{id:'back',name:'Back siding',stock:'cedar',assembly:'Exterior'}],
+  parts:[{id:'front',name:'Front siding',stock:'cedar',assembly:'Exterior',color:'#bd8050',material_specifications:[{species:'western red cedar',finish:'clear matte'}]},{id:'back',name:'Back siding',stock:'cedar',assembly:'Exterior'}],
   cad:{presentation:'history',build_id:'cedar',source_id:'source-cedar',checkpoint:'saved-cedar',option_id:'cedar-option',completion:{geometry:'complete'},latest_build_id:'cedar',latest_status:'complete'}};
  const state={model,camera:{position:[2,3,4],projection:'orthographic'},visible_part_ids:['front']};
  const calls=[];
@@ -74,10 +74,12 @@ test('untextured capture strips overlays and original materials without changing
  assert.throws(()=>captureUntextured({THREE,meshes:[mesh],camera,width:2048,height:1600,createRenderer:()=>renderer}),/GPU error/);
  assert(disposed&&lost);assert.equal(mesh.material,beforeMaterial);assert.equal(bufferDisposed,false);
 });
-test('legacy materials and dimensions remain usable in the render brief',()=>{
- const {state}=fixture();delete state.model.cad;delete state.model.stocks.cedar.specification;
- const brief=renderBrief(state.model,['front'],state.camera,{});
- assert.equal(brief.displayed.presentation,'legacy');assert.equal(brief.geometry_units,'in');assert.deepEqual(brief.materials[0].specifications,[{}]);
+test('render references reject a model without CadQuery identity',async()=>{
+ const {state,tool,calls}=fixture();delete state.model.cad;
+ assert.throws(()=>renderBrief(state.model,['front'],state.camera,{}),/CadQuery model is required/);
+ const result=await tool.execute({expected_revision:state.model.revision});
+ assert.equal(result.ok,false);assert.equal(result.error.code,'UNSUPPORTED_MODEL');
+ assert.equal(calls.length,0);
 });
 test('same-product parts retain distinct finish assignments and hidden finishes never enter the prompt',()=>{
  const {state}=fixture();

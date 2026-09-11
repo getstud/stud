@@ -209,7 +209,7 @@ class Records:
                                                                         for name in inventory['files']})
             files={prompt['source_context']:encoded(context)}
             if screenshot:
-                from comments import decode_screenshot
+                from .screenshots import decode_screenshot
                 image,width,height=decode_screenshot(screenshot)
                 prompt['image']=dict(path=f'records/captures/{prompt_id}.png',width=width,height=height,mime_type='image/png')
                 files[prompt['image']['path']]=image

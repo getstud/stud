@@ -78,36 +78,34 @@ class RenderReferenceTests(unittest.TestCase):
 
 
 class RenderReferenceHTTPTests(unittest.TestCase):
-    def test_native_and_legacy_capture_routes_share_origin_and_json_limits(self):
+    def test_capture_route_enforces_origin_and_json_limits(self):
         import serve
         from stud.session_http import make_handler
-        for native in (False, True):
-            with self.subTest(native=native), tempfile.TemporaryDirectory() as root:
-                # Any attempt to execute design/session work on this route fails:
-                # the adapter needs only a root and the error-envelope identity.
-                session=SimpleNamespace(root=Path(root),manifest={'project_id':'render-http-fixture'})
-                handler=make_handler(session) if native else serve.Handler
-                with patch.object(serve,'PROJECT',Path(root)):
-                    server=serve.ViewerServer(('127.0.0.1',0),handler)
-                    worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
-                    url=f'http://127.0.0.1:{server.server_port}/api/render-references'
-                    payload=RenderReferenceTests().payload()
-                    def post(data=payload,headers=None):
-                        request=Request(url,json.dumps(data).encode(),headers=headers or {'Content-Type':'application/json'},method='POST')
-                        with urlopen(request,timeout=5) as response:return json.load(response)
-                    try:
-                        result=post()
-                        self.assertTrue(Path(result['reference_path']).is_file())
-                        self.assertEqual(result['revision'],'build:final')
-                        for headers,status in [({'Content-Type':'application/json','Origin':'https://other.example'},403),
-                                               ({'Content-Type':'text/plain'},415),
-                                               ({'Content-Type':'application/json','Host':'other.example'},403)]:
-                            with self.assertRaises(HTTPError) as caught:post(headers=headers)
-                            self.assertEqual(caught.exception.code,status)
-                        with self.assertRaises(HTTPError) as caught:post({'image':'bad','brief':payload['brief']})
-                        self.assertEqual(caught.exception.code,422 if native else 400)
-                        with self.assertRaises(HTTPError) as caught:post(headers={'Content-Type':'application/json','Content-Length':str(8*1024*1024+1)})
-                        self.assertEqual(caught.exception.code,422 if native else 400)
-                        self.assertEqual(len(list((Path(root)/'exports/render-references').iterdir())),1)
-                    finally:
-                        server.shutdown();server.server_close();worker.join(timeout=5)
+        with tempfile.TemporaryDirectory() as root:
+            # Any attempt to execute design/session work on this route fails:
+            # the adapter needs only a root and the error-envelope identity.
+            session=SimpleNamespace(root=Path(root),manifest={'project_id':'render-http-fixture'})
+            handler=make_handler(session)
+            server=serve.ViewerServer(('127.0.0.1',0),handler)
+            worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
+            url=f'http://127.0.0.1:{server.server_port}/api/render-references'
+            payload=RenderReferenceTests().payload()
+            def post(data=payload,headers=None):
+                request=Request(url,json.dumps(data).encode(),headers=headers or {'Content-Type':'application/json'},method='POST')
+                with urlopen(request,timeout=5) as response:return json.load(response)
+            try:
+                result=post()
+                self.assertTrue(Path(result['reference_path']).is_file())
+                self.assertEqual(result['revision'],'build:final')
+                for headers,status in [({'Content-Type':'application/json','Origin':'https://other.example'},403),
+                                       ({'Content-Type':'text/plain'},415),
+                                       ({'Content-Type':'application/json','Host':'other.example'},403)]:
+                    with self.assertRaises(HTTPError) as caught:post(headers=headers)
+                    self.assertEqual(caught.exception.code,status)
+                with self.assertRaises(HTTPError) as caught:post({'image':'bad','brief':payload['brief']})
+                self.assertEqual(caught.exception.code,422)
+                with self.assertRaises(HTTPError) as caught:post(headers={'Content-Type':'application/json','Content-Length':str(8*1024*1024+1)})
+                self.assertEqual(caught.exception.code,422)
+                self.assertEqual(len(list((Path(root)/'exports/render-references').iterdir())),1)
+            finally:
+                server.shutdown();server.server_close();worker.join(timeout=5)

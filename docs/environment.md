@@ -2,21 +2,9 @@
 
 Environment assets add visual context such as trees, terrain, people, or furniture. They are saved with the project but are not construction parts: they do not contribute to materials, pricing, CSV exports, assembly explosion, or geometry checks.
 
-Register an asset in `design.py` alongside your construction parts:
+The browser supports visual-context modules, but the CadQuery authoring contract currently has no environment-registration API. The module contract below documents that viewer capability; it is not an instruction to add a second project format or an unsupported field to `Model`.
 
-```python
-project.context_asset(
-    'existing-tree',
-    name='Existing tree',
-    source='assets/tree.js',
-    origin=(120, 96, 0),
-    rotation=(0, 0, 0),
-    parameters={'trunk_diameter': 24, 'height': 360, 'seed': 42, 'trunk_reference_height': 106},
-    visible=True,
-)
-```
-
-Copy [the procedural tree example](../examples/environment/assets/tree.js) into your project's `assets/tree.js`. The example generates an oak with tapered branching limbs, buttress roots, bark ridges, and instanced lobed leaves. `trunk_diameter` is the outside diameter at `trunk_reference_height` (106 inches in this example, matching the platform top). The reference height defaults to 30% of tree height and must lie within the lower 45%; the trunk stays centered on its origin through that region, with a circular cross-section at the reference height. Elsewhere it tapers and flares toward the roots, so the reference diameter is not a clearance envelope for the entire trunk. `height` controls the approximate canopy height. A seed makes its geometry and colors repeatable. Wood and foliage use two meshes, with no external textures. Change the module freely to suit the project; there is no catalog of permitted shapes.
+The [procedural tree fixture](../examples/environment/assets/tree.js) exercises the viewer module contract. It generates an oak with tapered branching limbs, buttress roots, bark ridges, and instanced lobed leaves. `trunk_diameter` is the outside diameter at `trunk_reference_height` (106 inches in this example, matching the platform top). The reference height defaults to 30% of tree height and must lie within the lower 45%; the trunk stays centered on its origin through that region, with a circular cross-section at the reference height. Elsewhere it tapers and flares toward the roots, so the reference diameter is not a clearance envelope for the entire trunk. `height` controls the approximate canopy height. A seed makes its geometry and colors repeatable. Wood and foliage use two meshes, with no external textures. Change the module freely to suit the project; there is no catalog of permitted shapes.
 
 ## Module contract
 
@@ -43,7 +31,7 @@ The **Environment** section provides a master toggle and individual visibility c
 
 **Fit design** frames construction and displayed dimensions. **Fit scene** includes visible environment assets. Environment objects stay in place during assembly explosion and are not affected by transparent-surface display.
 
-Edits anywhere under `assets/` trigger a rebuild. The builder saves immutable resource snapshots under `output/environment/`, and module imports use the snapshot revision in their URLs so helper edits reload too. These generated snapshots can be removed when the viewer is stopped; rebuilding recreates the current one. Keep the source `assets/` folder in backups and version control, not the generated snapshots.
+Asset publication and source capture must be wired through the native coordinator before exposing this as a project authoring feature. File edits alone do not trigger model evaluation.
 
 A missing module, syntax error, or failed factory is reported on that asset. Construction remains visible; if the asset previously loaded, its last good appearance remains until the next successful edit. An invalid construction build still retains the last good complete model, as before.
 

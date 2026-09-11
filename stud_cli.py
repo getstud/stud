@@ -10,40 +10,6 @@ from stud.projects import register, list_projects
 ROOT = Path(__file__).resolve().parent
 
 
-def init_legacy_project(destination, name=None):
-    destination = Path(destination).resolve()
-    if destination.exists():
-        raise ValueError(f'Destination already exists: {destination}. Choose a new directory.')
-    title = name or destination.name
-    destination.mkdir(parents=True)
-    (destination / 'design.py').write_text(f'''"""Edit this trusted local Python file; stud rebuilds the viewer automatically."""
-from stud import Project
-
-project = Project({title!r})
-project.stock('2x4', 'Untreated 2x4', '#ddbd8b',
-              section=(1.5, 3.5), lengths=(96, 120, 144))
-project.box('frame.stud.01', 'Frame', '2x4',
-            size=(1.5, 3.5, 80), origin=(0, 0, 0),
-            note='Starter part. Replace with your own design.')
-project.dimension('Height', (-4, 0, 0), (-4, 0, 80))
-project.notes.append('Design study. Geometry and material quantities do not establish structural suitability.')
-project.validation = {{'version': 1, 'automatic': ['solid_collision', 'stock_fit'], 'rules': []}}
-''', encoding='utf-8')
-    (destination / '.gitignore').write_text('__pycache__/\n*.pyc\noutput/model/\n.DS_Store\n')
-    (destination / 'README.md').write_text(f'''# {title}
-
-Open this project with `stud serve .`; edit `design.py` to change the model.
-Run `stud build .` for JSON and CSV exports, or `stud validate .` for checks.
-Use the stud checkout's `python3 /path/to/stud_cli.py` if the command is not installed.
-
-Saved comments and prices live in `annotations/`; keep them with this project.
-Generated files live in `output/model/`. Units are inches, with Z up.
-Only open trusted designs: design.py and its helpers are executable Python.
-''', encoding='utf-8')
-    register(destination, title)
-    return destination
-
-
 def init_project(destination, name=None, example=None, units="in"):
     """New projects use the CadQuery authoring and explicit request contract."""
     from stud.units import validate
@@ -55,6 +21,15 @@ def init_project(destination, name=None, example=None, units="in"):
     destination=Path(destination).resolve()
     if destination.exists():
         raise ValueError(f'Destination already exists: {destination}. Choose a new directory.')
+    # Detect a parent repository before writing source into a partial project.
+    from stud.history import History
+    from stud.contracts import StudError
+    ancestor = destination.parent
+    while not ancestor.exists():
+        ancestor = ancestor.parent
+    existing = History(ancestor).git('rev-parse', '--show-toplevel', check=False)
+    if existing.returncode == 0:
+        raise StudError('nested_repository', 'Create this project outside another repository.')
     destination.mkdir(parents=True)
     title=name or destination.name
     (destination/'design.py').write_text(f'''"""Edit in the workspace returned by stud begin, evaluate, inspect the result, then finish."""
@@ -236,36 +211,14 @@ def main(argv=None):
                   'then load and follow stud-design.')
             print(f'Open with: stud serve {json.dumps(str(destination))}')
         elif args.command == 'build':
-            if (args.directory/'stud.json').is_file():
-                from stud.client import Client
-                client=Client(args.directory)
-                active=client.get('/api/v1/status')['request']
-                if active and Path(active['workspace']).resolve()==args.directory.resolve():
-                    job=client.command('evaluate',{'request_id':active['id']})
-                else:job=client.command('evaluate_checkpoint',{'display':True})
-                result=client.wait(job['id']);print(json.dumps(result))
-                return 0 if result['status']=='complete' else 1
             from build import build
             build(args.directory)
         elif args.command == 'serve':
             from serve import serve
             serve(args.directory, args.port, open_browser=not args.no_open)
         else:
-            if (args.directory/'stud.json').is_file():
-                from stud.client import Client
-                client=Client(args.directory)
-                state=client.get('/api/v1/status')
-                if not state['latest_build']:
-                    job=client.command('evaluate_checkpoint',{'display':True})
-                else:job=state['latest_job']
-                job=client.wait(job['id'])
-                manifest=client.get('/api/v1/builds/'+job['id']+'/manifest.json')
-                checks=manifest.get('checks',{})
-                print(json.dumps(checks))
-                return 1 if job['status']!='complete' or checks.get('counts',{}).get('failed') else 2 if args.strict and not checks.get('all_passed') else 0
-            flags = [flag for flag in ('--json', '--strict') if getattr(args, flag[2:])]
-            return subprocess.call([sys.executable, '-B', '-E', '-s', str(ROOT/'validate.py'),
-                                    '--project', str(args.directory.resolve()), *flags])
+            from validate import validate_project
+            return validate_project(args.directory, strict=args.strict, json_output=args.json)
     except (ValueError, OSError, KeyError, SyntaxError, sqlite3.Error) as error:
         print(f'stud: {error}', file=sys.stderr)
         return 1

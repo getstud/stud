@@ -82,7 +82,7 @@ Open [localhost:8765](http://127.0.0.1:8765) to view the project. Stop the serve
 
 Run `stud doctor` to check CAD, PDF and Git availability.
 
-The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams. The older [framed shed](examples/framed-shed/README.md) remains a legacy API example.
+The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams.
 
 ## Make something
 
@@ -126,7 +126,7 @@ stud checks the geometry in the model and the requirements declared for the desi
 
 The native starter declares length and stock-fit requirements. Other relationships, including collisions, must be declared; the viewer's **Checks** section shows findings and coverage. A model with no declared relationships reports incomplete coverage.
 
-These are geometry checks, not structural engineering or building-code approval. Native purchasing data includes actual stock cuts and explicit sheet layouts; missing fabrication details and prices remain visible. See the [CadQuery guide](docs/cadquery.md) for native measurements and the [legacy validation guide](docs/validation.md) for older projects.
+These are geometry checks, not structural engineering or building-code approval. Native purchasing data includes actual stock cuts and explicit sheet layouts; missing fabrication details and prices remain visible. See the [CadQuery guide](docs/cadquery.md) for native measurements and declared checks.
 
 ## Your materials, your prices
 
@@ -142,7 +142,7 @@ Use **Add project** in the desktop app to choose an existing project with the na
 
 The catalog is stored separately from designs in `~/Library/Application Support/stud/projects.sqlite3` on macOS, `%LOCALAPPDATA%/stud/projects.sqlite3` on Windows, and `$XDG_DATA_HOME/stud/projects.sqlite3` (default `~/.local/share`) on Linux. `STUD_DATA_DIR` overrides the catalog directory.
 
-Current projects keep immutable prompts and quotes in `records/`, saved reports in `checkpoints/`, and immutable PDF packets in `exports/`. Keep `.git` for history and `.stud` for recoverable drafts and artifacts when copying the folder. Legacy projects retain their `annotations/` and `output/model/` folders. Designs live separately from the app.
+Current projects keep immutable prompts and quotes in `records/`, saved reports in `checkpoints/`, and immutable PDF packets in `exports/`. Keep `.git` for history and `.stud` for recoverable drafts and artifacts when copying the folder. Designs live separately from the app.
 
 ## The commands
 
@@ -171,11 +171,11 @@ stud --version                     print the installed version
 
 ## Under the hood
 
-The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. New projects use inches by default; `stud init PATH --units mm` creates a metric project. Geometry and stock use those native units with Z up, and units remain fixed across project edits. An imperial 2×4 uses its actual 1.5 × 3.5 inch section. Legacy models retain their existing API.
+The AI writes ordinary Python and CadQuery, then registers named completed parts, requirements, purchasing data and drawings. New projects use inches by default; `stud init PATH --units mm` creates a metric project. Geometry and stock use those native units with Z up, and units remain fixed across project edits. An imperial 2×4 uses its actual 1.5 × 3.5 inch section.
 
 The browser viewer uses Three.js. In a compatible browser, WebMCP tools let an agent navigate, inspect, measure, review versions, correct estimates and deliver plans hands-free. See the [voice viewer guide](docs/voice-viewer.md). Named design options preserve the viewpoint while keeping the editing target separate; see [comparing options](docs/comparison.md). Agents can also capture untextured references for [realistic images in chat](docs/hd-rendering.md), using their available image-generation tool while the interactive viewer stays available. Browsers without WebMCP still support the normal viewer interface.
 
-See the [workshop guide](docs/workshop.md) for modeling, comments, pricing, exports, and viewer integration, or [framed assemblies](docs/assemblies.md) for reusable wall and opening builders.
+See the [CadQuery guide](docs/cadquery.md) for modeling, framing helpers, comments, purchasing, and drawing packets. Every project requires a valid `stud.json` declaring the CadQuery engine; unsupported folders are rejected before Python executes.
 
 ## Troubleshooting
 

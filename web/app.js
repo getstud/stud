@@ -1,7 +1,6 @@
 import {workshopInches as imperialWorkshopInches,cutSpecification,mountingLevel,groupAssemblyCuts} from '/assembly-instructions.js';
 import {placeAnnotation,editorPosition} from '/annotation-layout.js';
 import * as THREE from 'three';
-import {outlineGeometry,bandedGeometry,layeredGeometry} from '/profile-geometry.js';
 import {createEnvironment} from '/environment.js';
 import {OrbitControls} from '/vendor/OrbitControls.js';
 import {createShowTool} from '/show.js';
@@ -175,137 +174,9 @@ function displayShow(input){
   visible_part_count:meshes.filter(m=>m.visible).length};
 }
 function disposeTree(root){root.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});root.clear();}
-// Build a notched extrusion by subtracting each horizontal wall seat from
-// the pitched Y/Z section. Keep the stock box dimensions for purchasing.
-function seatedGeometry(p){
- const [w,d,h]=p.size,t=p.rotation[0]*Math.PI/180,c=Math.cos(t),sn=Math.sin(t);
- const cy=p.origin[1]+d/2,cz=p.origin[2]+h/2;
- const world=(y,z)=>[cy+y*c-z*sn,cz+y*sn+z*c];
- let polygons=[[world(-d/2,-h/2),world(d/2,-h/2),world(d/2,h/2),world(-d/2,h/2)]];
- function clip(poly,axis,limit,greater){
-  const result=[];if(!poly.length)return result;
-  for(let i=0;i<poly.length;i++){
-   const a=poly[i],b=poly[(i+1)%poly.length],fa=(a[axis]-limit)*(greater?1:-1),fb=(b[axis]-limit)*(greater?1:-1);
-   if(fa>=-1e-8)result.push(a);
-   if((fa>1e-8&&fb< -1e-8)||(fa< -1e-8&&fb>1e-8)){
-    const u=fa/(fa-fb);result.push(a.map((v,j)=>v+(b[j]-v)*u));
-   }
-  }return result;
- }
- for(const seat of p.seats){
-  const [a,b]=seat.y,next=[];
-  for(const poly of polygons){
-   next.push(clip(poly,0,a,false),clip(clip(clip(poly,0,a,true),0,b,false),1,seat.z,true),clip(poly,0,b,true));
-  }
-  polygons=next.filter(poly=>poly.length>=3);
- }
- const vertices=[];
- for(const poly of polygons){
-  const points=poly.map(([y,z])=>new THREE.Vector2((y-cy)*c+(z-cz)*sn,-(y-cy)*sn+(z-cz)*c));
-  const tris=THREE.ShapeUtils.triangulateShape(points,[]);
-  const add=(x,i)=>vertices.push(x,points[i].x,points[i].y);
-  for(const [a,b,c] of tris){for(const i of [c,b,a])add(-w/2,i);for(const i of [a,b,c])add(w/2,i);}
-  for(let a=0;a<points.length;a++){const b=(a+1)%points.length;
-   add(-w/2,a);add(-w/2,b);add(w/2,b);add(-w/2,a);add(w/2,b);add(w/2,a);
-  }
- }
- const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
-}
-// A stepped profile keeps each notched stud one solid and one takeoff item.
-// notch.side selects the local X face occupied by the end rafter.
-function notchedProfileGeometry(p){
- const [w,d,h]=p.size,{bottom,top,notch}=p.profile;
- const split=notch.side==='min'?notch.depth:w-notch.depth;
- const rings=[0,1].map(j=>{
-  const b=bottom[j],t=top[j],seat=notch.top[j];
-  const outline=notch.side==='min'
-   ?[[0,b],[w,b],[w,t],[split,t],[split,seat],[0,seat]]
-   :[[0,b],[w,b],[w,seat],[split,seat],[split,t],[0,t]];
-  return outline.map(([x,z])=>[x,j*d,z]);
- });
- const vertices=[];
- const add=(point)=>vertices.push(point[0]-w/2,point[1]-d/2,point[2]-h/2);
- for(let j=0;j<2;j++){
-  const ring=rings[j];
-  const triangles=THREE.ShapeUtils.triangulateShape(ring.map(([x,,z])=>new THREE.Vector2(x,z)),[]);
-  for(const triangle of triangles)for(const i of j?triangle.slice().reverse():triangle)add(ring[i]);
- }
- for(let i=0;i<6;i++){
-  const next=(i+1)%6;
-  const quad=[rings[0][i],rings[1][i],rings[1][next],rings[0][next]];
-  for(const index of [0,1,2,0,2,3])add(quad[index]);
- }
- const geometry=new THREE.BufferGeometry();
- geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
- geometry.computeVertexNormals();return geometry;
-}
-function partGeometry(p){
- if(p.profile?.layers)return layeredGeometry(THREE,p);
- if(p.profile?.bands)return bandedGeometry(THREE,p);
- if(p.outline)return outlineGeometry(THREE,p);
- if(p.profile?.notch)return notchedProfileGeometry(p);
- if(p.seats?.length)return seatedGeometry(p);
- if(!p.profile)return new THREE.BoxGeometry(...p.size);
- const [w,d,h]=p.size,[bf,bb]=p.profile.bottom,[tf,tb]=p.profile.top;
- const points=[[0,0,bf],[w,0,bf],[w,d,bb],[0,d,bb],[0,0,tf],[w,0,tf],[w,d,tb],[0,d,tb]];
- const faces=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
- const vertices=[];for(const [a,b,c,d] of faces)for(const i of [a,b,c,a,c,d])vertices.push(...points[i].map((v,j)=>v-p.size[j]/2));
- const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();return geometry;
-}
 function install(data,options={}){
- if(data.engine==='cadquery')return installCad(data,options);
- const isLiveUpdate=Boolean(model);
- const previousIds=new Set(meshes.map(m=>m.userData.id));
- buildAnimation.finish();
- clearShow();
- clearValidationHighlights();
- const oldSelected=selected?.userData.id;model=data;revision=data.revision;disposeTree(group);disposeTree(dimGroup);labelRoot.replaceChildren();labels=[];meshes=[];selected=null;
- const names=[...new Set(data.parts.map(p=>p.assembly))];
- for(const p of data.parts){
-  const stock=data.stocks[p.stock];const mat=new THREE.MeshStandardMaterial({color:p.color||stock.color,roughness:.82,metalness:0});
-  // Project coordinates are X,Y,Z-up; convert via parent rotation so rotations remain correct.
-  const m=new THREE.Mesh(partGeometry(p),mat);
-  const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(...p.rotation.map(v=>v*Math.PI/180),'XYZ'));
-  const basis=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2);
-  m.quaternion.copy(basis).multiply(q);m.position.copy(vec(p.origin.map((v,i)=>v+p.size[i]/2)));
-  m.userData=p;m.userData.basePosition=m.position.clone();m.userData.color=p.color||stock.color;
-  const edge=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:'#554b3f',transparent:true,opacity:.24}));m.add(edge);group.add(m);meshes.push(m);
- }
- const modelBounds=new THREE.Box3().setFromObject(group);
- // Order layers by their highest world elevation; geometry-average height
- // breaks ties (for example, roof surfaces and gables sharing a ridge).
- // Viewer Y is vertical; transformed vertices account for profiles and rotations.
- const elevations=new Map(names.map(name=>[name,{top:-Infinity,sum:0,count:0}]));
- const vertex=new THREE.Vector3();
- for(const mesh of meshes){
-  const elevation=elevations.get(mesh.userData.assembly);
-  const positions=mesh.geometry.getAttribute('position');
-  for(let i=0;i<positions.count;i++){
-   vertex.fromBufferAttribute(positions,i).applyMatrix4(mesh.matrixWorld);
-   elevation.top=Math.max(elevation.top,vertex.y);elevation.sum+=vertex.y;elevation.count++;
-  }
- }
- names.sort((a,b)=>{
-  const left=elevations.get(a),right=elevations.get(b);
-  const topDifference=right.top-left.top;
-  return Math.abs(topDifference)>1e-6?topDifference:right.sum/right.count-left.sum/left.count;
- });
- const modelCenter=modelBounds.getCenter(new THREE.Vector3());
- if(!modelBounds.isEmpty())grid.position.set(modelCenter.x,modelBounds.min.y-.5,modelCenter.z);
- for(const d of data.dimensions){
-  const a=vec(d.start),b=vec(d.end),line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:'#577367'}));dimGroup.add(line);
-  for(const pt of [a,b]){const tick=new THREE.Line(new THREE.BufferGeometry().setFromPoints([pt.clone().add(new THREE.Vector3(-1,1,0)),pt.clone().add(new THREE.Vector3(1,-1,0))]),new THREE.LineBasicMaterial({color:'#577367'}));dimGroup.add(tick);}
-  const el=document.createElement('span');el.className='dimension';el.textContent=`${d.label} ${feet(d.inches)}`;labelRoot.append(el);labels.push({el,point:a.clone().lerp(b,.5),start:a,end:b});
- }
- $('partcount').textContent=data.parts.length;
- document.title=`stud – ${data.name}`;
- $('assemblycount').textContent=names.length;
- $('materials').innerHTML=data.materials.map(r=>`<tr><td>${escape(r.name)}<small>${escape(r.basis)}</small></td><td>${r.parts}</td><td>${escape(r.purchase)}<small>${escape(r.status)}</small></td><td>${safeLink(r.url)?`<a target="_blank" rel="noopener" href="${safeLink(r.url)}">Supplier ↗</a>`:'Not selected'}</td></tr>`).join('');
- if(data.validation_results)renderValidation({revision:data.revision,...data.validation_results});
- void environment.update(data.environment);
- applyDisplay();if(assemblyReview)openAssemblyDrawing(assemblyReview.assembly,assemblyReview.view);renderList();if(oldSelected)select(meshes.find(m=>m.userData.id===oldSelected));if(!camera)setView();renderComments();$('loading').hidden=true;
- if(isLiveUpdate&&!assemblyReview)buildAnimation.start(meshes.filter(m=>!previousIds.has(m.userData.id)),performance.now(),reducedMotion.matches);
- if(isLiveUpdate&&!assemblyReview)buildCamera.follow(bounds(),camera,controls,performance.now(),reducedMotion.matches);
+ if(data.engine!=='cadquery')throw new Error('Expected a CadQuery project model.');
+ return installCad(data,options);
 }
 let cadTiming=null;
 async function installCad(data,{animate=true}={}){
@@ -645,7 +516,7 @@ function loadModel(comparisonCommit=false) {
     if(data.error?.category==='build_pending'){$('error').hidden=true;return null;}
     throw new Error(data.error?.message || data.error || `HTTP ${response.status}`);
    }
-   if (data.schema_version !== 1 || data.units !== 'in' || !Array.isArray(data.parts)) throw new Error('Unsupported model');
+   if (data.engine !== 'cadquery' || data.schema_version !== 1 || data.units !== 'in' || !Array.isArray(data.parts)) throw new Error('Unsupported model');
    if(data.engine==='cadquery'){
     versionsController??=installVersions({showWorkspace,refreshModel:refreshComparisonModel});
     optionComparison??=installOptionTabs({registerTools:registerControlledTools,refreshModel:refreshComparisonModel,displayPrepared:async(data,_response,{signal}={})=>{
@@ -665,7 +536,6 @@ function loadModel(comparisonCommit=false) {
      beforeSwitch:()=>{viewerBridge.sequence.pause();stopViewerMotion();if(!$('areaoverlay').hidden||document.querySelector('dialog[open]'))throw new Error('Finish or close the current dialog before comparing options.');modelDisplayEpoch++;cadScene.invalidate();showWorkspace();buildCamera.stop();buildAnimation.finish();}});
    }
    if (data.revision !== revision||data.cad?.option_id!==model?.cad?.option_id||data.cad?.presentation!==model?.cad?.presentation||data.cad?.checkpoint!==model?.cad?.checkpoint||data.cad?.latest_build_id!==model?.cad?.latest_build_id||data.cad?.latest_status!==model?.cad?.latest_status) {const animate=!snapshotRefresh;snapshotRefresh=false;const installed=await install(data,{animate});if(installed===false){modelRefreshQueued=true;throw new Error('A newer model superseded this display request. Refresh the viewing context.');}}
-   if(data.engine!=='cadquery')$('error').hidden=true;
    optionComparison?.controller.onChange(optionComparison.controller.state());
    modelLoadFailed=false;
    return data;
@@ -681,7 +551,7 @@ async function refreshDisplayed(){snapshotRefresh=true;if(modelRequest)await mod
 async function refresh(){try{
  // Ordered native events deliver revisions. Poll only as a connection/error
  // fallback, so an idle building does not resend its complete model every 2s.
- if(model?.engine!=='cadquery'||!projectEvents.connected||modelLoadFailed)await loadModel();
+ if(!model||!projectEvents.connected||modelLoadFailed)await loadModel();
 }catch{}finally{setTimeout(refresh,2000);}}
 function refreshFromEvent(){if(modelRequest)modelRefreshQueued=true;else void loadModel().catch(()=>{});}
 let focusTask=null,applyingFocus=false;
@@ -922,17 +792,6 @@ function renderValidation(report){
  $('validation-toggle').title=`Validation warnings (${count})`;
  $('validation-toggle').setAttribute('aria-label',`Validation warnings (${count})`);
 }
-async function refreshValidation(){
- try{
-  if(model?.engine==='cadquery')return; // Findings arrive with the same native model revision.
-  const response=await fetch('/api/validation',{cache:'no-store',signal:AbortSignal.timeout(25000)});
-  if(!response.ok)throw new Error(`HTTP ${response.status}`);
-  const report=await response.json(),signature=JSON.stringify(report)+revision;
-  if(signature!==validationSignature){validationSignature=signature;clearValidationHighlights();renderValidation(report);}
- }catch(e){$('validation-toggle').title='Latest checks unavailable: '+e.message;}
- finally{setTimeout(refreshValidation,5000);}
-}
-refreshValidation();
 
 function stopViewerMotion(){
  buildCamera.stop();buildAnimation.finish();

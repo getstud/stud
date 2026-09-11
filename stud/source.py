@@ -43,7 +43,7 @@ def new_manifest(name, project_id, units='mm'):
 def manifest_at(root):
     manifest = read_json(confined(root, 'stud.json'))
     if not isinstance(manifest, dict) or manifest.get('schema_version') != 1:
-        raise StudError('migration_required', 'This folder needs an explicit stud project conversion.')
+        raise StudError('invalid_manifest', 'A valid stud.json is required. Open an initialized CadQuery project, or run stud init with a new project folder.')
     if manifest.get('engine') != 'cadquery':
         raise StudError('unsupported_project', 'Expected a CadQuery project.')
     from .units import validate,defaults
