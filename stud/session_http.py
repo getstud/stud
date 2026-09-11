@@ -59,9 +59,8 @@ class ProjectAPI:
 
 
 def make_handler(session):
-    # Reuse the existing appearance, static viewer, and update routes. All model
-    # and project mutations are intercepted here, so legacy rebuild-on-read code
-    # cannot execute for a CadQuery project.
+    # The base handler serves only appearance, static assets and update notices.
+    # All project reads and mutations belong to this coordinator.
     from serve import Handler
     api = ProjectAPI(session)
 

@@ -111,6 +111,7 @@ test('HD capture refuses displaced tour geometry after pause, stop, or dismiss a
   assert(f.a.meshes.some(m=>m.position.distanceToSquared(m.userData.basePosition)>1));
   f.operations.sequence({action});
   let saved=0;
+  f.a.model.cad={presentation:'live',build_id:'r1',latest_build_id:'r1',latest_status:'complete',completion:{geometry:'complete'}};
   const capture=createRenderReferenceTool({readViewer:()=>({model:f.a.model,camera:f.context().camera,exploded:f.a.exploded,visible_part_ids:f.a.meshes.filter(m=>m.visible).map(m=>m.userData.id)}),
    capture:()=>{assertAssembledMeshes(f.a.meshes.filter(m=>m.visible));return 'png';},save:async()=>{saved++;return {reference_path:'reference.png'};}});
   const runner=createViewerToolRunner({context:f.context,activity:createControlActivity(()=>{},()=>Promise.resolve()),before:()=>f.sequence.pause()});

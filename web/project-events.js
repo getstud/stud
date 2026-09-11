@@ -5,7 +5,7 @@ export class ProjectEvents {
   async connect(){
     const generation=++this.generation;this.source?.close();
     const response=await fetch('/api/v1/status',{cache:'no-store'});
-    if(!response.ok)return false; // Existing projects keep their legacy adapter.
+    if(!response.ok)return false; // Leave the viewer disconnected until the coordinator is available.
     const snapshot=await response.json();if(generation!==this.generation)return false;
     this.sequence=snapshot.sequence;this.onReset(snapshot);
     this.source=new EventSource(`/api/v1/events?after=${this.sequence}`);

@@ -87,10 +87,9 @@ await fs.mkdir(engine, { recursive: true });
 await fs.copyFile(path.join(root, 'README.md'), path.join(engine, 'README.md'));
 await fs.copyFile(path.join(root, 'requirements.lock'), path.join(engine, 'requirements.lock'));
 
-const files = ['build.py', 'comments.py', 'pricing.py', 'serve.py', 'solid_geometry.py', 'profile_geometry.py',
-  'stud_cli.py', 'updates.py', 'validate.py', 'validation_rules.py'];
+const files = ['build.py', 'serve.py', 'stud_cli.py', 'updates.py', 'validate.py'];
 for (const file of files) await fs.copyFile(path.join(root, file), path.join(engine, file));
-for (const dir of ['stud', 'clubhouse', 'web']) {
+for (const dir of ['stud', 'web']) {
   await fs.cp(path.join(root, dir), path.join(engine, dir), {
     recursive: true, filter: source => !source.includes('__pycache__') && !source.endsWith('.pyc')
   });

@@ -40,3 +40,7 @@ Implementation details and verification progress belong in [IMPLEMENTATION.md](I
 Plan-author clarification (2026-09-09, task `01a0875c-9dcf-72f3-a366-2fc680500bfb`): software implementation can be reported complete separately from external acceptance. Physical print, actual reader, native platform, and production signed-update gates remain required; this is not a scope waiver. Prepare artifacts, procedures, pass criteria, and missing evidence for each. Check native CI availability before concluding Windows evidence is unavailable.
 
 Subsequent owner clarification (2026-09-09) supersedes the physical-print requirement: “You don't need me to literally print out the plans to verify, you can check the PDFs.” Direct PDF verification satisfies the print-scale and page-quality gate.
+
+## CadQuery-only project support — September 10, 2026
+
+Owner instruction: remove legacy support from code and its authoring guidance. This supersedes D001 and D018 insofar as they retained the alternate project workflow. All project entry points require a valid CadQuery manifest; the old loader, public authoring API, examples and guides are retired. Existing user project files are not converted or deleted. Native saved-version records and estimates retain their compatibility behavior.

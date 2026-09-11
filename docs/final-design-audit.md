@@ -34,7 +34,7 @@ represents net coverage; hidden headlaps and folded metal roof flanges remain
 installation details. Deck span rating, panel edge clips/blocking, installation
 gaps, fastening, ice protection and ventilation/condensation design are still
 explicitly unverified. This corrects the absent-roof finding below without
-claiming a construction-ready weather enclosure. See `docs/construction.md`.
+claiming a construction-ready weather enclosure. See `docs/cadquery.md` and `skills/stud-design/references/framed-buildings.md`.
 Verification covers 137 Python cases across full/focused runs (the server module
 was rerun successfully with localhost access) and all 25 JavaScript tests.
 

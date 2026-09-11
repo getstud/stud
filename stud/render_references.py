@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import uuid
 
-from comments import decode_screenshot
+from .screenshots import decode_screenshot
 from .contracts import confined
 
 

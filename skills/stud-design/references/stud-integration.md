@@ -6,7 +6,7 @@ Use this reference for the installed CLI, project lifecycle and precise version 
 
 Run `stud --version` and `stud doctor`. Desktop resources include Python, CadQuery, PDF dependencies, Git, and the engine/docs/examples. In a source checkout, install the pinned requirements into Python 3.13 and set `STUD_PYTHON` to that interpreter.
 
-The current format is identified by `stud.json`. `design.py` exports `model` from `stud.cad.Model`. Legacy projects without that manifest use the older API exporting `project`, with inches and `annotations/`; keep their existing API. Read `docs/workshop.md` only for legacy authoring, and `docs/cadquery.md` for the current format. These files are bundled under `engine/docs/` in desktop resources.
+A valid project has `stud.json` with `engine: cadquery`; `design.py` exports `model` from `stud.cad.Model`. Read `engine/docs/cadquery.md` in the desktop resources for authoring. If initialization fails, verify that the manifest exists before starting a viewer. Recover the incomplete initialization or create a separate valid project; close any viewer started for the abandoned folder.
 
 ## One request, one editing workspace
 

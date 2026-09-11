@@ -28,7 +28,7 @@ The tool captures visible design meshes at their final animated positions in a s
 
 Successful results contain `reference_path`, `brief_path`, image dimensions and SHA-256, the exact displayed source/build/checkpoint identity, camera, visible and hidden part IDs, material descriptions, finishes, lighting, and the generation prompt. Files live under `exports/render-references/<id>/geometry.png` and `brief.json` in the design project. Captures are separate from source checkpoints, comment records and generated images. A new capture gets a new directory; prior references retain their original context.
 
-Both native and legacy viewers save through the loopback `/api/render-references` JSON endpoint, using the existing same-origin and request-size controls. The server chooses paths, bounds and validates PNG inputs, and rejects oversized/non-finite briefs. Saving never evaluates the design or modifies its editing state.
+The CadQuery viewer saves through the loopback `/api/render-references` JSON endpoint, using the existing same-origin and request-size controls. The server chooses paths, bounds and validates PNG inputs, and rejects oversized/non-finite briefs. Saving never evaluates the design or modifies its editing state.
 
 The tool runs through the shared viewer queue, visible control activity and Stop handling, and accepts its `AbortSignal`. Cancellation suppresses a late successful result; if a save has already reached the server, its reference may remain on disk. No image-generation job is started by this endpoint.
 
