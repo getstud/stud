@@ -1,6 +1,6 @@
 {
   "name": "stud",
-  "version": "1.0.0-preview.9",
+  "version": "1.0.0-preview.10",
   "description": "Local, agent-first 3D design workshop with material takeoffs and project budgets",
   "scripts": {
     "start": "python3 serve.py",
