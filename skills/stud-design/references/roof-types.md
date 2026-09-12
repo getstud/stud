@@ -38,6 +38,31 @@ When using a reference drawing, retain its source and distinguish the illustrate
 
 **Finish and review:** Carry eaves, fascia, soffits and drainage around the perimeter; include hip and ridge finish closures. Inspect a corner, a jack-to-hip joint and the ridge/apex before repeating. Check bearing, plane alignment, panel support, support/load-path evidence and all corner returns.
 
+### Accepted tied hip-roof recipe
+
+For a conventional tied hip study, start from `stud init --example hip-roof`
+and read its copied README and `hip_roof.py`. Preserve the accepted arrangement:
+
+- Square ridge board with low cross ties and hip-end ties; every tension
+  connection and member size needs project-specific evidence.
+- Square-edged dropped hips and a lowered flat ridge top, set from the roof
+  planes and actual thickness. The baseline extends the ridge half a member
+  thickness beyond each ridge-end common centerline.
+- Full-width end commons against ridge ends, side commons against ridge faces,
+  and hips against their corners. Include mandatory commons without overlapping
+  nearby grid rafters.
+- Explicit plumb ridge-face cuts for all commons and hip-face side cuts for
+  jacks. A boolean subtraction of a lowered support can leave an upper lip;
+  inspect the full cut, including above the support. Apply triangular roof-domain
+  cuts to jacks separately from the ridge-end common arrangement.
+- Continuous plumb subfascia outside shortened tails, with beveled tops,
+  mitered corners and depth tied to the plumb tail plus the selected reveal.
+
+Use the example's junction regressions and native checks after edits. Keep
+coplanar panel-edge findings visible for dropped square-edged framing: line
+contact and a bridged seam are not validated by that face-contact rule.
+The README owns the baseline dimensions, formulas and verification limits.
+
 ## Gambrel / barn
 
 **Form and framing:** Each side has a steep lower plane and a shallower upper plane. Record both pitches and the slope-break position, plus desired interior clearance. Choose a designed gambrel truss or an explicitly supported rafter/beam arrangement before defining its members.
@@ -78,13 +103,13 @@ Keep roof selection and assembly policy in the recipe. The shared operations do 
 | --- | --- |
 | Gable | Two planes and their ridge; paired members with independent seats, gable infill, eave/rake members and panel footprints. Use `gable_roof` when its ridge/tie system fits. |
 | Mono-pitch | One plane, two bearing lines and members cut to independent high/low support faces. |
-| Hip / pyramid | Intersect adjacent planes for hips; back hip stock to both faces; offset hip faces for compound jack ends; clip deck footprints to each plane's domain. |
+| Hip / pyramid | Intersect adjacent planes for hips; choose dropped square-edged hips or a deliberate backing bevel; fit compound jack ends to finite hip/ridge solids; clip deck footprints to each plane's domain. |
 | Gambrel / mansard | Distinct lower/upper planes and break lines; generate members for the selected supported or trussed break joint, then deck each segment. |
 | Saltbox | Independent planes from each wall datum and pitch; solve their shared ridge and generate separate rafter families. |
 | Low-slope | Structural support planes plus a separate drainage surface when the buildup creates the fall; retain the drain/edge openings in panel footprints. |
 | Compound roofs | Intersect adjacent roof domains for valleys and ridges; use named support/connection assemblies at each junction and clip each panel footprint accordingly. |
 
-Use `stud init PATH --example hip-roof` for the shipped four-plane composition study. Read its copied `hip_roof.py` and installed `engine/examples/cadquery-hip-roof/README.md` (checkout `examples/cadquery-hip-roof/`). It demonstrates backed hips, compound jack ends, seat cuts, original blanks and continuously supported panel cuts; its member sizing, load path and finish scope remain provisional. Treat example dimensions as editable fixture inputs, and rerun checks after changes. Add shared geometry operations only when repeated recipe needs justify them.
+Use `stud init PATH --example hip-roof` for the shipped four-plane composition study. Read its copied `hip_roof.py` and installed `engine/examples/cadquery-hip-roof/README.md` (checkout `examples/cadquery-hip-roof/`). It demonstrates dropped square-edged hips, compound jack ends, seat cuts, original blanks and panel cuts with explicit support findings; its member sizing, load path and finish scope remain provisional. Treat example dimensions as editable fixture inputs, and rerun checks after changes. Add shared geometry operations only when repeated recipe needs justify them.
 
 ### Overhangs and joint details
 
