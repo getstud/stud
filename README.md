@@ -82,7 +82,7 @@ Open [localhost:8765](http://127.0.0.1:8765) to view the project. Stop the serve
 
 Run `stud doctor` to check CAD, PDF and Git availability.
 
-The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams.
+The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams. The [hip-roof study](examples/cadquery-hip-roof/README.md) composes four roof planes with reusable stock cuts and panel operations.
 
 ## Make something
 

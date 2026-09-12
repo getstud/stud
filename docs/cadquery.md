@@ -12,7 +12,7 @@ Imperial packets display exact sixteenth-inch fractions where possible and other
 
 Source development requires Python 3.13, Git and Node.js. Create a virtual environment and install `requirements.lock` with `pip install --require-hashes -r requirements.lock`. Set `STUD_PYTHON` to that environment's interpreter when using the npm launcher. `stud doctor` reports the actual runtime and missing dependencies. Desktop preparation bundles checksum-pinned Python, Git and the locked CAD/PDF packages; see [desktop.md](desktop.md) for release gates.
 
-Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `shed` and `mansion`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
+Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `hip-roof`, `shed` and `mansion`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
 
 ```sh
 stud begin PATH --expected-head COMMIT --intent "Widen the workbench" --key unique-client-key
@@ -108,13 +108,52 @@ Deterministic native queries can reuse exact evidence from `.stud/query_cache/`.
 
 ## Reusable construction
 
-`stud.construction` supplies general stock-frame operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. Specific designs—the workbench, rotated opening, roof-joint sample, shed and residence—live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
+`stud.stock` supplies oriented planes, stock-preserving member and panel cuts, and grouped stock-part registration. `stud.roof_geometry` adapts XY roof footprints to the generic panel frame; `stud.construction` supplies operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. Specific designs—the workbench, rotated opening, roof-joint sample, hip roof, shed and residence—live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
 
 The US framing helpers require an inch project and use actual imperial stock, 16-inch framing stations and 1/8-inch sheet joints. Metric construction uses project-owned functions with native millimeter geometry.
 
 Walls generate individual plates/studs, opening framing, cut sheets, support references, stock demands and steps from one definition. Opening `x`, `sill`, `width` and `height` specify the clear rough opening. `exceptions` targets a persistent member key for an intentional bore. Missing exception targets fail instead of silently discarding the exception. Floor frames support explicit stair openings. Gable rafters retain true rectangular stock coordinates and measured birdsmouth seats; roof and gable sheets retain their physical cuts/backing.
 
 Walls, floors and roofs accept a parent assembly and rigid local placement. Their drawing directions and dimension references follow the complete parent transform. `gable_roof(..., gable_ends=[...])` selects exterior gables when composing adjacent roof modules. The [courtyard residence workload](../examples/cadquery-mansion/README.md) exercises these placements and several levels of shared parameters in ordinary Python.
+
+`gable_roof(..., eave_overhang=8, rake_overhang=8)` adds horizontal projections in inches. Both parameters default to zero to preserve existing models. Eaves extend the original rafter stock and birdsmouth placement; rakes add an inner rail, rungs and one fly rafter per roof slope, with the two ladder halves meeting at the peak. Rakes apply only to the selected `gable_ends`. `gable_finish_thickness` measures from the outside end-frame face to the outside finish face (default 0.5 inches for the generated sheathing); `ladder_spacing` defaults to 16 inches. A positive rake must exceed that finish thickness plus both 1.5-inch rails. The helper sizes rung blanks for the roof angle and includes deck backing, peak contact, stock-fit checks and projection dimensions. These are geometric details; connection/cantilever sizing and roof finishes remain project-specific.
+
+`cut_rafter(..., eave_overhang=8)` extends the tail while retaining the original bearing-seat datum. Its returned location includes the tail's stock-frame offset; use that full location for placement and for transforming named seat references. Fit wall sheathing and exterior finishes to projecting rafters/soffits in the owning design, and check those interfaces. Fascia, soffit panels, ventilation and weather-edge details use the returned roof planes/ladder members; they are not generated by the framing helper. Oversized roof panels remain explicit fabrication findings requiring subdivision and supported joints.
+
+
+### Compose another roof form
+
+The stock layer uses the caller's native units and makes no member-sizing or roof-form decisions:
+
+- `Plane.roof(origin=(x,y,z), slope=(dz_dx,dz_dy))` defines an upward roof plane. `height_at(x,y)` returns its elevation; `offset(distance)` moves it along its unit normal; `intersection(other)` returns a point and unit direction for the common line. Parallel planes have no unique intersection.
+- `cut_member(start,end,(width,depth), start_plane=..., end_plane=..., top_planes=..., up=...)` returns `(local_solid, location, blank)`. Endpoints lie on the original stock's top centerline. The local stock axes are X across, Y along its length and Z toward its upper face. Default end cuts are plumb. Explicit plane normals point out of retained stock; cuts retain signed distances ≤ 0. `up` defaults to vertical; use a roof normal for a member lying flat in that plane. The blank includes the extra length for angled cuts and archives plane cuts in stock coordinates.
+- `stud.stock.cut_panel(frame, outline, thickness)` cuts a 2D profile in any CadQuery plane frame. Thickness extends along the frame normal. It returns a normalized local solid, its placement, and a blank whose X/Y coordinates are the original sheet coordinates. Walls, floors, sloped roofs, soffits and gussets can therefore share one stock convention. `stud.roof_geometry.cut_panel(plane, xy_outline, thickness, x_direction=...)` remains the roof adapter that projects an XY footprint into that interface.
+- `StockParts(model, parent=..., demand_prefix=...)` owns repeated lumber registration. `add(id, cut_result, section=...)` registers the part, material identity and stock-fit evidence. `purchase(stock_lengths=..., kerf=...)` groups the actual blanks by product and emits their demands. A one-family recipe can pass `demand_id=...` to retain an established demand identity.
+
+For example, this creates a backed hip member along two equal-pitch planes:
+
+```python
+from stud.stock import Plane, StockParts, cut_member
+
+front = Plane.roof(origin=(0, 0, 100), slope=(0, .5))
+left = Plane.roof(origin=(0, 0, 100), slope=(.5, 0))
+point, direction = front.intersection(left)
+shape, placement, blank = cut_member(
+    (0, 0, 100), (48, 48, 124), (1.5, 5.5),
+    top_planes=(front, left))
+stock = StockParts(model, demand_prefix='roof.')
+stock.add('hip', (shape, placement, blank), section=(1.5, 5.5))
+stock.purchase(stock_lengths=[96, 120, 144, 192], kerf=.125)
+```
+
+The recipe still supplies bearing seats, neighboring members, material demands,
+sheet layouts and native interface checks. The [hip-roof example](../examples/cadquery-hip-roof/README.md)
+composes four planes, backed hips, compound jack ends and supported sheet cuts
+using these operations. `gable_roof` also returns its `planes` in the roof
+assembly's coordinates; use the assembly's complete placement for world-space
+finish geometry. Recipes and the roof-design skill own structural systems, roof
+forms and finish choices. Add a shared operation when those recipes expose a
+repeated geometric need.
 
 These helpers exercise detailed fabrication geometry. Read the authored notes and unresolved connections. The shed does not include site foundations, selected structural loads, roofing, flashing, cladding or installed door/window products. Use a project-owned CadQuery function for another construction method, with its own checks and fabrication data. [The shed example](../examples/cadquery-shed/README.md) describes its bounded scope.
 

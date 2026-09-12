@@ -1,6 +1,6 @@
 # Framed buildings
 
-Use this branch for sheds, clubhouses and similar framed structures. Design physical construction assemblies and their load-path interfaces. Interior use informs clearances; decorating and furnishing need an explicit request.
+Use this branch for houses, garages, workshops, additions, sheds, clubhouses and similar framed structures. Design physical construction assemblies and their load-path interfaces. Interior use informs clearances; decorating and furnishing need an explicit request.
 
 Use `docs/cadquery.md` and the `stud.buildings` framing helpers for CadQuery projects. Compose specific buildings in project-owned Python. Verify helper signatures and documented scope before use; enclosure, roofing and overhang details outside that scope need project-owned geometry and evidence. The US framing helpers require an inch project.
 
@@ -50,36 +50,13 @@ Finished interior corners need attachment support on both wall faces. Use a suit
 
 ## Roof stage
 
-Keep the chosen form explicit. Use a supported builder or project-owned generator for that form; identify a missing capability instead of replacing a hip or gable with a flat roof. Distinguish structural ridge beams and their supports from ridge boards with the required tie system. A ridge board alone does not establish a stable roof.
-
-For an open roof, seek useful overhead clearance and economical member lengths when selecting the tie arrangement. Distinguish each member's function: [American Wood Council guidance](https://awc.org/faq/what-is-the-difference-between-a-collar-tie-and-a-rafter-tie/) places collar ties in the upper third to resist separation near the ridge under uplift, and rafter ties in the lower third to resist outward gravity thrust. High collar ties do not replace required lower rafter ties. Ceiling joists can also serve as rafter ties only with suitable continuity and connections.
-
-Where more clearance is needed, consider a supported structural ridge system or a specifically designed raised-rafter-tie arrangement, together with the applicable collar-tie/ridge-connection detail. Establish tie elevation, spacing, section, connection basis and clear height from the selected system before generating it. Compare total material quantities, including ridge supports and connections, before claiming savings. The current `gable_roof` ridge-board builder generates plate-level rafter ties; use a supported alternative or project-owned generator for raised ties, and keep unresolved structural evidence explicit. Moving those existing ties upward or relabeling them as collar ties is not a complete system change.
-
-For sawn rafters with birdsmouths, derive seat and heel cuts from plate position, pitch and required bearing. Keep each cut rafter one physical part with its original stock blank. Check actual seat contact and the sourced notch/remaining-section limits. Engineered rafters/trusses follow their manufacturer's permitted cuts and connections.
-
-Derive eaves, rakes, tails/lookouts, fascia, soffits and roof skins from shared roof planes and finish thicknesses. Choose open or closed overhangs, the rake support arrangement, fascia proportions and corner-return treatment for this design. Model the selected overhang detail in project-owned assemblies with named interface checks.
-
-When using a ladder rake detail, its single outer fly rafter and inner attachment rail meet the selected fascia, soffit and main framing. Check the connections, panel edges and peak closure. A triangular bird-box face follows from matching eave fascia depth to the plumb rafter tail plus rake-soffit overlap; deeper fascia produces a different closure. Return length and separate fascia grouping are project choices. An extended ridge needs a coordinated enclosure; a structural ridge beam also needs its support/connection design.
-
-For a new gable shed, consult `engine/examples/cadquery-shed/README.md`, `design.py` and `shed.py` (checkout `examples/cadquery-shed/`). Use `stud init --example shed` to copy the model into its own project. This example covers framing and sheathing; it does not supply a complete foundation, exterior enclosure, roof finish or installed opening products. Adapt its geometry and recheck changed interfaces.
-
-For asphalt roofing, author the selected system in project-owned CadQuery code.
-Record product stock yields and representation limits. Include deck, membrane/ice protection, eave/rake drip
-edges, starters, field shingles and ridge closure; account for roofing dead load.
-Check deck-to-rafter bearing, required panel edge support and finish substrate
-contact before covering. Bevel fascia tops to the roof plane. Retrieve the
-selected manufacturers' current slope, exposure, overlap, fastening and edge
-instructions. Establish ventilation and condensation control with the end user
-when designing a real building. For tool-development fixtures, record those
-inputs as provisional rather than requesting a development user's site.
-Exposed-coverage graphics do not model concealed laps or prove weather sealing;
-keep those limits explicit. Count shingles by installed coverage and ridge/edge
-accessories by length, including package yields and cutting/lap allowances.
+For roof selection, framing, pitch, ties, overhangs or roof finishes, read [Roof types and detailing](roof-types.md). Use its common roof specification and the selected form's section, then the applicable framing and finish details. Keep the member-sizing and site evidence above with that specification.
 
 ## Enclosure and openings
 
-Resolve corner trim before siding ends. For board-trim corners, model the vertical corner boards and the mating siding extents. Close unintended gaps while preserving product-specific movement, sealant and drainage joints; [manufacturer guidance](https://www.jameshardie.ca/product-support/resource-center/technical-documents/caulking-tips) may require a deliberate joint.
+Treat exterior trim as part of the exterior finish stage. Inventory every exterior corner and door/window opening, then model the chosen corner boards, door side/head casing, and window side/head/sill or apron trim. Reuse the selected material, color and proportions; use a compatible trim detail for every present opening. Record an explicit design choice where an opening uses an integrated product finish. Derive trim and siding extents from shared opening and wall definitions, retaining installation clearances, usable openings, door/window operation, and product-specific movement and drainage joints.
+
+Resolve corner trim before siding ends. Model the paired board joint and siding termination, or the selected applied-over-siding detail, with continuous backing and deliberate top/bottom terminations. Coordinate opening trim with head flashing, sill/threshold drainage and the weather barrier. Record stock sections, cuts, quantities, finish and fastening/product evidence for each trim family. Before completing exterior finishing, inspect all corners and opening perimeters for missing pieces, overlaps, exposed edges and obstructed clearances; add named checks for the affected interfaces. Product-specific joint requirements remain explicit; [manufacturer guidance](https://www.jameshardie.ca/product-support/resource-center/technical-documents/caulking-tips) may require a deliberate joint.
 
 For sheet siding, compare edge widths before placing panels. Centered sheets often avoid slivers; an edge-aligned or offset layout may better suit openings, product joints or the desired appearance. Record the selected panel alignment and first-joint offset explicitly. Keep a connected sheet with its window/door notches as one physical part; split disconnected remnants. Coordinate gable joints with the wall below.
 
