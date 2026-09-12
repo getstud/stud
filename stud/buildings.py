@@ -5,6 +5,7 @@ import cadquery as cq
 
 from .cad import point_at, vector_at
 from .construction import imperial_model
+from .stock import StockParts, cut_panel as cut_planar_panel
 
 
 def station(value):
@@ -83,7 +84,8 @@ def framed_wall(model, *, object_id, length, height=96, depth=3.5, thickness=1.5
     model.assembly(object_id, object_id.replace('.', ' ').title(), location=location, parent=parent)
     frame = model.assembly(object_id+'.frame', 'Framing', parent=object_id)
     skin = model.assembly(object_id+'.skin', 'Sheathing', parent=object_id)
-    parts, cuts, groups, opening_parts, boxes = [], {}, {}, {}, {}
+    parts, opening_parts, boxes = [], {}, {}
+    stock=StockParts(model,parent=frame,demand_prefix=object_id+'.')
 
     def board(key, size, origin, cut_length, section=None):
         if min(size) <= .0004:
@@ -104,15 +106,11 @@ def framed_wall(model, *, object_id, length, height=96, depth=3.5, thickness=1.5
             shape = shape.cut(tool)
             operations.append({'kind':'bore', 'diameter':diameter, 'center':[x,z], 'through':True, 'axis':'Y'})
         section = section or [thickness, depth]
-        product = 'lumber.'+'x'.join(f'{value:g}' for value in section)
-        model.part(part_id, shape, parent=frame, label=key.replace('.', ' ').replace('_',' ').title(),
-            material=product, location=cq.Location(cq.Vector(*origin)),
-            blank={'size':list(size), 'cut_length':cut_length, 'operations':operations})
-        model.requirement(part_id+'.blank', 'stock_fit', [part_id])
+        blank={'size':list(size), 'cut_length':cut_length, 'operations':operations}
+        stock.add(part_id,(shape,cq.Location(cq.Vector(*origin)),blank),section=section,
+                  label=key.replace('.', ' ').replace('_',' ').title())
         parts.append(part_id)
         boxes[part_id]=(list(origin),list(size))
-        cuts.setdefault(product, []).append({'object_id':part_id, 'length':cut_length})
-        groups[product] = section
         return part_id
 
     bottom, top, vertical = [], [], []
@@ -183,20 +181,20 @@ def framed_wall(model, *, object_id, length, height=96, depth=3.5, thickness=1.5
                     width = last-x-(gap if last < length-.0004 else 0)
                     high = min(sh,height-z)-(gap if z+sh < height-.0004 else 0)
                     pid = object_id+f'.panel.{col}.{row}'
-                    shape = cq.Workplane('XY').box(width,panel_thickness,high,centered=(False,False,False))
-                    operations = [{'kind':'panel_cut','finished_size':[width,high,panel_thickness]}]
+                    panel_frame=cq.Plane(origin=(x,0,z),xDir=(1,0,0),normal=(0,-1,0))
+                    shape,placement,blank=cut_planar_panel(panel_frame,[(0,0),(width,0),(width,high),(0,high)],panel_thickness)
+                    operations=blank['operations']
                     for opening in openings:
                         ox, oz, ow, oh = opening['x']-x, opening['sill']-z, opening['width'], opening['height']
                         if ox < width and ox+ow > 0 and oz < high and oz+oh > 0:
-                            tool = cq.Workplane('XY').box(ow,panel_thickness+2,oh,centered=(False,False,False)).translate((ox,-1,oz))
-                            shape = shape.cut(tool)
+                            tool=cq.Workplane('XY').box(ow,oh,panel_thickness+2,centered=(False,False,False)).translate((ox,oz,-1))
+                            shape=shape.cut(tool.val())
                             operations.append({'kind':'rectangular_opening','origin':[max(ox,0),max(oz,0)],
                                 'size':[min(ox+ow,width)-max(ox,0),min(oz+oh,high)-max(oz,0)],'opening_id':opening['id']})
-                    if not shape.val().Solids():
+                    if not shape.Solids():
                         continue
                     model.part(pid,shape,parent=skin,label=f'Sheathing {col+1}.{row+1}',material='panel.plywood',color='#c8b183',
-                        location=cq.Location(cq.Vector(x,-panel_thickness,z)),
-                        blank={'size':[width,panel_thickness,high],'panel_axes':[0,2], 'operations':operations})
+                        location=placement,blank=blank)
                     model.requirement(pid+'.blank','stock_fit',[pid])
                     supports = [part for part in parts if model.shapes[pid]['world'].distance(model.shapes[part]['world']) < .001]
                     # These references identify actual framing behind the sheet;
@@ -205,7 +203,7 @@ def framed_wall(model, *, object_id, length, height=96, depth=3.5, thickness=1.5
                     for opening in openings:
                         supported_edges['opening.'+opening['id']] = list(opening_parts[opening['id']].values())
                     model.requirement(pid+'.edge_backing','panel_edge_support',[pid]+supports,threshold=0,
-                        direction_local=[0,1,0],explanation='Every actual sheathing edge and opening cut has continuous framing behind it.')
+                        direction_local=[0,0,-1],explanation='Every actual sheathing edge and opening cut has continuous framing behind it.')
                     sheets.append({'id':pid+'.sheet','size':[sw,sh], 'kerf':.125,
                         'panels':[{'object_id':pid,'origin':[0,0],'size':[width,high], 'operations':operations,
                                    'supported_edges':supported_edges,'edge_requirement':pid+'.edge_backing'}],
@@ -214,13 +212,7 @@ def framed_wall(model, *, object_id, length, height=96, depth=3.5, thickness=1.5
         model.demand(object_id+'.sheathing',product_id='panel.plywood',
             specification={'material':'plywood','thickness':panel_thickness,'sheet':[sw,sh]},
             object_ids=panel_ids,purchase_unit='sheet',sheets=sheets)
-    for product, rows in cuts.items():
-        longest=max(row['length'] for row in rows)
-        lengths=[96,120,144,192]
-        model.demand(object_id+'.'+product,product_id=product,specification={'material':'softwood','section':groups[product]},
-            object_ids=[row['object_id'] for row in rows],unit='in',purchase_unit='board',
-            stock_lengths=lengths,cuts=rows,kerf=.125,
-            unresolved=[] if longest<=max(lengths)+.0004 else ['A member exceeds the supported stock lengths.'])
+    stock.purchase(stock_lengths=[96,120,144,192],kerf=.125)
     frame_connection = object_id+'.fasten.frame'
     frame_screws=4*sum('.plate.' not in part for part in parts)+2*math.ceil(length/spacing)
     model.connection(frame_connection,parts=parts,
@@ -267,13 +259,14 @@ def floor_frame(model, *, object_id, length=120, depth=96, joist_height=5.5,
     if min(length,depth) <= 4*t:
         raise ValueError('The floor needs room inside its perimeter rims.')
     model.assembly(object_id,'Floor platform',location=location,parent=parent)
-    parts, cuts, boxes = [], [], {}
+    parts, boxes = [], {}
+    stock=StockParts(model,parent=object_id)
     def member(key,size,origin,cut_length):
         pid=object_id+'.'+key
-        model.part(pid,cq.Workplane('XY').box(*size,centered=(False,False,False)),parent=object_id,
-                   label=key.replace('.',' ').title(),location=cq.Location(cq.Vector(*origin)),material=f'lumber.1.5x{joist_height:g}',
-                   blank={'size':list(size),'cut_length':cut_length,'operations':[{'kind':'square_cut','finished_length':cut_length}]})
-        model.requirement(pid+'.blank','stock_fit',[pid]);parts.append(pid);cuts.append({'object_id':pid,'length':cut_length})
+        result=(cq.Workplane('XY').box(*size,centered=(False,False,False)),cq.Location(cq.Vector(*origin)),
+                {'size':list(size),'cut_length':cut_length,'operations':[{'kind':'square_cut','finished_length':cut_length}]})
+        stock.add(pid,result,section=(t,joist_height),label=key.replace('.',' ').title())
+        parts.append(pid)
         boxes[pid]=(list(origin),list(size))
         return pid
     joists=[]
@@ -315,23 +308,23 @@ def floor_frame(model, *, object_id, length=120, depth=96, joist_height=5.5,
             for row in range(sheet_count(depth,sh)):
                 y=row*sh;w=last-x-(gap if last<length-.0004 else 0);h=min(sh,depth-y)-(gap if y+sh<depth-.0004 else 0)
                 pid=object_id+f'.deck.{col}.{row}'
-                shape=cq.Workplane('XY').box(w,h,panel,centered=(False,False,False))
-                operations=[{'kind':'panel_cut','finished_size':[w,h,panel]}]
+                frame=cq.Plane(origin=(x,y,joist_height),xDir=(1,0,0),normal=(0,0,1))
+                shape,placement,blank=cut_planar_panel(frame,[(0,0),(w,0),(w,h),(0,h)],panel)
+                operations=blank['operations']
                 if stair_opening and x<ox+ow and x+w>ox and y<oy+oh and y+h>oy:
-                    shape=shape.cut(cq.Workplane('XY').box(ow,oh,panel+2,centered=(False,False,False)).translate((ox-x,oy-y,-1)))
+                    shape=shape.cut(cq.Workplane('XY').box(ow,oh,panel+2,centered=(False,False,False)).translate((ox-x,oy-y,-1)).val())
                     operations.append({'kind':'rectangular_opening','origin':[max(ox-x,0),max(oy-y,0)],
                         'size':[min(ox+ow-x,w)-max(ox-x,0),min(oy+oh-y,h)-max(oy-y,0)],'opening_id':'stair'})
-                if not shape.val().Solids():continue
+                if not shape.Solids():continue
                 model.part(pid,shape,parent=object_id,label=f'Floor sheet {col+1}.{row+1}',material='panel.floor',color='#b99972',
-                    location=cq.Location(cq.Vector(x,y,joist_height)),blank={'size':[w,h,panel],'operations':operations})
+                    location=placement,blank=blank)
                 model.requirement(pid+'.blank','stock_fit',[pid]);panels.append(pid)
                 supports=[part for part in parts if model.shapes[pid]['world'].distance(model.shapes[part]['world'])<.001]
                 model.requirement(pid+'.edge_backing','panel_edge_support',[pid]+supports,threshold=0,direction_local=[0,0,-1],
                     explanation='Every actual deck edge and stair cut has continuous framing behind it.')
                 sheets.append(dict(id=pid+'.sheet',size=[sw,sh],kerf=.125,panels=[dict(object_id=pid,origin=[0,0],size=[w,h],
                     operations=operations,supported_edges={'framing':supports},edge_requirement=pid+'.edge_backing')]))
-    model.demand(object_id+'.lumber',product_id=f'lumber.1.5x{joist_height:g}',specification={'material':'softwood','section':[t,joist_height]},
-        object_ids=parts,unit='in',purchase_unit='board',stock_lengths=[96,120,144,192,240],cuts=cuts,kerf=.125)
+    stock.purchase(stock_lengths=[96,120,144,192,240],kerf=.125,demand_id=object_id+'.lumber')
     model.demand(object_id+'.decking',product_id='panel.floor',specification={'material':'plywood','thickness':panel,'sheet':[sw,sh]},
                  object_ids=panels,purchase_unit='sheet',sheets=sheets)
     model.connection(object_id+'.frame.joints',parts=parts,description='Assemble the rims and joists on a level bearing surface. Predrill and fasten each joist end with two #12 x 4 in wood screws. Frame and check the stair opening before decking.',
@@ -353,28 +346,43 @@ def floor_frame(model, *, object_id, length=120, depth=96, joist_height=5.5,
 
 def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=16,
                bearing_parts=None, end_bearing_parts=None, parent=None, location=None,
-               gable_ends=('left','right')):
+               gable_ends=('left','right'), eave_overhang=0, rake_overhang=0,
+               gable_finish_thickness=.5, ladder_spacing=16):
     """A paired rafter roof with true stock frames, ties, blocking and sheathing."""
     imperial_model(model)
     from .construction import cut_rafter
+    from .stock import Plane, cut_member
+    from .roof_geometry import cut_panel
+    eave,rake=eave_overhang,rake_overhang
+    finish=gable_finish_thickness
+    if not all(math.isfinite(v) for v in (eave,rake,finish,ladder_spacing)) or min(eave,rake,finish)<0 or ladder_spacing<=0:
+        raise ValueError('Overhangs/finish thickness must be finite and nonnegative; ladder spacing must be positive.')
     t,h,seat,panel=1.5,5.5,3.5,.5
-    run=depth/2-t/2
-    rafter_shape,rotation,blank=cut_rafter(slope=slope,run=run,seat=seat)
-    angle=math.atan(slope);cosine=math.cos(angle);top_rise=h/cosine
+    gable_ends=tuple(gable_ends)
     if set(gable_ends)-{'left','right'}:
         raise ValueError('Gable sheathing ends must be left or right.')
+    rakes={end:rake if end in gable_ends else 0 for end in ('left','right')}
+    has_rake=any(rakes.values())
+    if has_rake and (finish<panel or rake<=finish+2*t):
+        raise ValueError('A rake ladder needs finish thickness at least the 1/2-inch gable sheathing and a projection greater than finish thickness plus two 1.5-inch rails.')
+    run=depth/2-t/2
+    deck_run=depth/2 if has_rake else run
+    rafter_shape,rafter_rotation,blank=cut_rafter(slope=slope,run=run,seat=seat,eave_overhang=eave)
+    rotation=cq.Location(cq.Vector(),cq.Vector(1,0,0),math.degrees(math.atan(slope)))
+    angle=math.atan(slope);cosine=math.cos(angle);top_rise=h/cosine
+    roof_planes={'front':Plane.roof(origin=(0,0,top_rise),slope=(0,slope)),
+                 'back':Plane.roof(origin=(0,depth,top_rise),slope=(0,-slope))}
     model.assembly(object_id,'Gable roof',parent=parent,
         location=(location or cq.Location())*cq.Location(cq.Vector(0,0,wall_top-seat*slope)))
-    parts,panels,cuts,sections,sheets=[],[],{},{},[]
+    parts,panels,sheets=[],[],[]
+    stock=StockParts(model,parent=object_id,demand_prefix=object_id+'.')
     rafters={'front':[],'back':[]};blocks={'front':[],'back':[]};ties=[]
     stations_=stations(length,spacing,t)
     mirror=cq.Location(cq.Vector(0,0,0),cq.Vector(0,0,1),180)
     def register(key,shape,location,fabrication,section,label=None):
-        pid=object_id+'.'+key;product='lumber.'+'x'.join(f'{v:g}' for v in section)
-        model.part(pid,shape,parent=object_id,label=label or key.replace('.',' ').title(),material=product,
-                   location=location,blank=fabrication)
-        model.requirement(pid+'.blank','stock_fit',[pid]);parts.append(pid)
-        cuts.setdefault(product,[]).append({'object_id':pid,'length':fabrication['cut_length']});sections[product]=section
+        pid=object_id+'.'+key
+        stock.add(pid,(shape,location,fabrication),section=section,label=label or key.replace('.',' ').title())
+        parts.append(pid)
         return pid
     ridge_bottom=run*slope+top_rise-7.25
     with model.batch():
@@ -383,7 +391,7 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
             {'size':[length,t,7.25],'cut_length':length,'operations':[{'kind':'square_cut','finished_length':length}]},[t,7.25])
         for key,x in stations_:
             for side,place in [('front',cq.Location(cq.Vector(x,0,0))),('back',cq.Location(cq.Vector(x+t,depth,0))*mirror)]:
-                pid=register('rafter.'+side+'.'+key,rafter_shape,place*rotation,blank,[t,h])
+                pid=register('rafter.'+side+'.'+key,rafter_shape,place*rafter_rotation,blank,[t,h])
                 rafters[side].append(pid)
                 model.requirement(pid+'.ridge','contact',[pid,ridge],threshold=1,units='in2')
                 if bearing_parts and bearing_parts.get(side):
@@ -401,16 +409,16 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
             clear=next_x-x-t
             if clear <= 0:continue
             for side in ('front','back'):
-                for end,y in [('eave',0),('ridge',run-t)]:
+                for end,y in [('eave',-eave),('ridge',run-t)]:
                     profile=[(0,0),(t,0),(t,3.5+t*slope),(0,3.5)]
                     shape=cq.Workplane('YZ').polyline(profile).close().extrude(clear)
                     origin=(x+t,y,y*slope+top_rise-3.5)
                     operations=[{'kind':'beveled_edge','slope':slope,'low_height':3.5,'high_height':3.5+t*slope}]
-                    if end=='eave' and key not in ('start','end'):
+                    if end=='eave' and eave<t and key not in ('start','end'):
                         notch_height=seat*slope+3.5-origin[2]
                         notch_x=0 if side=='front' else clear-t
-                        shape=shape.cut(cq.Workplane('XY').box(t,t,notch_height,centered=(False,False,False)).translate((notch_x,0,0)))
-                        operations.append({'kind':'housing','origin':[notch_x,0,0],'size':[t,t,notch_height],
+                        shape=shape.cut(cq.Workplane('XY').box(t,t-eave,notch_height,centered=(False,False,False)).translate((notch_x,eave,0)))
+                        operations.append({'kind':'housing','origin':[notch_x,eave,0],'size':[t,t-eave,notch_height],
                                            'description':'Cut the underside housing to clear the adjacent rafter tie.'})
                     place=cq.Location(cq.Vector(*origin)) if side=='front' else cq.Location(cq.Vector(x+next_x-x,depth-y,y*slope+top_rise-3.5))*mirror
                     pid=register(f'blocking.{side}.{end}.{key}',shape,place,
@@ -449,27 +457,101 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
                     {'size':[seat,span,t],'cut_length':span,'operations':[{'kind':'profile_cut','profile':outline,
                         'description':'Cut the base backing outline on the local Y-Z face.'}]},[t,seat])
                 gable_posts[end].append(pid)
+    # Each rake ladder has a rail attached through the cladding to the end frame,
+    # an outer fly rafter and plumb-cut rungs. All upper surfaces share the deck plane.
+    rung_height=next(v for v in (5.5,7.25,9.25,11.25) if v>=top_rise+t*slope-.0004)
+    ladders={'front':{'left':[],'right':[]},'back':{'left':[],'right':[]}}
+    ladder_attachment=[]
+    def sloped_member(x,width,y0,y1):
+        plane=roof_planes['front']
+        return cut_member((x+width/2,y0,plane.height_at(x,y0)),
+                          (x+width/2,y1,plane.height_at(x,y1)),(width,h))
+    def cross_member(x0,x1,y0,y1):
+        # Plumb stock faces and bevelled upper/lower cuts, shared by rungs and bridges.
+        return cut_member((x0,(y0+y1)/2,top_rise+y1*slope),
+                          (x1,(y0+y1)/2,top_rise+y1*slope),(t,rung_height),
+                          top_planes=(roof_planes['front'],Plane((0,0,0),(0,slope,-1)),
+                                      Plane((0,y0,0),(0,-1,0)),Plane((0,y1,0),(0,1,0))))
+    with model.batch():
+        for side in ('front','back'):
+            for end,fly_x,rail_x in [('left',-rake,-finish-t),('right',length+rake-t,length+finish)]:
+                actual_end=end if side=='front' else ('right' if end=='left' else 'left')
+                if not rakes[actual_end]:continue
+                for role,x in [('fly',fly_x),('rail',rail_x)]:
+                    shape,place,fab=sloped_member(x,t,-eave,deck_run)
+                    if side=='back':place=cq.Location(cq.Vector(length,depth,0))*mirror*place
+                    # Mirror X swaps the end labels for the back half.
+                    actual_end=end if side=='front' else ('right' if end=='left' else 'left')
+                    pid=register(f'ladder.{actual_end}.{side}.{role}',shape,place,fab,[t,h])
+                    ladders[side][actual_end].append(pid)
+                    ladder_attachment.append(pid)
+                x0,x1=(fly_x+t,rail_x) if end=='left' else (rail_x+t,fly_x)
+                for key,y in [(key,-eave+y) for key,y in stations(deck_run+eave,ladder_spacing,t)]:
+                    shape,place,fab=cross_member(x0,x1,y,y+t)
+                    if side=='back':place=cq.Location(cq.Vector(length,depth,0))*mirror*place
+                    pid=register(f'ladder.{actual_end}.{side}.rung.{key}',shape,place,
+                        fab,[t,rung_height])
+                    ladders[side][actual_end].append(pid)
+                    for rail in ladders[side][actual_end][:2]:model.requirement(pid+'.contact.'+rail,'contact',[pid,rail],threshold=1,units='in2')
+        for end in ('left','right'):
+            if not rakes[end]:continue
+            for role in ('fly','rail'):
+                a=object_id+f'.ladder.{end}.front.{role}';b=object_id+f'.ladder.{end}.back.{role}'
+                model.requirement(a+'.peak','contact',[a,b],threshold=1,units='in2')
+        # Bridge the finish-layer gap at each eave, where no gable sheathing exists.
+        for side in ('front','back'):
+            for end,x in [('left',-finish),('right',length)]:
+                actual=end if side=='front' else ('right' if end=='left' else 'left')
+                if not rakes[actual] or eave==0 or finish==0:continue
+                bridge_depth=min(t,eave)
+                shape,place,fab=cross_member(x,x+finish,-eave,-eave+bridge_depth)
+                actual=end
+                if side=='back':
+                    place=cq.Location(cq.Vector(length,depth,0))*mirror*place
+                    actual='right' if end=='left' else 'left'
+                pid=register(f'ladder.{actual}.{side}.eave_bridge',shape,place,
+                    fab,[t,rung_height])
+                ladders[side][actual].append(pid)
+        if ladder_attachment:model.connection(object_id+'.ladder.attachment',parts=ladder_attachment,
+            description='Attach the inner rake rails through cladding into the gable end framing; rungs connect inner rails to fly rafters.',
+            unresolved=[f'Select structural screws/connection schedule and verify {rake:g}-inch ladder cantilever, end-frame anchorage, uplift and service loads.'])
+    # A bevelled ridge cap supports the extended deck edges at the true peak;
+    # it rests on the ridge board rather than leaving a slot between roof planes.
+    ridge_caps=[]
+    for i,(x0,x1) in enumerate([(-finish if rakes['left'] else 0,length/2),(length/2,length+finish if rakes['right'] else length)] if has_rake else []):
+        shape,place,fab=cut_member((x0,depth/2,deck_run*slope+top_rise),(x1,depth/2,deck_run*slope+top_rise),(t,t),
+                                  top_planes=tuple(roof_planes.values())+(Plane((0,0,run*slope+top_rise),(0,0,-1)),))
+        pid=register(f'ridge.cap.{i}',shape,place,fab,[t,t])
+        ridge_caps.append(pid)
+        model.requirement(pid+'.ridge','support',[pid,ridge],threshold=1,units='in2')
     layouts=[]
     with model.batch():
         for side in ('front','back'):
             for index,((key,x),(_,next_x)) in enumerate(zip(stations_,stations_[1:])):
-                first=0 if index==0 else x+t/2+.0625
-                last=length if index==len(stations_)-2 else next_x+t/2-.0625
-                width=last-first;sloped_length=run/cosine
-                shape=cq.Workplane('XY').box(width,sloped_length,panel,centered=(False,False,False))
-                place=cq.Location(cq.Vector(first,0,0))*rotation*cq.Location(cq.Vector(0,h*math.tan(angle),h))
-                if side=='back':place=cq.Location(cq.Vector(last,depth,0))*mirror*rotation*cq.Location(cq.Vector(0,h*math.tan(angle),h))
+                first=-rakes['left'] if index==0 else x+t/2+.0625
+                last=length+rakes['right'] if index==len(stations_)-2 else next_x+t/2-.0625
+                width=last-first;sloped_length=(deck_run+eave)/cosine
+                y0,y1=(-eave,deck_run) if side=='front' else (depth+eave,depth-deck_run)
+                outline=[(first,y0),(last,y0),(last,y1),(first,y1)]
+                shape,place,fabrication=cut_panel(roof_planes[side],outline,panel,x_direction=(1 if side=='front' else -1,0,0))
                 pid=object_id+f'.deck.{side}.{key}'
-                operations=[{'kind':'panel_cut','finished_size':[width,sloped_length,panel]}]
+                operations=fabrication['operations']
                 model.part(pid,shape,parent=object_id,label=f'{side.title()} roof panel {index+1}',material='panel.roof',color='#cdb68e',
-                    location=place,blank={'size':[width,sloped_length,panel],'operations':operations})
+                    location=place,blank=fabrication)
                 model.requirement(pid+'.blank','stock_fit',[pid]);panels.append(pid)
                 supports=rafters[side][index:index+2]+blocks[side][2*index:2*index+2]
-                for support in supports:model.requirement(pid+'.support.'+support,'support',[pid,support],threshold=1,units='in2')
+                supports += [cap for cap in ridge_caps if model.shapes[pid]['world'].distance(model.shapes[cap]['world'])<.0001]
+                if index==0:supports+=ladders[side]['left']
+                if index==len(stations_)-2:supports+=ladders[side]['right']
+                for support in supports:model.requirement(pid+'.support.'+support,'support',[pid,support],
+                    threshold=(min(1,finish*min(t,eave)*.99) if support.endswith('.eave_bridge')
+                               else min(1,(rake-finish-2*t)*t*.99) if '.rung.' in support else 1),units='in2')
                 model.requirement(pid+'.edge_backing','panel_edge_support',[pid]+supports,threshold=0,direction_local=[0,0,-1],
                     explanation='All four edges of this roof panel have continuous opposing contact with its rafters and blocking.')
                 layouts.append(dict(object_id=pid,size=[width,sloped_length],operations=operations,
-                                    supported_edges={'left':supports[0],'right':supports[1],'eave':supports[2],'ridge':supports[3]},edge_requirement=pid+'.edge_backing'))
+                                    supported_edges={'left':ladders[side]['left'][0] if index==0 and ladders[side]['left'] else supports[0],
+                                                     'right':ladders[side]['right'][0] if index==len(stations_)-2 and ladders[side]['right'] else supports[1],
+                                                     'eave':supports[2],'ridge':ridge_caps if ridge_caps else supports[3]},edge_requirement=pid+'.edge_backing'))
     # Each stock sheet has concrete, nonoverlapping cuts. Small bay panels can
     # share a sheet; this is explicit packing, not area converted to sheet count.
     sw,sh=48,96
@@ -482,46 +564,46 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
     for sheet in sheets:sheet.pop('_x')
     model.demand(object_id+'.deck',product_id='panel.roof',specification={'material':'plywood','thickness':panel,'sheet':[sw,sh]},
                  object_ids=panels,purchase_unit='sheet',sheets=sheets,
-                 unresolved=['Roof panels exceed the selected sheet length. Subdivide with supported joints.'] if run/cosine>sh+.0004 else [])
+                 unresolved=['Roof panels exceed selected sheet dimensions. Subdivide with supported joints.'] if any(row['size'][0]>sw+.0004 or row['size'][1]>sh+.0004 for row in layouts) else [])
     # Gable panels use a clipped elevation profile, including the rafter depth.
     # Their actual blank frames and polygon cuts are retained in the sheet list.
     gable_panels=[];gable_sheets=[]
     peak=run*slope+top_rise-seat*slope
-    profile=[(0,0),(depth,0),(depth,top_rise-seat*slope),(depth-run,peak),(run,peak),(0,top_rise-seat*slope)]
-    full=cq.Workplane('YZ').polyline(profile).close().extrude(panel).val()
     with model.batch():
         for end,x in [('left',-panel),('right',length)]:
             if end not in gable_ends:continue
             for index,(y,last) in enumerate(panel_spans(depth,sw,[at+t/2 for _,at in candidates])):
                 w=last-y-(.125 if last<depth-.0004 else 0)
-                clip=cq.Workplane('XY').box(panel,w,peak,centered=(False,False,False)).translate((0,y,0)).val()
-                shape=full.intersect(clip).moved(cq.Location(cq.Vector(0,-y,0)))
-                bounds=shape.BoundingBox();high=bounds.zmax
                 pid=object_id+f'.gable.panel.{end}.{index}'
                 top_at=lambda at:min(at,depth-at,run)*slope+top_rise-seat*slope
                 outline=[[0,0],[w,0],[w,top_at(y+w)]]
                 for at in (depth-run,run):
                     if y<at<y+w:outline.append([at-y,peak])
                 outline.append([0,top_at(y)])
-                operations=[{'kind':'profile_cut','profile':outline,
-                             'description':'Transfer the gable outline from the elevation; cut the sloped top to fit the roof underside.'}]
+                frame=cq.Plane(origin=(x,y,seat*slope),xDir=(0,1,0),normal=(1,0,0))
+                shape,placement,panel_blank=cut_planar_panel(frame,outline,panel)
+                panel_blank['operations'][0]['description']='Transfer the gable outline from the elevation; cut the sloped top to fit the roof underside.'
+                operations=panel_blank['operations'];high=panel_blank['size'][1]
                 model.part(pid,shape,parent=object_id,label=f'{end.title()} gable panel {index+1}',material='panel.plywood',color='#c8b183',
-                    location=cq.Location(cq.Vector(x,y,seat*slope)),blank={'size':[panel,w,high],'panel_axes':[1,2],'operations':operations})
+                    location=placement,blank=panel_blank)
                 model.requirement(pid+'.blank','stock_fit',[pid]);gable_panels.append(pid)
                 supports=gable_posts[end]+[ridge]+[rafters[side][0 if end=='left' else -1] for side in ('front','back')]
                 if end_bearing_parts and end_bearing_parts.get(end):supports.append(end_bearing_parts[end])
                 supports+=list((bearing_parts or {}).values())
                 model.requirement(pid+'.edge_backing','panel_edge_support',[pid]+supports,threshold=0,
-                    direction_local=[1 if end=='left' else -1,0,0],explanation='The gable profile and sheet seams have continuous framing behind them.')
+                    direction_local=[0,0,1 if end=='left' else -1],explanation='The gable profile and sheet seams have continuous framing behind them.')
                 gable_sheets.append(dict(id=pid+'.sheet',size=[sw,sh],kerf=.125,panels=[dict(object_id=pid,origin=[0,0],size=[w,high],
                     operations=operations,supported_edges={'framing':supports},edge_requirement=pid+'.edge_backing')]))
+    for side in ('front','back'):
+        for end,pid in [('left',panels[0 if side=='front' else len(stations_)-1]),('right',panels[len(stations_)-2 if side=='front' else -1])]:
+            backing=[p for p in gable_panels if f'.{end}.' in p]
+            model.requirements[pid+'.edge_backing']['targets']+=backing
+            for row in layouts:
+                if row['object_id']==pid and backing:row['supported_edges']['gable']=backing
     if gable_panels:
         model.demand(object_id+'.gable.panels',product_id='panel.plywood',specification={'material':'plywood','thickness':panel,'sheet':[sw,sh]},
                      object_ids=gable_panels,purchase_unit='sheet',sheets=gable_sheets)
-    for product,rows in cuts.items():
-        model.demand(object_id+'.'+product,product_id=product,specification={'material':'softwood','section':sections[product]},
-            object_ids=[r['object_id'] for r in rows],cuts=rows,unit='in',purchase_unit='board',
-            stock_lengths=[96,120,144,192],kerf=.125)
+    stock.purchase(stock_lengths=[96,120,144,192],kerf=.125)
     frame_connection=object_id+'.connections.frame';skin_connection=object_id+'.connections.skin'
     model.connection(frame_connection,parts=parts,description='Set the gable posts and ridge, then install matching rafter pairs with full seats on the top plates. Fasten each rafter tie to both rafter sides with three #12 x 4 in wood screws. Predrill and screw the end blocking into the rafters.',
         hardware={'product_id':'screws.no12x4','count':len(ties)*6+sum(map(len,blocks.values()))*4},
@@ -535,8 +617,20 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
     a=model.reference(ridge,'start',point=(0,0,7.25));b=model.reference(ridge,'end',point=(length,0,7.25))
     model.dimension(object_id+'.ridge_length',a,b,label='Ridge length')
     world=model._parent_location(object_id)
-    model.drawing(object_id+'.plan',label='Roof framing plan',objects=parts,direction=vector_at(world,(0,0,1)),up=vector_at(world,(0,1,0)),dimensions=[object_id+'.ridge_length'])
-    end_scope=gable_posts['left']+[ridge,rafters['front'][0],rafters['back'][0]]+[p for p in gable_panels if '.left.' in p]
+    overhang_dimensions=[]
+    if eave:
+        rafter=rafters['front'][0]
+        refs=[model.reference(rafter,name,point=point_at(rafter_rotation.inverse,p)) for name,p in
+              [('eave_wall',(0,0,0)),('eave_tip',(0,-eave,0))]]
+        key=object_id+'.eave_projection';model.dimension(key,*refs,label='Horizontal eave projection');overhang_dimensions.append(key)
+    for end,projection in rakes.items():
+        if not projection:continue
+        x=0 if end=='left' else length
+        outer=-projection if end=='left' else length+projection
+        refs=[model.reference(ridge,end+'_'+name,point=(at,0,0)) for name,at in [('wall',x),('rake',outer)]]
+        key=object_id+'.rake_projection.'+end;model.dimension(key,*refs,label=end.title()+' rake projection');overhang_dimensions.append(key)
+    model.drawing(object_id+'.plan',label='Roof framing plan',objects=parts,direction=vector_at(world,(0,0,1)),up=vector_at(world,(0,1,0)),dimensions=[object_id+'.ridge_length']+overhang_dimensions)
+    end_scope=ladders['front']['left']+ladders['back']['left']+gable_posts['left']+[ridge,rafters['front'][0],rafters['back'][0]]+[p for p in gable_panels if '.left.' in p]
     model.drawing(object_id+'.end',label='Gable roof elevation and bearing',objects=end_scope,direction=vector_at(world,(1,0,0)),up=vector_at(world,(0,0,1)),dimensions=[])
     detail_parts=([rafters['front'][1],ties[0]] if ties else [rafters['front'][0]])+([bearing_parts['front']] if bearing_parts and bearing_parts.get('front') else [])
     seat_a=model.reference(rafters['front'][1 if ties else 0],'seat_start',point=blank['operations'][1]['stock_seat_endpoints'][0])
@@ -549,8 +643,9 @@ def gable_roof(model, *, object_id, length, depth, wall_top, slope=.5, spacing=1
     cx,cy=datum.dot(right),datum.dot(up)
     model.drawing(object_id+'.bearing_detail',label='Rafter seat and tie detail',objects=detail_parts,direction=vector_at(world,(1,0,0)),up=up.toTuple(),
         dimensions=[object_id+'.seat_width'],detail_of=object_id+'.end',crop=[cx-.75,cy-2.5,cx+seat+7,cy+9])
-    model.step(object_id+'.frame','Label and pair the rafters. Erect the gable posts and ridge, then attach the rafters, ties and blocking. Verify full bearing before closing the roof.',parts=parts,connections=[frame_connection],view=object_id+'.end')
+    model.step(object_id+'.frame','Label and pair the rafters. Erect the gable posts and ridge, then attach the rafters, ties and blocking. Verify full bearing before closing the roof.',parts=parts,connections=[frame_connection]+([object_id+'.ladder.attachment'] if ladder_attachment else []),view=object_id+'.end')
     model.step(object_id+'.panels','Install the numbered roof and gable sheets; retain every supported seam and cut line shown in the packet.',parts=panels+gable_panels,
                connections=[skin_connection],prerequisites=[object_id+'.frame'],view=object_id+'.plan',exploded={pid:[0,0,8] for pid in panels})
     return dict(id=object_id,parts=parts,panels=panels,gable_panels=gable_panels,rafters=rafters,ridge=ridge,
-                height=peak+panel,check_scope='geometry_and_fabrication')
+                planes=roof_planes,ladders=ladders,wall_top=wall_top,slope=slope,eave=eave,rake=rake,rake_ends=rakes,gable_finish_thickness=finish,roof_base=wall_top-seat*slope,top_rise=top_rise,run=run,deck_run=deck_run,
+                height=(deck_run*slope+top_rise-seat*slope+panel*cosine if has_rake else peak+panel),check_scope='geometry_and_fabrication')
