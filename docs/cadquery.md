@@ -12,7 +12,7 @@ Imperial packets display exact sixteenth-inch fractions where possible and other
 
 Source development requires Python 3.13, Git and Node.js. Create a virtual environment and install `requirements.lock` with `pip install --require-hashes -r requirements.lock`. Set `STUD_PYTHON` to that environment's interpreter when using the npm launcher. `stud doctor` reports the actual runtime and missing dependencies. Desktop preparation bundles checksum-pinned Python, Git and the locked CAD/PDF packages; see [desktop.md](desktop.md) for release gates.
 
-Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `hip-roof`, `shed` and `mansion`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
+Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `hip-roof`, `shed`, `mansion` and `foundations`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
 
 ```sh
 stud begin PATH --expected-head COMMIT --intent "Widen the workbench" --key unique-client-key
@@ -156,6 +156,72 @@ forms and finish choices. Add a shared operation when those recipes expose a
 repeated geometric need.
 
 These helpers exercise detailed fabrication geometry. Read the authored notes and unresolved connections. The shed does not include site foundations, selected structural loads, roofing, flashing, cladding or installed door/window products. Use a project-owned CadQuery function for another construction method, with its own checks and fabrication data. [The shed example](../examples/cadquery-shed/README.md) describes its bounded scope.
+
+### Compose foundations and bulk materials
+
+Foundation layouts are project-owned recipes built from generic solids, stock
+members and normal Model registration. The [foundation guide](../skills/stud-design/references/foundations.md)
+maps the major families and construction systems to their components and required
+evidence. `stud init PATH --example foundations` copies
+[13 editable foundation studies](../examples/cadquery-foundations/README.md).
+
+`stud.solids` uses native inches or millimeters without selecting dimensions:
+
+- `prism(outline, depth, holes=(), frame=None)` extrudes frame-local XY polygons
+  along the frame normal and returns a completed solid in assembly coordinates.
+  The default frame is world XY. Depth is positive; openings must lie strictly
+  inside the outline, separate from each other. Use CadQuery cuts for edge
+  notches, stepped profiles, slopes and intersecting penetrations.
+- `round_member(start, end, diameter, inner_diameter=0)` creates a solid round
+  member or hollow pipe between its end-face centers. Endpoints can be oriented
+  arbitrarily. Use it for shafts, straight bars, dowels and drain pipe segments;
+  use native CadQuery sweeps for bends and product-specific helixes.
+
+One pour is one physical part. Fuse overlapping footing/beam/slab regions before
+registration so their intersection contributes volume once. Keep independently
+poured floor slabs and wall foundations separate. Apply existing `support`,
+`collision_free` and dimension checks to the intended interfaces; selected
+reinforcement/product/soil capacities are separate design evidence.
+
+`stud.bulk.volume_demand(model, demand_id, product_id=..., specification=...,
+object_ids=..., purchase_unit=..., purchase_increment=1, unresolved=None)` sums
+registered net part volumes and declares their purchase conversion. Every part
+must exist, use that product, and appear once in the demand. Supported purchase
+units are `yd3`, `ft3` and `m3`; physical quantities remain `in3` or `mm3` and
+`pack_size` holds the native volume per purchase unit. Physical measurements are
+retained; after pooling and conversion, CAD volume within one billionth of a
+delivery increment of a positive integer is normalized to that boundary to avoid
+an extra delivery increment caused by integration noise. Call after the final
+geometry edits; fabrication auditing detects stale volume, incompatible cubic
+units and physical parts counted in multiple volume demands.
+
+```python
+import cadquery as cq
+from stud.cad import Model
+from stud.bulk import volume_demand
+from stud.solids import prism
+
+model = Model('Concrete volume fixture', units='in')
+model.part('pad', prism([(0,0),(36,0),(36,36),(0,36)],9), material='concrete')
+model.requirement('pad.valid', 'solid_valid', ['pad'])
+volume_demand(model, 'pad.concrete', product_id='concrete',
+              specification={'mix': 'Unselected fixture mix'}, object_ids=['pad'],
+              purchase_unit='yd3', purchase_increment='.25',
+              unresolved=['Select mix, reinforcement and soil/load sizing basis.'])
+```
+
+This measures 11,664 in³ (¼ yd³), with a fixture delivery increment of ¼ yd³.
+Supplier increments are explicit choices. Ordinary quantity demands also accept
+`purchase_increment`: compatible demands pool before rounding up to that
+increment in purchase units. Quotes remain priced per purchase unit (e.g. per
+yd³). Default increments are whole units; boards and stock sheets always remain
+whole purchases. Allowances and overrides retain their existing separate role.
+
+Volume purchasing fits concrete, grout, aggregate and explicitly described fill.
+Use actual units for precast components, blocks, piles and hardware, stock cuts
+for bars/lumber, and cutting layouts for panels. Membrane/insulation areas need
+their own installation and purchasing layout. A gross wall or insulation
+envelope alone does not establish those product quantities.
 
 ## Purchasing and saved prices
 

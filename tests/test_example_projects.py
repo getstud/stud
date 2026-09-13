@@ -14,7 +14,8 @@ class ExampleProjectTests(unittest.TestCase):
         examples=Path(__file__).resolve().parents[1]/'examples'
         with tempfile.TemporaryDirectory() as temporary,patch('stud_cli.register'):
             for name,module,count in [('workbench','workbench.py',12),('opening','opening.py',4),
-                                      ('roof-joint','roof_joint.py',2),('hip-roof','hip_roof.py',69),('shed','shed.py',181)]:
+                                      ('roof-joint','roof_joint.py',2),('hip-roof','hip_roof.py',69),('shed','shed.py',181),
+                                      ('foundations','foundations.py',5)]:
                 with self.subTest(example=name):
                     root=Path(temporary)/name;init_project(root,example=name)
                     original=(examples/('cadquery-'+name)/module).read_bytes()

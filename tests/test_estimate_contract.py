@@ -16,6 +16,19 @@ def quote(plan,price='12.35',sequence=1,kind='sourced',key='q1',currency='USD'):
 
 
 class EstimateContractTests(unittest.TestCase):
+    def test_fractional_bulk_delivery_rounds_after_pooling_and_prices_per_unit(self):
+        bulk=dict(id='a',product_id='concrete',specification={'mix':'fixture'},object_ids=['a'],
+                  unit='in3',quantity='13996.8',purchase_unit='yd3',pack_size='46656',purchase_increment='.25')
+        other={**bulk,'id':'b','object_ids':['b']}
+        result=calculate([bulk,other],{},[quote(bulk,'200')])
+        # Two .3 yd3 pours pool to .6, then round up to .75 yd3, not 1 yd3.
+        self.assertEqual(result['rows'][0]['quantity'],'0.75')
+        self.assertEqual(result['total'],'150.00')
+        for invalid in (0,-1,'NaN'):
+            with self.assertRaises(StudError):calculate([{**bulk,'purchase_increment':invalid}],{},[])
+        with self.assertRaises(StudError):
+            calculate([{**bulk,'cuts':[{'object_id':'a','length':10}],'stock_lengths':[12]}],{},[])
+
     def test_pooling_before_pack_rounding_and_override_applies_once(self):
         demands=[demand('a',10),demand('b',10)]
         result=calculate(demands,{'overrides':{'fastener':'3'},'allowances':{'fastener':'1'}},[quote(demand())])

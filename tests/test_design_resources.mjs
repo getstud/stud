@@ -12,9 +12,11 @@ test('desktop resources include the current skill, references and modeling docs'
   t.after(() => fs.rm(resources, { recursive: true, force: true }));
   await copyDesignResources(root, resources);
   await verifyDesignResources(root, resources);
-  for (const file of ['engine/docs/cadquery.md', 'engine/docs/comparison.md',
+  for (const file of ['engine/docs/cadquery.md', 'engine/examples/cadquery-foundations/README.md',
     'skills/stud-design/references/framed-buildings.md', 'engine/examples/cadquery-shed/design.py',
-    'engine/examples/cadquery-shed/README.md']) {
+    'engine/examples/cadquery-shed/README.md',
+    'skills/stud-design/references/foundations.md',
+    'engine/examples/cadquery-foundations/foundations.py']) {
     assert.ok((await fs.stat(path.join(resources, file))).isFile());
   }
   await fs.appendFile(path.join(resources, 'skills/stud-design/SKILL.md'), '\nStale installation edit.\n');

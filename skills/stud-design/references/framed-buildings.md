@@ -32,6 +32,15 @@ Record source URL, publisher/edition, table and row, design inputs, allowable sp
 
 Recheck sizing when span, spacing, loads, ceiling intent, tie elevation, species or grade changes. Regenerate seats, remaining sections, ridge/fascia depths, gable notches and stock cuts after a size change. Span-table adequacy covers only its stated checks; bearing, birdsmouths, cantilevers, connections, uplift and raised ties need their corresponding details. Before moving on, every load-bearing member family has either a recorded sizing basis or an explicit unresolved input; geometric fit alone is not a sizing result.
 
+## Foundation stage
+
+For foundation selection, ground slabs, below-grade walls, piers/piles or frost
+protection, read [Foundations by composition](foundations.md). Compose supports,
+layers and building connections from shared datums; keep the garage floor's
+support distinct from the foundation carrying its walls. Complete the requested
+foundation geometry, quantities and interface checks before covering it with
+floor or wall assemblies.
+
 ## Floor stage
 
 Plan support lines, beams, joist direction and subfloor together. Prefer the shorter unsupported joist span when supports permit; an interior beam may change the best direction. Record any alternative's reason. Check bearing and lateral restraint before covering the frame.
