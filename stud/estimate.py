@@ -11,7 +11,7 @@ import time
 
 from .contracts import StudError, digest, encoded
 
-CALCULATION_VERSION = 4
+CALCULATION_VERSION = 5
 CENT = Decimal('0.01')
 PRECEDENCE = {'estimated': 0, 'sourced': 1, 'manual': 2}
 
@@ -108,6 +108,11 @@ def plan_purchase(demand, inputs):
     pack = decimal(demand.get('pack_size', 1))
     if pack <= 0:
         raise StudError('invalid_quantity', 'Pack size must be greater than zero.')
+    increment = decimal(demand.get('purchase_increment', 1))
+    if increment <= 0:
+        raise StudError('invalid_quantity', 'Purchase increment must be greater than zero.')
+    if increment != 1 and (demand.get('cuts') is not None or demand.get('sheets') is not None):
+        raise StudError('invalid_quantity', 'Boards and sheets are purchased as whole units.')
     cuts = demand.get('cuts')
     if cuts is not None:
         lengths = sorted(decimal(length) for length in (demand.get('stock_lengths') or []))
@@ -148,9 +153,20 @@ def plan_purchase(demand, inputs):
         plan['basis'] = 'Explicit authored sheet layouts; count actual identified sheets.'
     elif demand.get('quantity') is not None:
         raw = decimal(demand['quantity'])
-        quantity = Decimal(ceil(raw / pack))
+        deliveries = raw / pack / increment
+        if demand.get('measurement') == 'solid_volume':
+            # Normalize CAD integration/conversion noise only after compatible
+            # volumes pool and convert to delivery increments. Keep ordinary
+            # counted quantities exact and retain a minimum purchase for tiny
+            # positive volumes.
+            nearest = deliveries.to_integral_value()
+            if nearest > 0 and abs(deliveries - nearest) <= Decimal('1e-9'):
+                deliveries = nearest
+        quantity = Decimal(ceil(deliveries)) * increment
         plan['demand_quantity'] = str(raw)
         plan['basis'] = f'Physical demand {raw} {demand["unit"]}; {pack} per purchase unit.'
+        if increment != 1:
+            plan['basis'] += f' Round up to {increment} {demand["purchase_unit"]} delivery increments.'
     else:
         quantity = None
         missing.append('Physical quantity or explicit stock plan is missing.')
