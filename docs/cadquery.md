@@ -68,7 +68,7 @@ The first completed geometry publishes immediately. A bounded writer coalesces s
 | `collision_free` | One or more part IDs, checking pairs within that group | Total overlap volume at most threshold; volume. |
 | `distance`, `clearance` | Exactly two part IDs | Minimum native distance equals (`distance`) or is at least (`clearance`) threshold; length. |
 | `contact` | Exactly two part IDs | Opposing planar contact area is nonzero and at least threshold; area. |
-| `support` | Exactly two part IDs: supported part, bearing part | Projected opposing contact area is nonzero and at least threshold; area. Default bearing direction is world down. |
+| `support` | Supported part followed by one or more distinct bearing parts | Projected opposing contact area is nonzero and at least threshold; area. Default bearing direction is world down. |
 | `panel_edge_system` | Panel ID and all named supports/mates | Actual perimeter not supported by wood or a compatible factory joint, at most threshold; length. `supports` and `mates` explicitly partition targets. |
 | `panel_edge_support` | Panel ID followed by one or more backing part IDs | Actual unbacked perimeter, including cutouts, at most threshold; length. |
 
@@ -103,7 +103,7 @@ model.requirement('panel.edges', 'panel_edge_support', ['panel', 'base'],
 model.requirement('parts.interference', 'collision_free', ['panel', 'base'], threshold=0)
 ```
 
-For a member bearing on several supports, declare a separate `support` requirement per pair with its own expected bearing area. `panel_edge_support` instead accepts multiple backing parts in one requirement. Preserve the original stock dimensions when cutting a part; finished cut dimensions do not redefine its purchasing blank.
+For a member bearing on several supports, `support` measures their geometric union, so overlapping supports cannot double-count area. Set the required area from the design intent. Use separate local end regions when each end must independently meet its bearing requirement. `panel_edge_support` instead accepts multiple backing parts in one requirement. Preserve the original stock dimensions when cutting a part; finished cut dimensions do not redefine its purchasing blank.
 
 Findings distinguish passed, failed, unresolved, unsupported and operation failures. Coverage is explicit; no requirements or uncovered parts do not imply a pass. Geometry availability is separate from checks and quantities. Structural analysis, automatic code compliance and a general constraint solver are outside this engine's scope.
 
@@ -111,7 +111,7 @@ Deterministic native queries can reuse exact evidence from `.stud/query_cache/`.
 
 ## Reusable construction
 
-`stud.stock` supplies oriented planes, stock-preserving member and panel cuts, and grouped stock-part registration. `stud.roof_geometry` adapts XY roof footprints to the generic panel frame; `stud.construction` supplies operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. For floors with named supports, multiple openings, solid/I profiles, anchored sills or separate decking, use the installed `stud.framing` and `stud.floors` APIs described in [floor systems](floor-systems.md). Specific designs live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
+`stud.stock` supplies oriented planes, stock-preserving member and panel cuts, and grouped stock-part registration. `stud.roof_geometry` adapts XY roof footprints to the generic panel frame; `stud.construction` supplies operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. For floors with named supports, multiple openings, solid/I profiles, anchored sills or separate decking, use the installed `stud.framing` and `stud.floors` APIs described in [floor systems](floor-systems.md). For connected walls, named face alignment, reusable opening details and stock/bearing verification, use [wall systems](wall-systems.md). Specific designs live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
 
 The US framing helpers require an inch project and use actual imperial stock, 16-inch framing stations and 1/8-inch sheet joints. Metric construction uses project-owned functions with native millimeter geometry.
 
