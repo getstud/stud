@@ -84,6 +84,11 @@ Run `stud doctor` to check CAD, PDF and Git availability.
 
 The [CadQuery guide](docs/cadquery.md) covers authoring, request workspaces, native measurements and packets. A [detailed shed fixture](examples/cadquery-shed/README.md) exercises framed openings, sheathing cuts, birdsmouths and supported seams. The [hip-roof study](examples/cadquery-hip-roof/README.md) composes four roof planes with reusable stock cuts and panel operations.
 
+The [floor-system fixture](examples/cadquery-floor-system/README.md) uses installed
+builders for bearing interfaces, solid/I joists, opening framing, anchored sills
+and optional decking. Change its compact Python inputs to regenerate dependent
+members, hardware, checks and quantities.
+
 ## Make something
 
 Open Codex and describe your project:
@@ -206,3 +211,8 @@ Use **W/A/S/D** to fly, **drag** to look around, **Q/E** to descend or ascend,
 and hold **Shift** to move faster. Flight can pass through surfaces to inspect
 interiors. **Esc** releases keyboard control; choose **3D** to return to orbit
 controls, or **Fit design** to return to an overview.
+
+For irregular T&G subfloor layouts, `stud init PATH --example subfloor-system`
+composes an L-shaped floor, shared opening and rotated framing wing. See
+[Floor systems](docs/floor-systems.md) for panel specifications, local backing,
+native joint checks and nominal-versus-fabrication evidence.

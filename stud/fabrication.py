@@ -33,6 +33,8 @@ def audit_fabrication(manifest):
                     issue('stale_material_volume',key,'Bulk demand differs from the registered net solid volumes; regenerate it after geometry edits.')
             except (KeyError,InvalidOperation,ValueError):
                 issue('stale_material_volume',key,'Bulk demand needs measured volumes for all referenced parts.')
+        if demand.get('specification',{}).get('geometry_basis')=='nominal_module':
+            issue('nominal_sheet_layout',key,'Sheet assignments use nominal modules; actual stock coverage and final cuts are not fabrication-verified.')
         represented=set()
         for cut in demand.get('cuts') or []:
             pid=cut.get('object_id');obj=objects.get(pid)

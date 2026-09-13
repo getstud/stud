@@ -10,6 +10,40 @@ from stud_cli import init_project
 
 
 class ExampleProjectTests(unittest.TestCase):
+    def test_floor_system_build_publishes_geometry_and_unresolved_details(self):
+        from stud.display import model_for_viewer
+        with tempfile.TemporaryDirectory() as temporary,patch('stud_cli.register'):
+            root=Path(temporary)/'floor';init_project(root,example='floor-system')
+            with Session(root) as session:
+                request=session.begin(key='floor',expected_head=session.snapshot()['option']['head'],intent='Exercise shared floor composition')
+                source=session.source(request['id'])
+                job=session.wait(session.evaluate(request['id'],source['source_id'])['id'],timeout=120)
+                self.assertEqual(job['status'],'complete',job)
+                manifest=read_json(Path(job['artifact_path'])/'manifest.json')
+                self.assertTrue(manifest['checks']['all_passed'])
+                self.assertEqual(manifest['fabrication_findings'],[])
+                self.assertEqual(manifest['design_review']['geometry'],'verified')
+                self.assertEqual(manifest['design_review']['details'],'unresolved')
+                self.assertFalse(any('.deck.' in p['id'] for p in manifest['objects']))
+                view=model_for_viewer(session)
+                self.assertEqual(view['validation_results']['design_review'],manifest['design_review'])
+                self.assertTrue(any(f.get('category')=='connection_detail' for f in view['validation_results']['findings']))
+
+    def test_subfloor_example_retains_nominal_fabrication_gap_and_native_joint_checks(self):
+        with tempfile.TemporaryDirectory() as temporary,patch('stud_cli.register'):
+            root=Path(temporary)/'subfloor';init_project(root,example='subfloor-system')
+            with Session(root) as session:
+                request=session.begin(key='deck',expected_head=session.snapshot()['option']['head'],intent='Exercise composed subfloor')
+                source=session.source(request['id'])
+                job=session.wait(session.evaluate(request['id'],source['source_id'])['id'],timeout=120)
+                self.assertEqual(job['status'],'complete',job)
+                manifest=read_json(Path(job['artifact_path'])/'manifest.json')
+                self.assertTrue(manifest['checks']['all_passed'])
+                self.assertTrue(any(f['kind']=='panel_edge_system' for f in manifest['checks']['findings']))
+                self.assertEqual({f['category'] for f in manifest['fabrication_findings']},{'nominal_sheet_layout'})
+                self.assertEqual(manifest['design_review']['geometry'],'verified')
+                self.assertEqual(manifest['design_review']['details'],'unresolved')
+
     def test_copied_model_helpers_run_and_local_edits_are_captured(self):
         examples=Path(__file__).resolve().parents[1]/'examples'
         with tempfile.TemporaryDirectory() as temporary,patch('stud_cli.register'):

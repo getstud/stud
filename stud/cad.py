@@ -60,6 +60,7 @@ class Model:
         self.assets = {}
         self.references = {}
         self.requirements = {}
+        self.expectations = {}
         self.demands = {}
         self.drawings = {}
         self.dimensions = {}
@@ -179,7 +180,7 @@ class Model:
         if self._batch is not None:
             raise StudError('nested_batch', 'Publish one coherent group per batch.')
         registries = ('objects', 'shapes', 'assets', 'references', 'assemblies', 'requirements',
-                      'demands', 'drawings', 'dimensions', 'steps', 'connections')
+                      'demands', 'drawings', 'dimensions', 'steps', 'connections', 'expectations')
         previous = {name: getattr(self, name).copy() for name in registries}
         notes = self.notes[:]
         self._batch = []
@@ -250,6 +251,13 @@ class Model:
         self.connections[connection_id] = dict(id=connection_id, parts=list(parts), description=description, **details)
         return connection_id
 
+    def expect(self, expectation_id, *, parts, requirements=(), connections=()):
+        """Retain an assembly's expected inventory independently of its output."""
+        self._unique(self.expectations,expectation_id)
+        self.expectations[expectation_id]=dict(id=expectation_id,parts=list(parts),
+            requirements=list(requirements),connections=list(connections))
+        return expectation_id
+
     def step(self, step_id, text, *, parts, prerequisites=None, connections=None, view=None, exploded=None):
         self._unique(self.steps, step_id)
         self.steps[step_id] = dict(id=step_id, text=text, parts=list(parts), prerequisites=prerequisites or [],
@@ -262,4 +270,5 @@ class Model:
             assets=self.assets, references=self.references, requirements=list(self.requirements.values()),
             demands=list(self.demands.values()), dimensions=list(self.dimensions.values()),
             drawings=list(self.drawings.values()), steps=list(self.steps.values()),
-            connections=list(self.connections.values()), notes=self.notes, timings=self.timings)
+            connections=list(self.connections.values()), expectations=list(self.expectations.values()),
+            notes=self.notes, timings=self.timings)

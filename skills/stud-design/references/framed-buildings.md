@@ -10,7 +10,7 @@ Reuse the user's existing choices. Otherwise ask for wall stock and roof form to
 
 Resolve ceiling intent before choosing roof ties. Reuse an explicit ceiling choice; otherwise infer from the intended use and state the assumption briefly. A basic unconditioned storage shed or a request to store tall objects usually suggests an open roof with no ceiling lining. A specified flat finished ceiling suggests ceiling framing and lining. “Clubhouse,” “workshop,” insulation, or finished walls alone can leave flat versus open/vaulted overhead space unclear; ask one focused question through the host's question tool when that distinction affects the design. Record the choice and any required clear height for large objects. A no-ceiling choice omits ceiling finishes and framing used solely to carry them; required roof ties still follow the selected roof system.
 
-Explain the proposed bottom-up stages, then open the viewer and build coherent stages. Each stage owns expected parts and named requirements so deleting a required part or check leaves an actionable finding. Keep structural sizing and fastening evidence separate from geometry checks.
+Build coherent support-to-covering assemblies within the user's requested scope. Use `model.expect` to preserve expected parts, requirements and connections independently of surviving outputs. Read `design_review` alongside native measurements; missing expected geometry invalidates verification, while unresolved sizing and fastening remain separate. Internal construction order can execute in one request; honor a user-requested stopping point when present.
 
 ## Site inputs for a construction project
 

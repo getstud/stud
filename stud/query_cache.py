@@ -18,7 +18,7 @@ class QueryCache:
 
     def key(self,model,requirement):
         kind=requirement['kind']
-        if kind not in ('stock_fit','contact','support','clearance','distance','collision','panel_edge_support','solid_valid','collision_free'):
+        if kind not in ('stock_fit','contact','support','clearance','distance','collision','panel_edge_support','panel_edge_system','solid_valid','collision_free'):
             return None
         targets=requirement['targets']
         if any(target not in model.objects or target not in model.shapes for target in targets):return None
@@ -31,7 +31,8 @@ class QueryCache:
                 # between separate instances within one full evaluation.
                 shapes.append(dict(shape=obj['shape_digest'],blank=obj.get('blank')))
             else:
-                shapes.append(dict(id=target,shape=obj['shape_digest'],placement=obj['placement']))
+                shapes.append(dict(id=target,shape=obj['shape_digest'],placement=obj['placement'],
+                    factory_edges=(obj.get('blank') or {}).get('factory_edges',[]) if kind=='panel_edge_system' else None))
         try:
             return digest(dict(schema_version=1,units=model.units,declared_units=requirement.get('units'),kind=kind,shapes=shapes,
                 threshold=requirement['threshold'],tolerance=requirement['tolerance'],policy=requirement.get('policy',{})))

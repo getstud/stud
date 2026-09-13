@@ -101,6 +101,8 @@ def run(job):
         completion['checks'] = 'complete' if checks['coverage']['complete'] else 'incomplete'
         fabrication_started = time.perf_counter()
         result['fabrication_findings']=audit_fabrication(result)
+        from stud.design_review import design_review
+        result['design_review']=design_review(result)
         model.timings['fabrication_audit_seconds'] = time.perf_counter() - fabrication_started
         completion['quantities'] = 'complete' if model.demands and not result['fabrication_findings'] and all(not d.get('unresolved') for d in model.demands.values()) else 'incomplete'
         publish('checks_updated', checks)
