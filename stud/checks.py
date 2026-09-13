@@ -96,6 +96,15 @@ def measure_requirement(model, requirement):
     for target in targets:
         if target not in model.shapes:
             raise StudError('unresolved_reference', f'Part is missing: {target}', references=[target])
+    if kind == 'panel_edge_system':
+        from .panel_edges import edge_intervals
+        policy=requirement.get('policy',{})
+        supports=policy.get('supports',[]);mates=policy.get('mates',[])
+        if not targets or set(targets)!={targets[0],*supports,*mates} or targets[0] in supports+mates:
+            raise StudError('invalid_requirement','Panel edge system targets must include exactly the panel, supports and mates.')
+        missing,edges=edge_intervals(model,targets[0],supports,mates)
+        value=sum(e.Length() for e in missing)
+        return value,value<=threshold+tolerance,dict(operation='native perimeter minus wood contact and compatible factory joints',units=units,edges=edges)
     if kind == 'panel_edge_support':
         if len(targets)<2:raise StudError('invalid_requirement','Panel backing requires a panel and named supporting members.')
         direction=requirement.get('policy',{}).get('direction_local')
@@ -157,6 +166,16 @@ def measure_requirement(model, requirement):
             if not isinstance(values,(tuple,list)) or len(values)!=3 or not all(isinstance(v,(int,float)) and math.isfinite(v) for v in values) or math.dist(values,[0,0,0])<1e-9:
                 raise StudError('invalid_requirement','Bearing direction must be a finite nonzero world-space vector.')
             direction=cq.Vector(*values).normalized()
+            region=policy.get('region_local')
+            if region is not None:
+                try:
+                    lo,hi=region['min'],region['max']
+                    valid=len(lo)==len(hi)==3 and all(math.isfinite(v) for v in (*lo,*hi)) and all(x<y for x,y in zip(lo,hi))
+                except (TypeError,KeyError,ValueError):valid=False
+                if not valid:raise StudError('invalid_requirement','A bearing region needs finite local min/max bounds with positive extents.')
+                clip=cq.Workplane('XY').box(*[y-x for x,y in zip(lo,hi)],centered=(False,False,False)).translate(lo).val()
+                a=a.intersect(clip.moved(model.shapes[targets[0]]['location']))
+                if not a.Solids():return 0,False,dict(operation='empty local bearing region',units=units)
         area = contact_area(a, b, tolerance, direction=direction)
         return area, area+tolerance**2 >= threshold and area > 0, dict(operation='opposing planar contact projected perpendicular to bearing direction' if direction else 'opposing planar face intersection',
             direction=list(direction.toTuple()) if direction else None,distance=a.distance(b), units=units)

@@ -139,10 +139,15 @@ def model_from_manifest(session,manifest,job,*,inputs=None,presentation=None,che
         findings.append(dict(status=status,rule=finding['requirement_id'],parts=targets,message=message,evidence=finding.get('evidence')))
     if not checks.get('coverage',{}).get('complete'):
         findings.append(dict(status='UNVERIFIED',rule='Coverage',parts=checks.get('coverage',{}).get('uncovered_objects',[]),message='Some geometric requirements have not been verified.'))
+    from .design_review import design_review
+    review=manifest.get('design_review') or design_review(manifest)
+    for gap in review['findings']:
+        findings.append(dict(status='UNVERIFIED',rule=gap['target'],parts=gap['parts'],
+                             message=gap['message'],category=gap['category']))
     latest=session.job(session.state['latest_build']) if session.state['latest_build'] and presentation is None and session.state.get('view_mode')!='history' else job
     return dict(schema_version=1,engine='cadquery',units='in',display_units=manifest['units'],name=manifest['name'],revision=revision,parts=parts,stocks=stocks,
         dimensions=dimensions,materials=materials,environment=[],
-        validation_results=dict(findings=findings,coverage=checks.get('coverage',{})),
+        validation_results=dict(findings=findings,coverage=checks.get('coverage',{}),design_review=review),
         cad=dict(project_id=manifest['project_id'],build_id=manifest['build_id'],source_id=manifest['source_id'],
                  option_id=session.state.get('view_option') if presentation is None and session.state.get('view_mode')=='history' else None,
                  checkpoint=checkpoint or (session.state.get('view_checkpoint') if session.state.get('view_mode')=='history' else job.get('checkpoint')),manifest_version=version,completion=manifest['completion'],
