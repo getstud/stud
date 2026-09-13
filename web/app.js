@@ -772,6 +772,8 @@ function workspaceFindings(report){
 }
 function renderValidation(report){
  validationReport=report;
+ const summary=$('design-review-status');
+ if(summary){summary.textContent=report.design_review?.summary||'';summary.hidden=!summary.textContent;}
  $('warning-detail').hidden=true;
  const findings=workspaceFindings(report);
  renderWarningAnnotations({...report,findings});

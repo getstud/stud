@@ -12,7 +12,7 @@ Imperial packets display exact sixteenth-inch fractions where possible and other
 
 Source development requires Python 3.13, Git and Node.js. Create a virtual environment and install `requirements.lock` with `pip install --require-hashes -r requirements.lock`. Set `STUD_PYTHON` to that environment's interpreter when using the npm launcher. `stud doctor` reports the actual runtime and missing dependencies. Desktop preparation bundles checksum-pinned Python, Git and the locked CAD/PDF packages; see [desktop.md](desktop.md) for release gates.
 
-Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `hip-roof`, `shed`, `mansion` and `foundations`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
+Use `stud init PATH --example workbench` to create an independent project. Available fixtures also include `opening`, `roof-joint`, `hip-roof`, `shed`, `mansion`, `foundations` and `floor-system`. Open `stud serve PATH --no-open` and use its printed URL. Read `stud status PATH`, then begin a request with its option head:
 
 ```sh
 stud begin PATH --expected-head COMMIT --intent "Widen the workbench" --key unique-client-key
@@ -69,7 +69,10 @@ The first completed geometry publishes immediately. A bounded writer coalesces s
 | `distance`, `clearance` | Exactly two part IDs | Minimum native distance equals (`distance`) or is at least (`clearance`) threshold; length. |
 | `contact` | Exactly two part IDs | Opposing planar contact area is nonzero and at least threshold; area. |
 | `support` | Exactly two part IDs: supported part, bearing part | Projected opposing contact area is nonzero and at least threshold; area. Default bearing direction is world down. |
+| `panel_edge_system` | Panel ID and all named supports/mates | Actual perimeter not supported by wood or a compatible factory joint, at most threshold; length. `supports` and `mates` explicitly partition targets. |
 | `panel_edge_support` | Panel ID followed by one or more backing part IDs | Actual unbacked perimeter, including cutouts, at most threshold; length. |
+
+`deck_floor` registers `panel_edge_system` with factory edge metadata in each panel blank. Use the shared flooring operation to derive these identities from original stock; cut edges cannot inherit factory joints. Nominal module sheet layouts receive a fabrication finding until actual stock coverage and final cuts are reconciled.
 
 Set meaningful thresholds and tolerances in project units. Requirements derive their length, area or volume units from the project; an explicit unit must match. `support` accepts `direction=[x,y,z]` in world coordinates. `panel_edge_support` requires `direction_local=[x,y,z]` toward its backing and names the panel followed by supporting parts. Nearby or side-only contact is not vertical bearing.
 
@@ -108,7 +111,7 @@ Deterministic native queries can reuse exact evidence from `.stud/query_cache/`.
 
 ## Reusable construction
 
-`stud.stock` supplies oriented planes, stock-preserving member and panel cuts, and grouped stock-part registration. `stud.roof_geometry` adapts XY roof footprints to the generic panel frame; `stud.construction` supplies operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. Specific designs—the workbench, rotated opening, roof-joint sample, hip roof, shed and residence—live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
+`stud.stock` supplies oriented planes, stock-preserving member and panel cuts, and grouped stock-part registration. `stud.roof_geometry` adapts XY roof footprints to the generic panel frame; `stud.construction` supplies operations such as `cut_rafter`; `stud.buildings` supplies the composable `framed_wall`, `floor_frame` and `gable_roof` helpers. For floors with named supports, multiple openings, solid/I profiles, anchored sills or separate decking, use the installed `stud.framing` and `stud.floors` APIs described in [floor systems](floor-systems.md). Specific designs live in their example projects. `stud init --example NAME` copies the design and its Python helpers into the new project so their geometry, fabrication choices and later edits belong to its captured source and history. They ship as editable examples, not construction API entry points.
 
 The US framing helpers require an inch project and use actual imperial stock, 16-inch framing stations and 1/8-inch sheet joints. Metric construction uses project-owned functions with native millimeter geometry.
 
