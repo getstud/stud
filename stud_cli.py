@@ -88,7 +88,7 @@ def main(argv=None):
     init.add_argument('directory', type=Path)
     init.add_argument('--name')
     init.add_argument('--units',choices=['in','mm'],default='in',help='Native project units, fixed at creation (default: in)')
-    init.add_argument('--example',choices=['workbench','opening','roof-joint','hip-roof','shed','mansion'])
+    init.add_argument('--example',choices=['workbench','opening','roof-joint','hip-roof','shed','mansion','foundations'])
     commands.add_parser('doctor', help='Check bundled Python, CadQuery, PDF and Git runtime')
     for operation in ('status','begin','source','evaluate','finish','cancel','job','plans',
                       'option-create','option-activate','option-rename','restore','compare','prompts','prices','measure',

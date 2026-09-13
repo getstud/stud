@@ -8,7 +8,7 @@ def audit_fabrication(manifest):
     findings=[]
     def issue(category,target,message):findings.append(dict(category=category,target=target,message=message))
     objects={obj['id']:obj for obj in manifest['objects']}
-    covered=set();cut_parts=set();sheet_parts=set();quantities={}
+    covered=set();cut_parts=set();sheet_parts=set();volume_parts=set();quantities={}
     for demand in manifest['demands']:
         key=demand['id'];ids=set(demand['object_ids']);quantity=None
         if demand.get('length_unit')!=manifest['units'] or demand.get('specification',{}).get('length_unit')!=manifest['units']:
@@ -21,6 +21,18 @@ def audit_fabrication(manifest):
                 quantity=value
                 quantities[demand['product_id']]=quantities.get(demand['product_id'],Decimal(0))+value
             except (InvalidOperation,ValueError):issue('invalid_material_quantity',key,'Material quantity must be finite and nonnegative.')
+        if demand.get('measurement')=='solid_volume':
+            for pid in ids & volume_parts:
+                issue('duplicate_material_volume',pid,'The same physical part appears in more than one bulk volume demand.')
+            volume_parts.update(ids)
+            if demand.get('unit')!=manifest['units']+'3':
+                issue('incompatible_material_units',key,'Solid-volume demands must use native cubic units.')
+            try:
+                measured=sum(Decimal(str(objects[pid]['volume'])) for pid in ids)
+                if quantity is None or abs(quantity-measured)>max(Decimal(str(tolerance**3)),abs(measured)*Decimal('1e-10')):
+                    issue('stale_material_volume',key,'Bulk demand differs from the registered net solid volumes; regenerate it after geometry edits.')
+            except (KeyError,InvalidOperation,ValueError):
+                issue('stale_material_volume',key,'Bulk demand needs measured volumes for all referenced parts.')
         represented=set()
         for cut in demand.get('cuts') or []:
             pid=cut.get('object_id');obj=objects.get(pid)
