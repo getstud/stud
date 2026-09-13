@@ -148,9 +148,16 @@ def measure_requirement(model, requirement):
                 if volume>tolerance**3:
                     value+=volume;pairs.append({'parts':[left,right],'volume':volume})
         return value,value<=threshold+tolerance**3,dict(operation='OCCT common solid volumes',units=units,pairs=pairs,queried_pairs=queried)
-    if len(targets) != 2:
-        raise StudError('invalid_requirement', f'{kind} requires exactly two target parts.')
-    a, b = (model.shapes[target]['world'] for target in targets)
+    if kind == 'support':
+        if len(targets) < 2 or len(set(targets)) != len(targets):
+            raise StudError('invalid_requirement', 'Support requires a part followed by distinct bearing parts.')
+        a = model.shapes[targets[0]]['world']
+        supports = [model.shapes[target]['world'] for target in targets[1:]]
+        b = supports[0] if len(supports) == 1 else supports[0].fuse(*supports[1:]).clean()
+    else:
+        if len(targets) != 2:
+            raise StudError('invalid_requirement', f'{kind} requires exactly two target parts.')
+        a, b = (model.shapes[target]['world'] for target in targets)
     if kind in ('clearance', 'distance'):
         value = a.distance(b)
         passed = value + tolerance >= threshold if kind == 'clearance' else abs(value - threshold) <= tolerance
