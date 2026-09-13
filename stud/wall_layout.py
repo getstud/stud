@@ -31,6 +31,8 @@ class WallLine:
     base: float
 
     def __post_init__(self):
+        object.__setattr__(self, 'start', tuple(self.start))
+        object.__setattr__(self, 'end', tuple(self.end))
         if not self.id or not _point(self.start) or not _point(self.end) or math.dist(self.start, self.end) < _EPS or not math.isfinite(self.base):
             raise ValueError('A named wall line needs distinct finite endpoints and a base datum.')
 
@@ -59,10 +61,13 @@ class WallOpening:
     detail: object = None
     unit_size: tuple | None = None
     clear_size: tuple | None = None
+    shared_jambs: bool = False
 
     def __post_init__(self):
         if not self.id or not _positive(self.width, self.height) or not all(math.isfinite(v) for v in (self.station, self.sill, self.margin, self.max_shift)) or min(self.sill, self.margin, self.max_shift) < 0:
             raise ValueError('Invalid rough opening dimensions or movement allowance.')
+        for key in ('unit_size', 'clear_size'):
+            if getattr(self, key) is not None:object.__setattr__(self, key, tuple(getattr(self, key)))
         for size in (self.unit_size, self.clear_size):
             if size is not None and (len(size) != 2 or not _positive(*size)):
                 raise ValueError('Unit and passage dimensions must be positive pairs.')
@@ -82,6 +87,8 @@ class WallRun:
     priority: int = 0
 
     def __post_init__(self):
+        object.__setattr__(self, 'openings', tuple(self.openings))
+        object.__setattr__(self, 'footprint', tuple(tuple(p) for p in self.footprint))
         if not self.id or not isinstance(self.line, WallLine) or not _positive(self.height, self.depth, self.thickness, self.spacing) or self.height <= 3*self.thickness or self.spacing <= self.thickness:
             raise ValueError('Invalid wall stock, height or spacing.')
         if self.alignment not in ('outside', 'center', 'inside'):
@@ -145,7 +152,7 @@ def _location(line):
 def _polygons(shape):
     result = []
     for face in shape.Faces():
-        if face.normalAt().z < .99:
+        if face.normalAt().z < .99 or face.Area() < 1e-6:
             continue
         if face.innerWires():
             raise ValueError('A wall junction formed an enclosed hole; split the wall run.')
@@ -171,7 +178,7 @@ def layout_walls(walls, *, junction=JunctionDetail()):
     their run's stock strip. Coincident runs are rejected: a shared physical wall
     is authored once and can be referenced by either room.
     """
-    walls = tuple(sorted(walls, key=lambda w: (w.priority, w.id)))
+    walls = tuple(sorted(walls, key=lambda w: (w.priority, -math.dist(w.line.start, w.line.end), w.id)))
     if not walls or len({w.id for w in walls}) != len(walls):
         raise ValueError('Supply uniquely named wall runs.')
     masks, strips, locations, neighbors = {}, {}, {}, {}
@@ -230,7 +237,8 @@ def layout_walls(walls, *, junction=JunctionDetail()):
         ranges = sorted(interval for poly in lo for interval in polygon_intervals(poly, w.depth/2))
         openings = []
         for o in sorted(w.openings, key=lambda o: (o.station, o.id)):
-            choices = [(a+o.margin, b-o.width-o.margin) for a, b in ranges if b-a >= o.width+2*o.margin-_EPS]
+            fit_ranges = [(0, math.dist(w.line.start, w.line.end))] if o.shared_jambs else ranges
+            choices = [(a+o.margin, b-o.width-o.margin) for a, b in fit_ranges if b-a >= o.width+2*o.margin-_EPS]
             if openings:
                 previous = openings[-1]
                 choices = [(max(a, previous.station+previous.width+previous.margin+o.margin), b) for a, b in choices]
