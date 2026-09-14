@@ -44,6 +44,14 @@ For a new building or a change affecting site, member sizing, foundations, roof 
 
 Build support assemblies before covering them. Use `model.batch()` for coherent groups and explicit `replace=True` for a replacement. Regenerate named references after replacement; unresolved references must remain visible. Use one opening definition for displaced framing and sheet cuts. Preserve deliberate per-instance exceptions in the owning parameters.
 
+For compound roof framing and roof-dependent walls, read installed
+`docs/roof-systems.md`. Use named `RoofFace` inputs and `layout_roofs` before
+generating members; overlapping components must not produce concealed duplicate
+framing. Reuse the resulting planes and profiles for wall caps and later roof
+surfaces. A manufacturer-truss callout without shop data warrants an explicitly
+labeled coordination outline, not invented web patterns, chord sizes or a lumber
+cut list. Keep uncertain geometric interfaces visible alongside structural gaps.
+
 Before repeating a new or uncertain joint, author and check one representative instance with its mating parts, covering clearance, edge backing and original stock. Inspect its native findings and fabrication evidence, correct the shared definition, then repeat it. Reuse established details where applicable; this is a focused probe of an uncertain interface, not an extra gate for every part.
 
 Declare measurable intent: lengths, clearance, collisions, stock fit, bearing direction and area, and continuous support behind actual panel edges. When adding a requirement kind, consult the target/units table and runnable bearing example in installed `docs/cadquery.md`. A contact is not a fastening specification. Declare connections, hardware, and unresolved evidence. A pass count alone does not establish complete coverage.

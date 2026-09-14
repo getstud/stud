@@ -226,6 +226,11 @@ for bars/lumber, and cutting layouts for panels. Membrane/insulation areas need
 their own installation and purchasing layout. A gross wall or insulation
 envelope alone does not establish those product quantities.
 
+For plane-driven compound roof layouts, conventional rafter fields, factory
+truss coordination profiles and roof-dependent walls, see [roof systems](roof-systems.md).
+Those operations retain named Python inputs and explicit interface limits;
+roof geometry does not select structural members or replace truss shop drawings.
+
 ## Purchasing and saved prices
 
 Declare a demand's product, physical specification, purchase unit, pack size and contributing objects. Every dimensional field uses project units; demands and saved quotes retain `length_unit` as part of their purchase identity. The quote endpoint defaults an omitted unit to the project declaration and rejects a different explicit unit. Boards use concrete cuts, stock lengths and kerf. Panels use explicit stock sheets with panel offsets, sizes, cut operations and backing references. Purchased items use installed quantities and package yields. The fabrication audit reconciles physical objects, blanks, cuts, sections, panels and hardware before quantities can be complete.

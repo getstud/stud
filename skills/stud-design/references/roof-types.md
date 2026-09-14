@@ -95,6 +95,30 @@ For mansard roofs, combine hip geometry with explicit lower/upper slope-break de
 
 ### Compose the recipe from shared geometry
 
+Read installed `docs/roof-systems.md` for the current plane/domain and framing
+interfaces. `RoofFace` and `layout_roofs` retain named inputs and resolve the
+visible upper envelope of overlapping roofs. `section()` and `roof_stations()`
+derive profiles from the same planes; `RafterField`/`frame_roof` compose selected
+conventional stock. Editing pitch or footprint should update these inputs and
+rerun their consumers, rather than require rewriting individual members.
+Use `roof_edges()` for finite shared joints; a roof-to-wall elevation step is
+not a ridge. Named plate faces can drive actual rafter seats with an explicit
+bearing-length requirement. Verify notch depth and remaining stock separately.
+
+Record roof-top, plate-top and ceiling datums separately. `roof_wall_limit`
+provides a conservative level cap; `frame_sloping_wall` handles a mono-slope or
+equal-pitch gable using the existing opening details and explicit top-cap planes.
+Probe the window/header and stud-to-raking-plate interfaces before repeating.
+A blanket level-height reduction loses gable volume and can incorrectly remove
+an opening that fits beneath the peak.
+
+Architectural hatch patterns and illustrative truss webs do not supply a factory
+truss schedule. Use `truss_profile_envelope` only for a labeled coordination
+representation, with its missing shop data intact. Do not choose conventional
+rafters solely to fill an unspecified truss region. Where a drawing exists,
+cross-check section/dimension lines and door swings against actual boundaries;
+they can resemble ridges or partitions. Drawings remain optional project evidence.
+
 Use `stud.stock` when it is available in the installed engine. `Plane.roof` establishes elevations from slopes; `intersection` derives ridge/hip/valley lines; `offset` locates neighboring member faces. `cut_member` preserves each original rectangular stock frame while clipping plumb or compound ends and backing faces. Generic `cut_panel` cuts a local profile in any CadQuery plane frame, and `StockParts` registers those member results with their grouped purchase cuts. Use `stud.roof_geometry.cut_panel` when the source outline is an XY roof footprint. Read `docs/cadquery.md` for coordinate conventions and signatures. Older installed engines may need equivalent project-owned CadQuery cuts until upgraded.
 
 Keep roof selection and assembly policy in the recipe. The shared operations do not select a load path, stock sections, bearing seats, joint details, sheet subdivision or finishes. Register those physical parts, material demands and native interface checks in the owning project. Use the same planes for framing, deck and exterior finish datums.
