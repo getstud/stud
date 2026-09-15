@@ -188,12 +188,12 @@ def frame_profile_truss(model, profile, *, object_id, bottom, chord_section,
     with model.batch():
         for key,(shape,loc,blank),role in prepared:
             pid=object_id+'.'+key
-            model.part(pid,shape,location=loc,parent=object_id,material='factory.truss.assumed.timber',blank=blank,
-                       label='Assumed truss '+role.replace('_',' '),lineage={**assumptions,'role':role})
+            model.part(pid,shape,location=loc,parent=object_id,material='factory.truss.assumed',blank=blank,
+                       label='Assumed truss '+role.replace('_',' '),lineage={**assumptions,'role':role,'component_material':'timber'})
             model.requirement(pid+'.valid','solid_valid',[pid]);model.requirement(pid+'.stock','stock_fit',[pid]);parts.append(pid);timber.append(pid)
         for key,shape in plates:
             pid=object_id+'.'+key
-            model.part(pid,shape,parent=object_id,material='factory.truss.assumed.plate',color='#8d979d',label='Assumed truss connector plate',lineage=assumptions)
+            model.part(pid,shape,parent=object_id,material='factory.truss.assumed',color='#8d979d',label='Assumed truss connector plate',lineage={**assumptions,'role':'connector_plate','component_material':'steel'})
             model.requirement(pid+'.valid','solid_valid',[pid]);parts.append(pid)
     model.requirement(object_id+'.timber_clear','collision_free',timber)
     top_ids=[object_id+'.'+key for key,_,role in prepared if role=='top_chord']
