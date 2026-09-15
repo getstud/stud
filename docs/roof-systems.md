@@ -64,7 +64,11 @@ plan = plan_roof_members(roof, fields)  # no Model mutation
 ```
 
 `RafterField` accepts `direction=None` (steepest rise), and `edge_setback=0`
-(horizontal distance from patch edges). A level roof requires a direction.
+(horizontal distance from patch edges). Optional `station_bounds=(low, high)`
+limits member centerlines in world coordinates projected onto the unit vector
+perpendicular to `direction`; the stable spacing grid is unchanged. Use it for
+an explicit common-rafter extent, with separate overhang/edge framing. A level
+roof requires a direction.
 Each `RoofMember` retains its source face, endpoints, stock profile and oriented
 cuts. `cut()` returns a solid, placement and original stock blank. Compound end
 cuts include the finite domain boundaries and top plane.
@@ -106,6 +110,43 @@ members, plates, bearings, reactions and bracing. The envelope is not the final
 fabricated truss; do not treat its stroke volume as material quantity or its
 outline as structural verification. Supplied shop members can later replace the
 coordination representation under the project's retained truss identity.
+
+### Explicit assumed truss members
+
+When a user requests conceptual framing without shop specifications, use:
+
+```python
+from stud.trusses import frame_profile_truss
+
+# Explicit modeling assumptions, not a truss engineering schedule.
+truss = frame_profile_truss(
+    model, profile, object_id='roof.truss.1', bottom=96,
+    chord_section=(1.5, 5.5), web_section=(1.5, 3.5),
+    panel_length=72, bearing_insets=(12, 12), plate_size=(6, 8, .04),
+)
+```
+
+The continuous vertical `RoofSegment` profile controls the top chord. All
+sections, bearing insets, maximum panel length, bottom elevation and plate
+sizes are caller choices in model units. Chords and webs must have equal truss
+thickness. The operation coalesces collinear profile breaks, butts webs against
+chord faces, partitions shared web nodes and clips simple plate envelopes to
+the roof/ceiling outline. Each timber member retains its original stock frame.
+Native checks cover solids, stock, timber interference and web-to-chord contact.
+The result contains `parts`, `timber` and the source `profile`.
+
+The factory demand retains the assumptions and `status='unengineered model'`.
+It purchases one truss, without a separate sawn-lumber purchase schedule. The
+plates omit teeth and do not represent a selected connector design. This
+operation does not size members, solve forces, choose supports or add permanent
+bracing. Split disconnected profiles and differing roof-wing/ceiling systems
+before composition. Shallow hip-end strips require selected jack/overframing
+details rather than a truss forced into insufficient depth.
+
+`incident_miters(segments)` returns outward bisector planes at shared centerline
+endpoints. It partitions equal-width coplanar member junctions, including
+multiway nodes and collinear butts. It does not infer joints at crossing members,
+resolve through-member ownership, or establish a load-transfer detail.
 
 ## Roof-dependent walls
 

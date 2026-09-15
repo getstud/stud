@@ -48,9 +48,12 @@ For compound roof framing and roof-dependent walls, read installed
 `docs/roof-systems.md`. Use named `RoofFace` inputs and `layout_roofs` before
 generating members; overlapping components must not produce concealed duplicate
 framing. Reuse the resulting planes and profiles for wall caps and later roof
-surfaces. A manufacturer-truss callout without shop data warrants an explicitly
-labeled coordination outline, not invented web patterns, chord sizes or a lumber
-cut list. Keep uncertain geometric interfaces visible alongside structural gaps.
+surfaces. For missing truss shop data, use a coordination outline by default.
+If the user asks for an educated guess or complete conceptual framing, build
+physical assumed members and joints with `stud.trusses.frame_profile_truss`;
+retain the selected sections, spacing, bearing insets and plate assumptions in
+the factory-truss demand. Geometry checks do not establish truss capacity.
+Keep geometric interface findings separate from unresolved structural design.
 
 Before repeating a new or uncertain joint, author and check one representative instance with its mating parts, covering clearance, edge backing and original stock. Inspect its native findings and fabrication evidence, correct the shared definition, then repeat it. Reuse established details where applicable; this is a focused probe of an uncertain interface, not an extra gate for every part.
 
