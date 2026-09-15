@@ -103,7 +103,11 @@ conventional stock. Editing pitch or footprint should update these inputs and
 rerun their consumers, rather than require rewriting individual members.
 Use `roof_edges()` for finite shared joints; a roof-to-wall elevation step is
 not a ridge. Named plate faces can drive actual rafter seats with an explicit
-bearing-length requirement. Verify notch depth and remaining stock separately.
+bearing-length requirement. Derive eaves from the bearing faces and selected
+heel/seat buildup; tracing an eave independently can leave almost no bearing.
+Use deliberate station bounds for common rafters and separate gable-overhang
+framing. Resolve finite member ends at hips, valleys and subfascia before
+repeating the detail. Verify notch depth and remaining stock separately.
 
 Record roof-top, plate-top and ceiling datums separately. `roof_wall_limit`
 provides a conservative level cap; `frame_sloping_wall` handles a mono-slope or
@@ -113,9 +117,15 @@ A blanket level-height reduction loses gable volume and can incorrectly remove
 an opening that fits beneath the peak.
 
 Architectural hatch patterns and illustrative truss webs do not supply a factory
-truss schedule. Use `truss_profile_envelope` only for a labeled coordination
-representation, with its missing shop data intact. Do not choose conventional
-rafters solely to fill an unspecified truss region. Where a drawing exists,
+truss schedule. `truss_profile_envelope` supplies a labeled coordination
+representation when that meets the request. When the user explicitly asks for
+assumed framing, `frame_profile_truss` supplies physical chords, triangulated
+panels and connector-plate envelopes from explicit project choices. Retain one
+factory purchase per truss and the unengineered status; do not turn assumed
+members into a manufacturer lumber order. Group trusses by roof wing and ceiling
+datum. Hip-end jacks and overframing can extend beyond the end trusses; a thin
+eave strip is not a full-depth truss. Preserve occupied room volumes and check
+roof framing against wall plates, joists, rim boards and decks together. Where a drawing exists,
 cross-check section/dimension lines and door swings against actual boundaries;
 they can resemble ridges or partitions. Drawings remain optional project evidence.
 

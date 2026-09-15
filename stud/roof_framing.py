@@ -18,9 +18,14 @@ class RafterField:
     origin: tuple = (0,0)
     direction: tuple | None = None
     edge_setback: float = 0
+    station_bounds: tuple | None = None
 
     def __post_init__(self):
         from .framing import MemberProfile
+        if self.station_bounds is not None:
+            bounds=tuple(self.station_bounds)
+            if len(bounds)!=2 or not all(math.isfinite(v) for v in bounds) or bounds[0]>=bounds[1]:raise ValueError('Station bounds need an increasing pair of finite perpendicular coordinates.')
+            object.__setattr__(self,'station_bounds',bounds)
         object.__setattr__(self,'origin',tuple(self.origin))
         if self.direction is not None:object.__setattr__(self,'direction',tuple(self.direction))
         for pair in (self.origin, *((self.direction,) if self.direction is not None else ())):
@@ -81,6 +86,10 @@ def plan_roof_members(layout, fields):
             cuts=tuple(Plane((n[0]*d,n[1]*d,0),(*n,0)) for n,d in boundary_planes(poly))+(face.plane,)
             for station,segments in roof_stations(local,direction=direction,spacing=field.spacing,origin=field.origin):
                 for i,segment in enumerate(segments):
+                    if field.station_bounds is not None:
+                        d=math.hypot(*direction);v=(-direction[1]/d,direction[0]/d)
+                        coordinate=sum(a*b for a,b in zip(v,segment.start))
+                        if not field.station_bounds[0]-EPS<=coordinate<=field.station_bounds[1]+EPS:continue
                     if math.dist(segment.start,segment.end)<=field.profile.width:continue
                     result.append(RoofMember(f'{field.face}.p{patch_index}.station{station}.s{i}',field.face,
                                              segment.start,segment.end,field.profile,cuts))
