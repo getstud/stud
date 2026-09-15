@@ -16,14 +16,16 @@ evaluation of its members, wall caps and interfaces.
 
 ```python
 from stud.stock import Plane
-from stud.roof_layout import RoofFace, hip_roof_faces, layout_roofs
+from stud.roof_layout import RoofFace, hip_roof_faces, gable_roof_faces, layout_roofs
 
 # Fixture inputs, not construction specifications. Outline is at the eaves.
 main = hip_roof_faces('main', ((0, 0), (240, 0), (240, 144), (0, 144)),
                       eave_top=100, pitch=6/12)
 addition = RoofFace('addition', Plane.roof(origin=(180, 0, 105), slope=(0, .4)),
                     ((180, 0), (280, 0), (280, 96), (180, 96)))
-roof = layout_roofs((*main, addition))
+front = gable_roof_faces('front', (120, -24), (120, 80),
+                         half_span=48, eave_top=100, pitch=9/12)
+roof = layout_roofs((*main, addition, *front))
 profile = roof.section((0, 72), (280, 72))
 ```
 
@@ -34,6 +36,22 @@ the **minimum** of their inward-rising planes. `layout_roofs(faces)` resolves th
 original `faces` alongside visible `patches`. Coplanar overlaps have a deterministic
 owner, independent of input order. Adjacent convex pieces coalesce where possible.
 No member is generated merely because an underlying hidden plane exists.
+
+The upper envelope applies to roofs that physically intersect. A lower entry
+pediment or porch can remain beneath an upper-story eave at the same XY
+coordinates. Give that lower roof its own layout with its actual intersecting
+neighbors; frame each scope and check the resulting solids together. Putting
+every building level into one maximum-height envelope can erase a valid lower
+roof. Do not repair that by moving accepted walls or raising the lower roof.
+
+`gable_roof_faces(id, start, end, half_span=..., eave_top=..., pitch=...)`
+creates a symmetric gable around a horizontal ridge's XY endpoints. The
+endpoints and half-span include the selected overhangs. Stable `.left` and
+`.right` face names are relative to looking from start toward end, so rotated
+gables use the same operation. Ridge height is `eave_top + half_span * pitch`.
+Gable end-wall framing and bearings are separate consumers of these planes.
+Use distinct component pitches for a steep main roof and a shallower bay;
+changing one component must not silently change the others.
 
 `height_at(x, y)` returns `None` outside coverage. `section(start, end)` returns
 ordered `RoofSegment(face, start, end)` values with XYZ endpoints; missing regions
@@ -48,6 +66,15 @@ member axis; spacing is perpendicular to it. Keep the origin fixed for edits.
 for shared visible ridges, hips, valleys and slope breaks. It verifies agreement
 in elevation, so overlapping XY edges at a roof-to-wall step do not become a
 false ridge. Exterior eaves and bearing lines remain separate inputs.
+
+`roof_boundary_edges(layout)` returns exposed `eave`, `rake` and upper `step`
+edges, splitting partially adjacent boundaries and excluding internal seams.
+Their direction follows the owning face, with its interior to the left.
+An eave is horizontal; a rake slopes along the perimeter. A lower adjacent
+roof produces a step, which requires its own termination detail. These
+classifications do not choose fascia, lookouts, wall flashing or supports.
+Use the finite edges and selected framing detail instead of maintaining a
+separate, hardcoded list of gable rakes.
 
 ## Conventional members
 
@@ -172,6 +199,22 @@ engineer the opening, resolve adjoining-wall corner ownership, or supply valley,
 unequal-slope and multi-break cap joints. Retain those as project details.
 
 ## Verification
+
+Review the roof form before generating thousands of members. Check each
+named component's pitch, ridge direction, eave height and exposed gable ends.
+For example, `roof.section((72, -24), (168, -24))` in the fixture above must
+retain the front gable's two slopes and its 136-unit peak after composition;
+checking only its uncomposed faces would miss a gable hidden by another roof.
+Retain independently selected target coordinates/elevations as regression
+evidence; expected values calculated from the same erroneous form are weak
+checks. Partial coplanar boundaries and stepped roofs need specific fixtures.
+
+When drawings are available, reconcile roof plans, sections and elevations,
+record conflicts and the governing choice, then compare orthographic front,
+side and roof-plan views. Without drawings, use the authored roof-form intent
+and the user's accepted views. Missing truss engineering does not authorize
+changing the architectural form. Native solid, stock and contact checks do
+not establish elevation fidelity or construction readiness.
 
 Run `tests/test_roof_layout.py` for independent roof area/intersection, coplanar
 ownership, gap, parameter-change, original-blank, truss-representation and native

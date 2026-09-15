@@ -134,6 +134,31 @@ def hip_roof_faces(object_id, outline, *, eave_top, pitch):
     return tuple(faces)
 
 
+def gable_roof_faces(object_id, start, end, *, half_span, eave_top, pitch):
+    """Symmetric gable with a horizontal ridge from XY start to XY end.
+
+    Endpoints and half_span describe the roof perimeter, including any selected
+    overhangs. eave_top is top of framing, not wall top. Faces have stable
+    ``.left`` / ``.right`` IDs looking from start toward end. Pitch is rise/run;
+    each composed component owns its own pitch. This does not select bearings,
+    heels, end-wall framing or a structural system.
+    """
+    start,end=tuple(start),tuple(end)
+    if (len(start)!=2 or len(end)!=2 or
+        not all(math.isfinite(v) for v in (*start,*end,half_span,eave_top,pitch)) or
+        half_span<=0 or pitch<=0 or math.dist(start,end)<EPS):
+        raise ValueError('A gable needs distinct finite XY ridge endpoints, positive half-span and pitch, and a finite eave elevation.')
+    length=math.dist(start,end)
+    normal=(-(end[1]-start[1])/length,(end[0]-start[0])/length)
+    faces=[]
+    for side,sign in (('left',1),('right',-1)):
+        a=tuple(p+sign*half_span*n for p,n in zip(start,normal))
+        b=tuple(p+sign*half_span*n for p,n in zip(end,normal))
+        plane=Plane.roof(origin=(*a,eave_top),slope=tuple(-sign*pitch*n for n in normal))
+        faces.append(RoofFace(f'{object_id}.{side}',plane,(start,end,b,a)))
+    return tuple(faces)
+
+
 @dataclass(frozen=True)
 class RoofSegment:
     face: str
@@ -239,6 +264,56 @@ class RoofEdge:
     start: tuple
     end: tuple
     kind: str
+
+
+def roof_boundary_edges(layout):
+    """Exposed eave, rake and upper step edges of the visible roof envelope.
+
+    Split at adjacent patch boundaries before classifying. Internal seams are
+    excluded. A lower roof beside an edge makes it a ``step``, not an eave;
+    this is geometry evidence, not an inferred fascia or flashing detail.
+    Start/end order follows the owning counterclockwise patch, with roof
+    interior to the left. Rakes are sloping boundaries; this alone does not
+    establish a gable or a lookout support.
+    """
+    result={}
+    for face in layout.patches:
+        for a,b in zip(face.outline,face.outline[1:]+face.outline[:1]):
+            dx,dy=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dy)
+            cuts={0.,1.}
+            for other in layout.patches:
+                for n,d in boundary_planes(other.outline):
+                    den=n[0]*dx+n[1]*dy
+                    if abs(den)>EPS:
+                        t=(d-n[0]*a[0]-n[1]*a[1])/den
+                        if EPS<t<1-EPS:cuts.add(t)
+            stations=sorted(cuts)
+            pieces=[]
+            for lo,hi in zip(stations,stations[1:]):
+                if (hi-lo)*length<EPS*10:continue
+                t=(lo+hi)/2;mid=(a[0]+t*dx,a[1]+t*dy)
+                z=face.plane.height_at(*mid)
+                # Symbolic outward limit: membership on a boundary counts only
+                # when stepping outward enters (rather than leaves) that face.
+                outward=(dy/length,-dx/length);neighbors=[]
+                for other in layout.patches:
+                    if all(n[0]*mid[0]+n[1]*mid[1]<d-EPS or
+                           (n[0]*mid[0]+n[1]*mid[1]<=d+EPS and n[0]*outward[0]+n[1]*outward[1]<=EPS)
+                           for n,d in boundary_planes(other.outline)):
+                        neighbors.append(other.plane.height_at(*mid))
+                outside=max(neighbors) if neighbors else None
+                if outside is not None and outside>=z-EPS:continue
+                p=(a[0]+lo*dx,a[1]+lo*dy);q=(a[0]+hi*dx,a[1]+hi*dy)
+                p=(*p,face.plane.height_at(*p));q=(*q,face.plane.height_at(*q))
+                kind='step' if outside is not None else ('eave' if abs(p[2]-q[2])<EPS else 'rake')
+                if pieces and pieces[-1].kind==kind and math.dist(pieces[-1].end,p)<EPS:
+                    pieces[-1]=RoofEdge((face.id,),pieces[-1].start,q,kind)
+                else:pieces.append(RoofEdge((face.id,),p,q,kind))
+            for edge in pieces:
+                p,q=edge.start,edge.end
+                key=(face.id,tuple(tuple(round(v,7) for v in x) for x in (p,q)))
+                result[key]=edge
+    return tuple(result[k] for k in sorted(result))
 
 
 def roof_edges(layout):

@@ -54,6 +54,14 @@ physical assumed members and joints with `stud.trusses.frame_profile_truss`;
 retain the selected sections, spacing, bearing insets and plate assumptions in
 the factory-truss demand. Geometry checks do not establish truss capacity.
 Keep geometric interface findings separate from unresolved structural design.
+Check the composed roof form before detailed framing: retain each component's
+form, ridge direction, pitch and eave datum, and verify that intended exposed
+gables survive overlap clipping. Use `gable_roof_faces` for symmetric gables
+and `roof_boundary_edges` for exposed edge geometry. Compare orthographic
+elevations with the authored intent or supplied evidence; passing solid checks
+does not verify the roof silhouette. The roof reference explains how to
+reconcile conflicting views and distinguish architectural choices from assumed
+truss members.
 
 Before repeating a new or uncertain joint, author and check one representative instance with its mating parts, covering clearance, edge backing and original stock. Inspect its native findings and fabrication evidence, correct the shared definition, then repeat it. Reuse established details where applicable; this is a focused probe of an uncertain interface, not an extra gate for every part.
 

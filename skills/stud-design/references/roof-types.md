@@ -12,6 +12,37 @@ Derive one set of roof planes from these inputs. Use it for rafters, hips/valley
 
 When using a reference drawing, retain its source and distinguish the illustrated span, pitch and stock from this project's inputs. Recalculate geometry and member selection for the current project. For example, the user-supplied Shedplans drawing depicts an 8×12 roof at 38°; those lengths and joint dimensions are not defaults for a 12×16 roof at 6:12. Check tie function from its position and connection design rather than inheriting a drawing's label.
 
+Before detailed members, reconcile the named roof forms in plan and elevation.
+An applied entry gable, an upper cross-gable and a shallow bay are independent
+components even when they overlap a main hip. Preserve their individual
+pitches and ridge directions. `gable_roof_faces` provides two named planes;
+`layout_roofs` resolves their visible domains; `section` checks an intended
+gable end after composition; `roof_boundary_edges` supplies exposed eaves,
+rakes and steps for the selected edge detail. A gable completely concealed by
+another component is still absent from the resulting form.
+
+Compose roofs that actually intersect in the same envelope. Keep a lower porch
+or entry roof beneath an upper-story overhang in its own composition scope,
+including its real host roof. A global maximum across all levels would erase
+valid lower framing. Check the separate scopes' solids together for collisions
+and bearings. Likewise, terminate an added gable's ridge at its selected host
+framing; clipping roof planes alone does not fit a ridge board around trusses.
+
+Drawings are optional. With a drawing set, compare roof plan, relevant sections
+and front/side elevations; record any conflict and which view governs each
+feature. A simplified roof plan should not silently erase gables shown in an
+elevation. With no drawing, compare against the user's accepted form and named
+dimensions. Review true orthographic views before detailed framing, then
+inspect the final native geometry in those same views. Keep scanned height
+estimates distinct from dimensioned datums and finished roof surfaces distinct
+from top of framing.
+
+Permission to assume truss sections, webs and connector envelopes applies to
+that missing engineering information. It does not replace known architectural
+forms or pitches. Solid validity, stock fit and collision passes do not test
+architectural agreement; retain a few independent peak, end-profile and pitch
+checks in project-owned Python to catch those regressions.
+
 ## Gable
 
 **Form and framing:** Two planes meet along a ridge with triangular end walls. Establish ridge direction and whether pitches/bearing elevations are equal. Generate common rafter pairs, the selected ridge system, required ties or truss webs, and gable-end framing as separate physical members.

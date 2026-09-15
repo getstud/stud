@@ -4,12 +4,66 @@ import unittest
 from stud.cad import Model
 from stud.framing import MemberProfile
 from stud.roof_geometry import Plane
-from stud.roof_layout import RoofFace, hip_roof_faces, layout_roofs, roof_stations, roof_edges, _area
+from stud.roof_layout import RoofFace, hip_roof_faces, gable_roof_faces, layout_roofs, roof_stations, roof_edges, roof_boundary_edges, _area
 from stud.roof_framing import RafterField, plan_roof_members, roof_wall_limit, truss_profile_envelope, frame_sloping_wall, frame_roof
 from stud.wall_layout import WallLine, WallRun, WallOpening
 
 
 class RoofLayoutTests(unittest.TestCase):
+    def test_gable_orientation_profile_and_parameter_edit(self):
+        for end in ((0,160),(96,128)):
+            length=math.hypot(*end);n=(-end[1]/length,end[0]/length)
+            for pitch in (.5,.8):
+                faces=gable_roof_faces('gable',(0,0),end,half_span=60,eave_top=100,pitch=pitch)
+                roof=layout_roofs(faces)
+                self.assertEqual([f.id for f in faces],['gable.left','gable.right'])
+                self.assertAlmostEqual(sum(_area(f.outline) for f in roof.patches),120*length)
+                profile=roof.section(tuple(-60*v for v in n),tuple(60*v for v in n))
+                self.assertEqual(len(profile),2)
+                self.assertAlmostEqual(profile[0].start[2],100)
+                self.assertAlmostEqual(profile[0].end[2],100+60*pitch)
+                self.assertAlmostEqual(profile[-1].end[2],100)
+                boundary=roof_boundary_edges(roof)
+                self.assertEqual(sum(e.kind=='rake' for e in boundary),4)
+                self.assertEqual(sum(e.kind=='eave' for e in boundary),2)
+                self.assertEqual([e.kind for e in roof_edges(roof)],['ridge'])
+        for args in (dict(half_span=0),dict(pitch=float('nan')),dict(end=(0,0))):
+            kw=dict(start=(0,0),end=(0,100),half_span=60,eave_top=100,pitch=.5);kw.update(args)
+            with self.assertRaises(ValueError):gable_roof_faces('g',**kw)
+
+    def test_mixed_pitch_gable_preserves_visible_peak(self):
+        main=hip_roof_faces('main',((0,0),(240,0),(240,200),(0,200)),eave_top=100,pitch=.5)
+        gable=gable_roof_faces('front',(120,-24),(120,100),half_span=48,eave_top=100,pitch=.8)
+        roof=layout_roofs((*main,*gable))
+        self.assertEqual(roof,layout_roofs((*gable,*main)))
+        self.assertAlmostEqual(roof.section((72,-24),(168,-24))[0].end[2],138.4)
+        self.assertAlmostEqual(roof.height_at(120,100),150)
+        self.assertTrue(any(e.kind=='valley' for e in roof_edges(roof)))
+        self.assertFalse(any(e.kind=='step' for e in roof_boundary_edges(roof)))
+
+    def test_boundary_splits_partial_step_without_inventing_joint(self):
+        high=RoofFace('high',Plane.roof(origin=(0,0,100)),((0,0),(100,0),(100,100),(0,100)))
+        low=RoofFace('low',Plane.roof(origin=(0,0,80)),((100,20),(140,20),(140,80),(100,80)))
+        roof=layout_roofs((high,low));edges=roof_boundary_edges(roof)
+        steps=[e for e in edges if e.kind=='step']
+        self.assertEqual(len(steps),1)
+        self.assertAlmostEqual(math.dist(steps[0].start,steps[0].end),60)
+        self.assertEqual(steps[0].faces,('high',))
+        self.assertFalse(roof_edges(roof))
+        self.assertFalse(any(e.faces==('low',) and abs(e.start[0]-100)<1e-7 and abs(e.end[0]-100)<1e-7 for e in edges))
+
+    def test_forward_gable_coplanar_extension_removes_covered_rake(self):
+        main=gable_roof_faces('main',(120,0),(120,120),half_span=120,eave_top=100,pitch=.75)
+        forward=gable_roof_faces('forward',(180,-16),(180,16),half_span=60,eave_top=100,pitch=.75)
+        roof=layout_roofs((*main,*forward));edges=roof_boundary_edges(roof)
+        # The right slopes are coplanar. Their former shared line at y=0
+        # must not acquire a fly rafter/lookout or a roof-to-wall step.
+        self.assertFalse(any(abs(e.start[1])<1e-7 and abs(e.end[1])<1e-7 and
+                             min(e.start[0],e.end[0])>=180-1e-7 for e in edges))
+        front=[e for e in edges if abs(e.start[1]+16)<1e-7 and abs(e.end[1]+16)<1e-7]
+        self.assertEqual(len(front),2)
+        self.assertTrue(all(e.kind=='rake' for e in front))
+
     def test_hip_area_ridge_and_pitch_edit(self):
         outline=((0,0),(240,0),(240,144),(0,144))
         for pitch in (.5,.75):
