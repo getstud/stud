@@ -122,7 +122,9 @@ representation when that meets the request. When the user explicitly asks for
 assumed framing, `frame_profile_truss` supplies physical chords, triangulated
 panels and connector-plate envelopes from explicit project choices. Retain one
 factory purchase per truss and the unengineered status; do not turn assumed
-members into a manufacturer lumber order. Group trusses by roof wing and ceiling
+members into a manufacturer lumber order. Tie every component to that purchased
+product, retain timber/steel distinctions in its lineage, and run the fabrication
+audit as well as the native geometry checks. Group trusses by roof wing and ceiling
 datum. Hip-end jacks and overframing can extend beyond the end trusses; a thin
 eave strip is not a full-depth truss. Preserve occupied room volumes and check
 roof framing against wall plates, joists, rim boards and decks together. Where a drawing exists,

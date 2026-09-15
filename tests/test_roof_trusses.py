@@ -7,6 +7,7 @@ from stud.roof_framing import RafterField, plan_roof_members
 from stud.framing import MemberProfile
 from stud.stock import cut_member, Plane
 from stud.trusses import frame_profile_truss, incident_miters
+from stud.fabrication import audit_fabrication
 
 
 class TrussCompositionTests(unittest.TestCase):
@@ -29,6 +30,9 @@ class TrussCompositionTests(unittest.TestCase):
         self.assertEqual((demand['quantity'],demand['purchase_unit']),(1,'truss'))
         self.assertIsNone(demand['cuts'])
         self.assertEqual(demand['specification']['status'],'unengineered model')
+        self.assertEqual(audit_fabrication(dict(units=model.units,objects=list(model.objects.values()),
+            demands=list(model.demands.values()),connections=list(model.connections.values()))),[])
+        self.assertEqual({model.objects[p]['lineage']['component_material'] for p in result['parts']},{'timber','steel'})
 
     def test_hip_profile_and_pitch_change(self):
         for peak in (152,176):

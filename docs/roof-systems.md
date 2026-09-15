@@ -136,7 +136,9 @@ Native checks cover solids, stock, timber interference and web-to-chord contact.
 The result contains `parts`, `timber` and the source `profile`.
 
 The factory demand retains the assumptions and `status='unengineered model'`.
-It purchases one truss, without a separate sawn-lumber purchase schedule. The
+It purchases one truss, without a separate sawn-lumber purchase schedule. Every
+component uses that factory product as its material purchase identity; lineage
+records whether the component is timber or a steel connector plate. The
 plates omit teeth and do not represent a selected connector design. This
 operation does not size members, solve forces, choose supports or add permanent
 bracing. Split disconnected profiles and differing roof-wing/ceiling systems
