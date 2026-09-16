@@ -10,6 +10,43 @@ import {once} from 'node:events';
 import {createHash} from 'node:crypto';
 import {compareVersions} from './release-channel.mjs';
 
+export async function waitForUpdatedCli(version, expected, {
+ installers=()=>[], timeout=300000, pause=()=>new Promise(resolve=>setTimeout(resolve,500)),
+}={}) {
+ const deadline=Date.now()+timeout;
+ let current,installerLockObservations=0,installerProcessObservations=0;
+ do {
+   const active=installers();
+   // A CLI launch takes a shared runtime lock. Starting it before NSIS takes
+   // its exclusive lock can make the installer abort or display a modal alert.
+   if(active.length)installerProcessObservations++;
+   else {
+     current=version();
+     if(current.status!==0&&/being updated/.test(current.stderr||''))installerLockObservations++;
+     if(current.status===0&&current.stdout.trim()===expected)
+       return {installerLockObservations,installerProcessObservations};
+   }
+   assert.ok(Date.now()<deadline,`Updated CLI did not become ready: ${JSON.stringify({installers:active,status:current?.status,stdout:current?.stdout,stderr:current?.stderr,error:current?.error?.message})}`);
+   await pause();
+ } while(true);
+}
+
+function windowsInstallers(directory,env) {
+ const powershell=path.join(env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe');
+ const script=`$ErrorActionPreference = 'Stop'
+ $active = @(Get-CimInstance Win32_Process | Where-Object {
+   $_.Name -ne 'powershell.exe' -and $_.CommandLine -and
+   $_.CommandLine.IndexOf($env:STUD_PROBE_INSTALL_ARGUMENT, [StringComparison]::OrdinalIgnoreCase) -ge 0 -and
+   $_.CommandLine -match '(^|\\s)/UPDATE(\\s|$)'
+ } | Select-Object ProcessId, Name, CommandLine)
+ ConvertTo-Json -InputObject $active -Compress`;
+ const result=spawnSync(powershell,['-NoProfile','-NonInteractive','-Command',script],{
+   env:{...env,STUD_PROBE_INSTALL_ARGUMENT:`/D=${directory}`},encoding:'utf8',timeout:20000,
+ });
+ assert.equal(result.status,0,result.error?.message||result.stderr);
+ return JSON.parse(result.stdout);
+}
+
 export async function installSignedCandidate(configPath,env) {
  const config=JSON.parse(await fs.readFile(configPath,'utf8'));
  const root=await fs.realpath(config.root),executable=await fs.realpath(config.executable);
@@ -50,20 +87,15 @@ export async function installSignedCandidate(configPath,env) {
    finally {clearTimeout(timeout);}
    const verified=JSON.parse(await fs.readFile(path.join(root,'verified-update.json'),'utf8'));
    assert.equal(verified.signature_verified,true);assert.equal(verified.version,config.version);assert.equal(downloads,1);
-   const deadline=Date.now()+300000;
-   let current,installerLockObservations=0;
-   do {
-     current=version();
-     if(current.status!==0&&/being updated/.test(current.stderr||''))installerLockObservations++;
-     if(current.status===0&&current.stdout.trim()===`stud ${config.version}`)break;
-     assert.ok(Date.now()<deadline,`Updated CLI did not become ready: ${current.stderr}`);
-     await new Promise(resolve=>setTimeout(resolve,500));
-   } while(true);
+   const {installerLockObservations,installerProcessObservations}=await waitForUpdatedCli(version,`stud ${config.version}`,{
+     installers:process.platform==='win32'?()=>windowsInstallers(path.dirname(config.executable),env):()=>[],
+   });
    console.log(`Real signed update installed ${config.previous_version} → ${config.version}.`);
    const payloadHash=createHash('sha256');
    for await(const chunk of createReadStream(config.payload))payloadHash.update(chunk);
    return {cli,previous_version:config.previous_version,version:config.version,signature_verified:true,payload_bytes:payload.size,
      payload_sha256:payloadHash.digest('hex'),installer_lock_observations:installerLockObservations,
+     installer_process_observations:installerProcessObservations,
      signing_key_kind:config.signing_key_kind,public_key_sha256:createHash('sha256').update(config.pubkey).digest('hex')};
  } finally {
    if(child&&child.exitCode===null)child.kill();
